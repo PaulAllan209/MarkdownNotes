@@ -83,10 +83,6 @@ namespace markdown_note_taking_app.Service
             return _mapper.Map<MarkdownFileDto>(markdownFileEntity);
         }
 
-        public Task<IEnumerable<MarkdownFileDto>> GetMarkdownFileByIdsAsync(IEnumerable<Guid> fileIds, bool trackChanges)
-        {
-            throw new NotImplementedException();
-        }
         public async Task<MarkdownFile> GetMarkdownFileAndCheckIfItExistsAsync(Guid fileId, bool trackChanges)
         {
             var markDownFile = await _repository.MarkDown.GetMarkdownFileAsync(fileId, trackChanges);
