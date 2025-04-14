@@ -1,4 +1,6 @@
 using markdown_note_taking_app.Extensions;
+using markdown_note_taking_app.Interfaces.ServiceInterface;
+using markdown_note_taking_app.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using NLog;
@@ -10,6 +12,9 @@ builder.Services.ConfigureCors();
 
 //IIS integration for app deployment
 builder.Services.ConfigureIISIntegration();
+
+//Grammar checking service
+builder.Services.AddScoped<IGrammarCheckService, GrammarCheckService>();
 
 //Repository and Service manager
 builder.Services.ConfigureRepositoryManager();

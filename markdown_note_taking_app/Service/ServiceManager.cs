@@ -13,11 +13,12 @@ namespace markdown_note_taking_app.Service
 
         public ServiceManager(
             IRepositoryManager repositoryManager,
+            IGrammarCheckService grammarCheckService,
             ILoggerManager logger,
             IMapper mapper)
         {
-            _markdownService = new Lazy<IMarkdownService>(() => new MarkdownService(repositoryManager, logger, mapper));
-            _grammarCheckService = new Lazy<IGrammarCheckService>(() => new GrammarCheckService());
+            _markdownService = new Lazy<IMarkdownService>(() => new MarkdownService(repositoryManager, grammarCheckService, logger, mapper));
+            _grammarCheckService = new Lazy<IGrammarCheckService>(() => grammarCheckService);
         }
         public IMarkdownService MarkdownService => _markdownService.Value;
         public IGrammarCheckService GrammarCheckService => _grammarCheckService.Value;

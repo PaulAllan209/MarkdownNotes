@@ -38,34 +38,8 @@ namespace markdown_note_taking_app.Controllers
         [HttpGet("{fileId:guid}/html")]
         public async Task<IActionResult> GetMarkdownFileAsHtml(Guid fileId, [FromQuery] bool checkGrammar = false)
         {
-            if (checkGrammar)
-            {
-                //Get markdownfile content
-                var markdownFileDto = await _serviceManager.MarkdownService.GetMarkdownFileAsync(fileId, false);
-                string markdownFileContent = markdownFileDto.FileContent;
-
-                //check grammar
-                string markdownFileContentChecked = await _serviceManager.GrammarCheckService.CheckGrammarMarkdownAsync(markdownFileContent);
-                var markdownFileDtoChecked = markdownFileDto with { FileContent = markdownFileContentChecked };
-
-                //convert to html
-                var markdown_html_dto = _serviceManager.MarkdownService.ConvertMarkdownFileDtoToHtml(markdownFileDtoChecked);
-
-                return Ok(markdown_html_dto);
-
-            }
-            else
-            {
-                var markdownFileConvertToHtmlDto = await _serviceManager.MarkdownService.GetMarkdownFileAsHtmlAsync(fileId, trackChanges: false);
-                return Ok(markdownFileConvertToHtmlDto);
-            }
-            
-        }
-
-        [HttpGet("{fileId:guid}/html/grammar")]
-        public async Task<IActionResult> GetMarkdownFileAsHtmlAndGrammarChecked(Guid fileId)
-        {
-            return Ok();
+            var markdownFileConvertToHtmlDto = await _serviceManager.MarkdownService.GetMarkdownFileAsHtmlAsync(fileId, checkGrammar, trackChanges: false);
+            return Ok(markdownFileConvertToHtmlDto);
         }
 
         [HttpPost]
