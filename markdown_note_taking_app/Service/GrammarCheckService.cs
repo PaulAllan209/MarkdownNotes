@@ -52,8 +52,11 @@ namespace markdown_note_taking_app.Service
                 })
             };
 
+
             var client = new HttpClient();
             var response = await client.SendAsync(request);
+
+
             var json = await response.Content.ReadAsStringAsync();
 
 
