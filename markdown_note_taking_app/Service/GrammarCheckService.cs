@@ -13,6 +13,12 @@ namespace markdown_note_taking_app.Service
 {
     public class GrammarCheckService : IGrammarCheckService
     {
+        private readonly IHttpClientServiceImplementation _httpFactory;
+        public GrammarCheckService(IHttpClientServiceImplementation httpFactory)
+        {
+            _httpFactory = httpFactory;
+        }
+
         public async Task<string> CheckGrammarMarkdownAsync(string markdownContent)
         {
             //Check the grammar in the markdown content
@@ -75,6 +81,11 @@ namespace markdown_note_taking_app.Service
             }
 
             return content;
+        }
+
+        private async Task<String> ProcessMarkdownString(string markdownContent)
+        {
+            throw new NotImplementedException();
         }
     }
 }
