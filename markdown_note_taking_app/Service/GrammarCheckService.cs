@@ -49,24 +49,26 @@ namespace markdown_note_taking_app.Service
 
         public async Task<string> CheckGrammarFromApiAsync(string content)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.languagetool.org/v2/check")
-            {
-                Content = new FormUrlEncodedContent(new Dictionary<string, string>
-                {
-                    { "text", content },
-                    { "language", "en-US" }
-                })
-            };
+            //var request = new HttpRequestMessage(HttpMethod.Post, "https://api.languagetool.org/v2/check")
+            //{
+            //    Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            //    {
+            //        { "text", content },
+            //        { "language", "en-US" }
+            //    })
+            //};
 
 
-            var client = new HttpClient();
-            var response = await client.SendAsync(request);
+            //var client = new HttpClient();
+            //var response = await client.SendAsync(request);
 
 
-            var json = await response.Content.ReadAsStringAsync();
+            //var json = await response.Content.ReadAsStringAsync();
 
 
             //Languagetool api sends a lot of objects inside the json so we need to clean it up
+
+            var json = await _httpFactory.MakeHttpRequestFromLanguageToolApi(content);
             var result = JsonConvert.DeserializeObject<LanguageToolResponse>(json);
 
             foreach (var match in result.Matches.OrderByDescending(m => m.Offset))
