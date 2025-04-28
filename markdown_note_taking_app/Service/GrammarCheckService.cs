@@ -27,7 +27,7 @@ namespace markdown_note_taking_app.Service
 
         public async Task<string> CheckGrammarFromApiAsync(string content)
         {
-            var json = await _httpFactory.MakeHttpRequestFromLanguageToolApi(content);
+            var json = await _httpFactory.MakeHttpRequestFromLanguageToolApiAsync(content);
             var result = JsonConvert.DeserializeObject<LanguageToolResponse>(json);
 
             foreach (var match in result.Matches.OrderByDescending(m => m.Offset))

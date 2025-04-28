@@ -2,6 +2,6 @@
 {
     public interface IHttpClientServiceImplementation
     {
-        public Task<string> MakeHttpRequestFromLanguageToolApi(string content);
+        public Task<string> MakeHttpRequestFromLanguageToolApiAsync(string content);
     }
 }

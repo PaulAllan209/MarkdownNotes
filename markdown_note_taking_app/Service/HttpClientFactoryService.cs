@@ -15,7 +15,7 @@ namespace markdown_note_taking_app.Service
             _logger = logger;
         }
 
-        public async Task<string> MakeHttpRequestFromLanguageToolApi(string content)
+        public async Task<string> MakeHttpRequestFromLanguageToolApiAsync(string content)
         {
             var formContent = new FormUrlEncodedContent(new Dictionary<string, string>
             {
