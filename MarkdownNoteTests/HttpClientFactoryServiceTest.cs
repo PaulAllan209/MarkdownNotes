@@ -24,7 +24,7 @@ public class HttpClientFactoryServiceTest
         string input = "He dont has no idear what time it is.";
         string expected_output = "He don't has no idea what time it is.";
 
-        string output = await HttpClientFactoryService.MakeHttpRequestFromLanguageToolApi(input);
+        string output = await HttpClientFactoryService.MakeHttpRequestFromLanguageToolApiAsync(input);
 
         //if (output != expected_output)
         //    throw new Exception();
