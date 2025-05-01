@@ -16,6 +16,9 @@ builder.Services.ConfigureIISIntegration();
 //Grammar checking service
 builder.Services.AddScoped<IGrammarCheckService, GrammarCheckService>();
 
+//HttpClient factory
+builder.Services.ConfigureHttpClientService();
+
 //Repository and Service manager
 builder.Services.ConfigureRepositoryManager();
 builder.Services.ConfigureServiceManager();
@@ -59,6 +62,8 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.All
 });
+
+app.UseCors("CorsPolicy");
 
 app.UseAuthorization();
 

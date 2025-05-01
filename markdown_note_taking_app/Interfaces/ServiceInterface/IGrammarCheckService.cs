@@ -4,5 +4,6 @@
     {
         Task<string> CheckGrammarMarkdownAsync(string markdownContent);
         Task<string> CheckGrammarFromApiAsync(string content);
+        Task<string> ProcessMarkdownStringAsync(string markdownContent);
     }
 }

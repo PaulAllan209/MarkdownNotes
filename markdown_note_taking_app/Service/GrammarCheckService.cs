@@ -8,56 +8,26 @@ using Newtonsoft.Json;
 using static System.Net.Mime.MediaTypeNames;
 using Markdig.Renderers.Normalize;
 using Markdig.Helpers;
+using System.Text;
 
 namespace markdown_note_taking_app.Service
 {
     public class GrammarCheckService : IGrammarCheckService
     {
+        private readonly IHttpClientServiceImplementation _httpFactory;
+        public GrammarCheckService(IHttpClientServiceImplementation httpFactory)
+        {
+            _httpFactory = httpFactory;
+        }
+
         public async Task<string> CheckGrammarMarkdownAsync(string markdownContent)
         {
-            //Check the grammar in the markdown content
-            var document = Markdown.Parse(markdownContent);
-            var document_checked = await ProcessDocumentAsync(document);
-
-            // Convert the Markdown object to string
-            var string_writer = new StringWriter();
-            var writer = new NormalizeRenderer(string_writer);
-            writer.Render(document_checked);
-
-            return string_writer.ToString();
-        }
-        
-        private async Task<MarkdownObject> ProcessDocumentAsync(MarkdownObject markdownObject)
-        {
-            // Traverse through the nodes inside the markdown object and check the grammer in each content
-            foreach (var literal in markdownObject.Descendants<LiteralInline>())
-            {
-                string orig_text = literal.Content.ToString();
-                string modified_text = await CheckGrammarFromApiAsync(orig_text);
-
-                literal.Content = new StringSlice(modified_text);
-            }
-
-            return markdownObject;
+            return await ProcessMarkdownStringAsync(markdownContent);
         }
 
         public async Task<string> CheckGrammarFromApiAsync(string content)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.languagetool.org/v2/check")
-            {
-                Content = new FormUrlEncodedContent(new Dictionary<string, string>
-                {
-                    { "text", content },
-                    { "language", "en-US" }
-                })
-            };
-
-            var client = new HttpClient();
-            var response = await client.SendAsync(request);
-            var json = await response.Content.ReadAsStringAsync();
-
-
-            //Languagetool api sends a lot of objects inside the json so we need to clean it up
+            var json = await _httpFactory.MakeHttpRequestFromLanguageToolApiAsync(content);
             var result = JsonConvert.DeserializeObject<LanguageToolResponse>(json);
 
             foreach (var match in result.Matches.OrderByDescending(m => m.Offset))
@@ -70,8 +40,58 @@ namespace markdown_note_taking_app.Service
                            content.Substring(match.Offset + match.Length);
                 }
             }
-
             return content;
+        }
+
+        public async Task<string> ProcessMarkdownStringAsync(string markdownContent)
+        {
+            // Step 1: Parse the markdown content into a MarkdownDocument
+            var document = Markdown.Parse(markdownContent);
+
+            // Step 2: Extract plain text from the MarkdownDocument
+            var plainText = ExtractPlainText(document);
+
+            // Step 3: Check grammar of the plain text
+            var correctedText = await CheckGrammarFromApiAsync(plainText);
+
+            // Step 4: Reapply the corrected text back into the MarkdownDocument
+            ReapplyTextToMarkdown(document, correctedText);
+
+            // Step 5: Render the updated MarkdownDocument back to a string
+            var stringWriter = new StringWriter();
+            var writer = new NormalizeRenderer(stringWriter);
+            writer.Render(document);
+
+            return stringWriter.ToString();
+        }
+
+        private string ExtractPlainText(MarkdownObject markdownObject)
+        {
+            var plainTextBuilder = new StringBuilder();
+
+            foreach (var literal in markdownObject.Descendants<LiteralInline>())
+            {
+                plainTextBuilder.Append(literal.Content.ToString());
+                plainTextBuilder.Append("---"); // Add space to separate text
+            }
+
+            return plainTextBuilder.ToString().Trim();
+        }
+
+        private void ReapplyTextToMarkdown(MarkdownObject markdownObject, string correctedText)
+        {
+            //function overloading for the split method to accept this string as the separator
+            string[] separators = { "---" };
+            var textQueue = new Queue<string>(correctedText.Split(separators, StringSplitOptions.None));
+
+            foreach (var literal in markdownObject.Descendants<LiteralInline>())
+            {
+                if (textQueue.Count == 0) break;
+
+                // Replace the content of each literal with corrected text
+                literal.Content = new StringSlice(textQueue.Dequeue());
+
+            }
         }
     }
 }

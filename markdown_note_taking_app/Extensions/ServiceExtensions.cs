@@ -6,6 +6,7 @@ using markdown_note_taking_app.Interfaces.ServiceInterface;
 using markdown_note_taking_app.Repositories;
 using markdown_note_taking_app.Service;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace markdown_note_taking_app.Extensions
 {
@@ -30,6 +31,12 @@ namespace markdown_note_taking_app.Extensions
 
         public static void ConfigureServiceManager(this IServiceCollection services) =>
             services.AddScoped<IServiceManager, ServiceManager>();
+
+        public static void ConfigureHttpClientService(this IServiceCollection services)
+        {
+            services.AddScoped<IHttpClientServiceImplementation, HttpClientFactoryService>();
+            services.AddHttpClient();
+        }
 
         public static void ConfigureSqlContext(this IServiceCollection services, IConfiguration configuration) =>
             services.AddDbContext<DataContext>(opts => opts.UseSqlServer(configuration.GetConnectionString("sqlConnection")));

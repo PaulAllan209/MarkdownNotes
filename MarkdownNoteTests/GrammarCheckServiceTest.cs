@@ -1,4 +1,6 @@
-﻿using markdown_note_taking_app.Service;
+﻿using Contracts;
+using markdown_note_taking_app.Interfaces.ServiceInterface;
+using markdown_note_taking_app.Service;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -8,15 +10,25 @@ namespace markdown_note_taking_app.Tests
     {
         private readonly ITestOutputHelper _output;
 
+        //Tests dependencies
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientServiceImplementation _httpClientFactoryService;
+        private readonly ILoggerManager _logger;
+
+
         public GrammarCheckServiceTest(ITestOutputHelper output)
         {
             _output = output;
+
+            //Tests dependencies
+            _httpClientFactory = new DefaultHttpClientFactory();
+            _httpClientFactoryService = new HttpClientFactoryService(_httpClientFactory, _logger);
         }
 
         [Fact]
         public async Task CheckGrammarMarkdownTest()
         {
-            var grammar_check_service = new GrammarCheckService();
+            var grammar_check_service = new GrammarCheckService(_httpClientFactoryService);
 
             var input = "***He dont has no idear what time it is.***\r\n\r\n**She go to the libary every days to studdy.**\r\n\r\n*Their going too the mall becuz its funner then staying home.*\r\n\r\n## I can’t waits to eats the delishus cake you made.\r\n\r\n - The dog barked loudley at the man wich was walking passed.\r\n\r\n";
             var result = await grammar_check_service.CheckGrammarMarkdownAsync(input);
@@ -39,7 +51,7 @@ namespace markdown_note_taking_app.Tests
         [Fact]
         public async Task CheckGrammarFromApiTest()
         {
-            var grammar_check_service = new GrammarCheckService();
+            var grammar_check_service = new GrammarCheckService(_httpClientFactoryService);
 
             var input = "This is an exampel sentence";
             var input2 = "She dont knows how to writting a letter correctly.";
@@ -60,6 +72,18 @@ namespace markdown_note_taking_app.Tests
                 _output.WriteLine(result2);
                 throw new Exception();
             }
-        } 
+        }
+
+        //Helper class for the tests
+        private class DefaultHttpClientFactory : IHttpClientFactory
+        {
+            public HttpClient CreateClient(string name = "")
+            {
+                return new HttpClient();
+            }
+        }
+
+
+
     }
 }
