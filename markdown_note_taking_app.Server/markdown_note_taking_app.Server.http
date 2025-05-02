@@ -1,0 +1,6 @@
+@markdown_note_taking_app.Server_HostAddress = http://localhost:5028
+
+GET {{markdown_note_taking_app.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
