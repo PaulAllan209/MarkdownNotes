@@ -1,10 +1,10 @@
-﻿using Contracts;
-using markdown_note_taking_app.Interfaces.ServiceInterface;
-using markdown_note_taking_app.Service;
+﻿using LoggerService.Interfaces;
+using markdown_note_taking_app.Server.Interfaces.ServiceInterface;
+using markdown_note_taking_app.Server.Service;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace markdown_note_taking_app.Tests
+namespace markdown_note_taking_app.Server.Tests
 {
     public class GrammarCheckServiceTest
     {

@@ -1,7 +1,7 @@
 ﻿namespace MarkdownNoteTests;
 using Xunit;
 using Xunit.Abstractions;
-using markdown_note_taking_app.Service;
+using markdown_note_taking_app.Server.Service;
 
 
 public class HttpClientFactoryServiceTest
