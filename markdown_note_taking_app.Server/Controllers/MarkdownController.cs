@@ -3,6 +3,8 @@ using Entities.Models;
 using markdown_note_taking_app.Server.Dto;
 using markdown_note_taking_app.Server.Interfaces.ServiceInterface;
 using Microsoft.AspNetCore.Mvc;
+using Azure;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace markdown_note_taking_app.Server.Controllers
 {
@@ -48,6 +50,22 @@ namespace markdown_note_taking_app.Server.Controllers
             var MarkdownFileDto = await _serviceManager.MarkdownService.CreateMarkdownFileAsync(markDownFile);
 
             return Ok(MarkdownFileDto);
+        }
+
+        [HttpPatch("{fileId:guid}")]
+        public async Task<IActionResult> PatchMarkdownFile(Guid fileId, [FromBody] JsonPatchDocument<MarkdownFileDto> patchDoc)
+        {
+            if (patchDoc is null)
+            {
+                return BadRequest("patchDoc object sent from client is null.");
+            }
+            var markdownFile = await _serviceManager.MarkdownService.GetMarkdownForPatchAsync(fileId, TrackChanges: true);
+
+            patchDoc.ApplyTo(markdownFile.markdownToPatch);
+
+            await _serviceManager.MarkdownService.SaveChangesForPatchAsync(markdownFile.markdownToPatch, markdownFile.markdownFileEntity);
+
+            return NoContent();
         }
 
         [HttpDelete("{fileId:guid}")]

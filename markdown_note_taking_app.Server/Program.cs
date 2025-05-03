@@ -3,6 +3,9 @@ using markdown_note_taking_app.Server.Interfaces.ServiceInterface;
 using markdown_note_taking_app.Server.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Extensions.Options;
 using NLog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,7 +40,7 @@ builder.Services.ConfigureSqlContext(builder.Configuration);
 // Add services to the container.
 builder.Services.ConfigureLoggerService();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

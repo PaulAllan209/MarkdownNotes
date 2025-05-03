@@ -146,6 +146,23 @@ namespace markdown_note_taking_app.Server.Service
             return markdown_html_dto;
         }
 
+        public async Task<(MarkdownFileDto markdownToPatch, MarkdownFile markdownFileEntity)> GetMarkdownForPatchAsync(Guid fileId, bool TrackChanges)
+        {
+            var Markdown = await _repository.MarkDown.GetMarkdownFileAsync(fileId, TrackChanges);
+            if (Markdown is null)
+                throw new Exception("Markdown file not found.");
+
+            var markdownToPatch = _mapper.Map<MarkdownFileDto>(Markdown);
+
+            return (markdownToPatch, Markdown);
+        }
+
+        public async Task SaveChangesForPatchAsync(MarkdownFileDto markdownToPatch, MarkdownFile markdownFileEntity)
+        {
+            _mapper.Map(markdownToPatch, markdownFileEntity);
+            await _repository.SaveAsync();
+        }
+
         private void ValidateMarkdownFile(MarkdownFileUploadDto file)
         {
             string fileName = file.MarkdownFile.FileName;
