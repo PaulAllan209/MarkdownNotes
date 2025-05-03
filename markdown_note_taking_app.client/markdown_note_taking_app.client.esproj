@@ -8,8 +8,10 @@
     <!-- Folder where production build objects will be placed -->
     <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
   </PropertyGroup>
-
-    <Target Name="EnsureBuildBeforeDeploy" BeforeTargets="Deploy">
-	    <Exec Command="npm run build" WorkingDirectory="$(MSBuildProjectDirectory)" />
-    </Target>
+  <ItemGroup>
+    <Folder Include="assets\button_icons\" />
+  </ItemGroup>
+  <Target Name="EnsureBuildBeforeDeploy" BeforeTargets="Deploy">
+    <Exec Command="npm run build" WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
 </Project>

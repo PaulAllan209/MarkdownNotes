@@ -1,0 +1,22 @@
+.side-bar {
+    background-color:antiquewhite;
+    width: 200px;
+    height: 100vh;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    margin:0px;
+    padding: 5px;
+    overflow-y: auto;
+}
+
+.side-bar-icons {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    margin: 4px;
+}
+
+.side-bar-buttons{
+    margin: 4px;
+}

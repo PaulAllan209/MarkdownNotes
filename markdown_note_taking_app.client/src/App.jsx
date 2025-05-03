@@ -1,8 +1,11 @@
 import './App.css';
+import SideBar from './SideBar';
 
 function App() {
     return (
-        <h1>wowmagic</h1>
+        <>
+        <SideBar />
+        </>
     );
     
     
