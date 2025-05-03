@@ -1,10 +1,10 @@
-﻿using Contracts;
-using markdown_note_taking_app.Interfaces.ServiceInterface;
-using markdown_note_taking_app.Service;
+﻿using LoggerService.Interfaces;
+using markdown_note_taking_app.Server.Interfaces.ServiceInterface;
+using markdown_note_taking_app.Server.Service;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace markdown_note_taking_app.Tests
+namespace markdown_note_taking_app.Server.Tests
 {
     public class GrammarCheckServiceTest
     {
@@ -30,22 +30,11 @@ namespace markdown_note_taking_app.Tests
         {
             var grammar_check_service = new GrammarCheckService(_httpClientFactoryService);
 
-            var input = "***He dont has no idear what time it is.***\r\n\r\n**She go to the libary every days to studdy.**\r\n\r\n*Their going too the mall becuz its funner then staying home.*\r\n\r\n## I can’t waits to eats the delishus cake you made.\r\n\r\n - The dog barked loudley at the man wich was walking passed.\r\n\r\n";
+            var input = "***He dont has no idear what time it is.***\r\n\r\n**She go to the libary every days to studdy.**\r\n\r\n*They're going too the mall becuz it's funner then staying home.*\r\n\r\n## I can’t waits to eats the delishus cake you made.\r\n\r\n - The dog barked loudley at the man wich was walking passed.\r\n\r\n";
             var result = await grammar_check_service.CheckGrammarMarkdownAsync(input);
-            string expected_result = "***He don't has no idea what time it is.***\n\n**She goes to the library every day to study.**\n\n*Their going to the mall because its funner then staying home.*\n\n## I can’t wait to eat the delights cake you made.\n\n- The dog barked loudly at the man with was walking past.";
-            
-            if (result != expected_result)
-            {
-                _output.WriteLine("This is the input:");
-                _output.WriteLine(input);
+            string expected_result = "***He don't has no idea what time it is.***\n\n**She goes to the library every day to study.**\n\n*They're going to the mall because it's funner then staying home.*\n\n## I can’t wait to eat the delights cake you made.\n\n- The dog barked loudly at the man with was walking past.";
 
-                _output.WriteLine("This is the output:");
-                _output.WriteLine(result);
-
-                _output.WriteLine("This is the expected output:");
-                _output.WriteLine(expected_result);
-                throw new Exception();
-            }
+            Assert.Equal(expected_result, result);
         }
 
         [Fact]

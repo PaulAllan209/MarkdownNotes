@@ -17,7 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\markdown_note_taking_app\markdown_note_taking_app.csproj" />
+    <ProjectReference Include="..\LoggerService\LoggerService.csproj" />
+    <ProjectReference Include="..\markdown_note_taking_app.Server\markdown_note_taking_app.Server.csproj" />
   </ItemGroup>
 
   <ItemGroup>

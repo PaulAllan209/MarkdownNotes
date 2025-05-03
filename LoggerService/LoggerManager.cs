@@ -1,4 +1,4 @@
-﻿using Contracts;
+﻿using LoggerService.Interfaces;
 using NLog;
 using System;
 using System.Collections.Generic;
