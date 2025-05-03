@@ -20,3 +20,13 @@
 .side-bar-buttons{
     margin: 4px;
 }
+
+#file-list ul{
+    list-style-type: none;
+    left: 10px;
+}
+
+#file-list li {
+    margin: 5px;
+    left: 10px;
+}
