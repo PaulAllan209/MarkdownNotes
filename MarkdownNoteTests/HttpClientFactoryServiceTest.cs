@@ -22,14 +22,13 @@ public class HttpClientFactoryServiceTest
         var HttpClientFactoryService = new HttpClientFactoryService(httpClientFactory, logger);
 
         string input = "He dont has no idear what time it is.";
-        string expected_output = "He don't has no idea what time it is.";
+        string expected_output = "He don't has no idea what time it is."; // for debugging purposes
 
         string output = await HttpClientFactoryService.MakeHttpRequestFromLanguageToolApiAsync(input);
 
-        //if (output != expected_output)
-        //    throw new Exception();
+        Assert.NotNull(output);
 
-        _output.WriteLine(output);
+        _output.WriteLine($"API Output: {output}");
     }
 
     //Helper class for the request
