@@ -362,7 +362,8 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-internal_logs/
+markdown_note_taking_app.Server/internal_logs/
+markdown_note_taking_app.client/dist/
 logs/
 
 sample_markdown_files/
