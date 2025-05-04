@@ -27,7 +27,7 @@ body{
     width: 50px;
     border: none;
     background-color: antiquewhite;
-    border-radius: 0px;
+    border-radius: 5px;
 }
 
 .side-bar-buttons:hover {
@@ -38,6 +38,12 @@ body{
     background-color: #a59a8d;
 }
 
+.new-file-input {
+    border: none;
+    background-color: transparent;
+    outline: none;
+}
+
 
 #file-list ul{
     list-style-type: none;
@@ -46,9 +52,8 @@ body{
 }
 
 #file-list li {
-    margin-top: 7px;
     margin-left: 0px;
-    padding: 5px;
+    padding: 10px;
     padding-left: 12px;
     overflow: hidden;
     text-overflow: ellipsis;

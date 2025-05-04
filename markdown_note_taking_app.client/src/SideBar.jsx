@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './SideBar.css'
 function SideBar() {
-    const [fileNames, setFileNames] = useState([]);
+    const [files, setFiles] = useState([]);
+    const [fileName, setFileName] = useState();
     const [selectedFile, setSelectedFile] = useState(null);
+    const [isCreatingFile, setIsCreatingFile] = useState(false);
     const fileInputRef = useRef(null);
+    const newFileInputRef = useRef(null);
 
     // Getting the list of files
     useEffect(() => {
@@ -11,12 +14,52 @@ function SideBar() {
             .then(response => response.json())
             .then(data => {
                 const fileNames = data.map(file => file.title);
-                setFileNames(fileNames);
+                setFiles(fileNames);
             })
             .catch(error => {
                 console.error('Error fetching filename data:', error);
             })
     }, []);
+
+    useEffect(() => {
+        if (isCreatingFile && newFileInputRef.current) {
+            newFileInputRef.current.focus();
+        }
+    }, [isCreatingFile]);
+
+    const handleCreateFile = () => {
+        setIsCreatingFile(true);
+        setFileName('');
+    }
+
+    const handleFileNameChange = (e) => {
+        setFileName(e.target.value);
+    }
+
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            submitNewFile();
+        }
+        else if (e.key === 'Escape') {
+            setIsCreatingFile(false);
+        }
+    }
+
+    const submitNewFile = () => {
+        if (fileName.trim()) {
+            // Create form-data for api request
+            const formData = new FormData();
+            const emptyFile = new Blob([], { type: 'text/markdown' });
+            formData.append("markDownFile", emptyFile, `${fileName}.md`);
+
+            //Upload the new file to api
+            fileUpload(formData);
+            setIsCreatingFile(false);
+            setFileName('');
+        }
+    }
 
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
@@ -26,27 +69,7 @@ function SideBar() {
             formData.append("markDownFile", file)
 
             // Send via POST request
-            fetch('https://localhost:7271/api/markdown', {
-                method: 'POST',
-                body: formData,
-            })
-                .then(response => {
-                    if (response.ok) {
-                        console.log("File uploaded successfully");
-                        return (response.json());
-                    }
-                    else {
-                        console.error("Failed to upload file");
-                        alert("Failed to upload file");
-                    }
-                })
-                .then(data => {
-                    setFileNames(prevFileNames => [...prevFileNames, data.title]);
-                })
-                .catch(error => {
-                    console.error("Error uploading file:", error);
-                    alert("Error uploading file. Please try again.");
-                })
+            fileUpload(formData);
         }
     
         else {
@@ -62,11 +85,35 @@ function SideBar() {
         fileInputRef.current.click();
     };
 
+    function fileUpload(body) {
+        fetch('https://localhost:7271/api/markdown', {
+            method: 'POST',
+            body: body,
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log("File uploaded successfully");
+                    return (response.json());
+                }
+                else {
+                    console.error("Failed to upload file");
+                    alert("Failed to upload file");
+                }
+            })
+            .then(data => {
+                setFiles(prevFileNames => [...prevFileNames, data.title]);
+            })
+            .catch(error => {
+                console.error("Error uploading file:", error);
+                alert("Error uploading file. Please try again.");
+            });
+    };
+
 
 
     return (
       <div className="side-bar">
-            <button className="side-bar-buttons"><img src="/assets/button_icons/add_file.png" className="side-bar-icons"></img></button>
+            <button className="side-bar-buttons" onClick={handleCreateFile}><img src="/assets/button_icons/add_file.png" className="side-bar-icons"></img></button>
             
             <button className="side-bar-buttons" onClick={triggerFileInput}><img src="/assets/button_icons/upload_file.png" className="side-bar-icons"></img></button>
             <input
@@ -81,11 +128,27 @@ function SideBar() {
 
             <div id="file-list">
                 <ul>
-                    {fileNames.map((fileName, index) =>
+                    {files.map((fileName, index) =>
                         <li key={index}
                             className={index == selectedFile ? 'selected-file' : ''}
                             onClick={() => handleFileSelected(index)}>{fileName}</li>)
-                        }
+                    }
+                    {
+                        isCreatingFile && (
+                            <li className="new-file-item">
+                                <input
+                                    ref={newFileInputRef}
+                                    type="text"
+                                    value={fileName}
+                                    onChange={handleFileNameChange}
+                                    onKeyDown={handleKeyDown}
+                                    onBlur={() => setIsCreatingFile(false)}
+                                    placeholder="Enter file name."
+                                    className="new-file-input"
+                                    />
+                            </li>
+                        )
+                    }
                 </ul>
             </div>
 
