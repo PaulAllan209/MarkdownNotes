@@ -3,9 +3,9 @@ import './SideBar.css'
 function SideBar() {
     const [fileNames, setFileNames] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
-    const [uploadFile, setUploadFile] = useState(null);
     const fileInputRef = useRef(null);
 
+    // Getting the list of files
     useEffect(() => {
         fetch('https://localhost:7271/api/markdown')
             .then(response => response.json())
@@ -20,9 +20,35 @@ function SideBar() {
 
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
-        if (file && file.type === "text/markdown") {
-            setSelectedFile(file);
+        if (file.name.toLowerCase().endsWith(".md")) {
+            //Prepare the file for upload
+            const formData = new FormData();
+            formData.append("markDownFile", file)
+
+            // Send via POST request
+            fetch('https://localhost:7271/api/markdown', {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => {
+                    if (response.ok) {
+                        console.log("File uploaded successfully");
+                        return (response.json());
+                    }
+                    else {
+                        console.error("Failed to upload file");
+                        alert("Failed to upload file");
+                    }
+                })
+                .then(data => {
+                    setFileNames(prevFileNames => [...prevFileNames, data.title]);
+                })
+                .catch(error => {
+                    console.error("Error uploading file:", error);
+                    alert("Error uploading file. Please try again.");
+                })
         }
+    
         else {
             alert("Please select a valid .md file.");
         }
