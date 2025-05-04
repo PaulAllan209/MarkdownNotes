@@ -28,7 +28,7 @@ namespace markdown_note_taking_app.Server.Service
 
         public async Task<MarkdownFileDto> CreateMarkdownFileAsync(MarkdownFileUploadDto markdownFile)
         {
-            //Validate the file content if empty and if it is a markdown file
+            //Validate the file type
             ValidateMarkdownFile(markdownFile);
 
             string fileName = Path.GetFileName(markdownFile.MarkdownFile.FileName);
@@ -172,9 +172,6 @@ namespace markdown_note_taking_app.Server.Service
             {
                 throw new BadHttpRequestException("Invalid file type uploaded. Only markdown (.md) files are allowed.");
             }
-
-            if (file == null || file.MarkdownFile.Length == 0)
-                throw new BadHttpRequestException("The file is empty");
         }
     }
 }
