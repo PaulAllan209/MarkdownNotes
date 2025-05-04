@@ -54,6 +54,9 @@ function SideBar() {
         }
     }
 
+    const handleFileSelected = (fileName) => {
+        setSelectedFile(fileName);
+    }
 
     const triggerFileInput = () => {
         fileInputRef.current.click();
@@ -78,7 +81,11 @@ function SideBar() {
 
             <div id="file-list">
                 <ul>
-                    {fileNames.map((fileName, index) => <li key={index}>{fileName}</li>)}
+                    {fileNames.map((fileName, index) =>
+                        <li key={index}
+                            className={index == selectedFile ? 'selected-file' : ''}
+                            onClick={() => handleFileSelected(index)}>{fileName}</li>)
+                        }
                 </ul>
             </div>
 

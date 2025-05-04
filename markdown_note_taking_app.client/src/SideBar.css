@@ -10,7 +10,7 @@ body{
     top: 0px;
     left: 0px;
     margin:0px;
-    padding: 5px;
+    padding: 0px;
     overflow-y: auto;
 }
 
@@ -27,7 +27,7 @@ body{
     width: 50px;
     border: none;
     background-color: antiquewhite;
-    border-radius: 5px;
+    border-radius: 0px;
 }
 
 .side-bar-buttons:hover {
@@ -41,14 +41,34 @@ body{
 
 #file-list ul{
     list-style-type: none;
-    padding: 0;
-    margin: 0;
+    padding: 0px;
+    margin: 0px;
 }
 
 #file-list li {
-    margin-top: 10px;
-    margin-left: 10px;
-    padding: 0px;
+    margin-top: 7px;
+    margin-left: 0px;
+    padding: 5px;
+    padding-left: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 12px;
+    font-weight: bold;
 }
+
+#file-list li.selected-file{
+    background-color:#006be5;
+    color:white;
+    width: 100%;
+    margin: 0px;
+    left: 0px;
+    position:relative;
+}
+#file-list li.selected-file:hover {
+    background-color: #006be5;
+}
+
+#file-list li:hover {
+    background-color: #cbbeae;
+}
+
