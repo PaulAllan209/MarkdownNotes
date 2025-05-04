@@ -13,8 +13,11 @@ function SideBar() {
         fetch('https://localhost:7271/api/markdown')
             .then(response => response.json())
             .then(data => {
-                const fileNames = data.map(file => file.title);
-                setFiles(fileNames);
+                const files = data.map(file => ({
+                    guid: file.id,
+                    title: file.title
+                }));
+                setFiles(files);
             })
             .catch(error => {
                 console.error('Error fetching filename data:', error);
@@ -85,6 +88,30 @@ function SideBar() {
         fileInputRef.current.click();
     };
 
+    const handleFileDelete = () => {
+        const selectedFileGuid = files[selectedFile].guid;
+
+        fetch(`https://localhost:7271/api/markdown/${selectedFileGuid}`, {
+            method: 'DELETE'
+        })
+            .then(async response => {
+                if (response.ok) {
+                    console.log("File deleted successfully")
+
+                    //Update list of files without an api call
+                    setFiles(prevFiles => prevFiles.filter(file => file.guid != selectedFileGuid));
+                }
+                else {
+                    console.error("Failed to delete file:");
+                }
+            })
+            .catch(error => {
+                console.error("Error deleting file:", error);
+            });
+
+        setSelectedFile(null);
+    };
+
     function fileUpload(body) {
         fetch('https://localhost:7271/api/markdown', {
             method: 'POST',
@@ -101,7 +128,7 @@ function SideBar() {
                 }
             })
             .then(data => {
-                setFiles(prevFileNames => [...prevFileNames, data.title]);
+                setFiles(prevFileNames => [...prevFileNames, {guid: data.id, title:data.title}]);
             })
             .catch(error => {
                 console.error("Error uploading file:", error);
@@ -123,15 +150,15 @@ function SideBar() {
                 style={{ display: 'none' }}
                 onChange={handleFileUpload}
             />
-            <button className="side-bar-buttons"><img src="/assets/button_icons/delete_file.png" className="side-bar-icons"></img></button>
+            <button className="side-bar-buttons" onClick={handleFileDelete}><img src="/assets/button_icons/delete_file.png" className="side-bar-icons"></img></button>
             <button className="side-bar-buttons"><img src="/assets/button_icons/edit_file.png" className="side-bar-icons"></img></button>
 
             <div id="file-list">
                 <ul>
-                    {files.map((fileName, index) =>
+                    {files.map((file, index) =>
                         <li key={index}
                             className={index == selectedFile ? 'selected-file' : ''}
-                            onClick={() => handleFileSelected(index)}>{fileName}</li>)
+                            onClick={() => handleFileSelected(index)}>{file.title}</li>)
                     }
                     {
                         isCreatingFile && (
