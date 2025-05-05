@@ -1,0 +1,24 @@
+body{
+    margin: 0;
+    right: 0px;
+}
+
+.display-window {
+    min-height: 100vh;
+    background-color: rgb(229, 229, 229);
+    width: 50%;
+    margin-left: auto;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    padding-left: 50px;
+    padding-right: 50px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    position: fixed;
+    font-family: 'Open Sans';
+}
+
+.display-content{
+
+}

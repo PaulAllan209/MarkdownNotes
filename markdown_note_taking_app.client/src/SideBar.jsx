@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, createContext } from 'react';
 import './SideBar.css'
-function SideBar() {
+
+export const SelectedFileContext = createContext();
+function SideBar(props) {
     const [files, setFiles] = useState([]);
     const [fileName, setFileName] = useState();
-    const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedFileIndex, setSelectedFileIndex] = useState(null);
     const [isCreatingFile, setIsCreatingFile] = useState(false);
     const [isRenamingFile, setIsRenamingFile] = useState(false);
     const fileInputRef = useRef(null);
@@ -49,7 +51,7 @@ function SideBar() {
             }
             else if (isRenamingFile) {
                 e.preventDefault();
-                const fileId = files[selectedFile].guid;
+                const fileId = files[selectedFileIndex].guid;
                 submitNewFileName(fileName, fileId);
                 setFileName('');
                 setIsRenamingFile(false);
@@ -92,8 +94,9 @@ function SideBar() {
         }
     }
 
-    const handleFileSelected = (fileName) => {
-        setSelectedFile(fileName);
+    const handleFileSelected = (index) => {
+        setSelectedFileIndex(index);
+        props.onFileSelect(files[index]?.guid || null);
     }
 
     const triggerFileInput = () => {
@@ -101,7 +104,7 @@ function SideBar() {
     };
 
     const handleFileDelete = () => {
-        const selectedFileGuid = files[selectedFile].guid;
+        const selectedFileGuid = files[selectedFileIndex].guid;
 
         fetch(`https://localhost:7271/api/markdown/${selectedFileGuid}`, {
             method: 'DELETE'
@@ -121,12 +124,12 @@ function SideBar() {
                 console.error("Error deleting file:", error);
             });
 
-        setSelectedFile(null);
+        setSelectedFileIndex(null);
     };
 
     const handleFileRename = () => {
         setIsRenamingFile(true);
-        setFileName(files[selectedFile].title);
+        setFileName(files[selectedFileIndex].title);
     }
 
     const submitNewFileName = (fileName, fileId) => {
@@ -207,10 +210,10 @@ function SideBar() {
                 <ul>
                     {files.map((file, index) =>
                         <li key={index}
-                            className={index == selectedFile ? 'selected-file' : ''}
+                            className={index == selectedFileIndex ? 'selected-file' : ''}
                             onClick={() => handleFileSelected(index)}
                             onDoubleClick={handleFileRename}>
-                            {(isRenamingFile && (index == selectedFile)) ? (
+                            {(isRenamingFile && (index == selectedFileIndex)) ? (
                                 <input
                                     type="text"
                                     className="rename-file-input"
