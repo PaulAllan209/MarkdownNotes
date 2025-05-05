@@ -12,6 +12,7 @@ body{
     margin:0px;
     padding: 0px;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .side-bar-icons {
@@ -38,7 +39,7 @@ body{
     background-color: #a59a8d;
 }
 
-.new-file-input,{
+.new-file-input{
     border: none;
     background-color: transparent;
     outline: none;
@@ -64,8 +65,11 @@ body{
     padding-left: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 12px;
     font-weight: bold;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 #file-list li.selected-file{
