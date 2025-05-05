@@ -4,11 +4,8 @@ body{
 
 .side-bar {
     background-color:antiquewhite;
-    width: 250px;
-    height: 100vh;
-    position: fixed;
-    top: 0px;
-    left: 0px;
+    width: 15%;
+    height: 100%;
     margin:0px;
     padding: 0px;
     overflow-y: auto;
@@ -29,10 +26,20 @@ body{
     border: none;
     background-color: antiquewhite;
     border-radius: 5px;
+    cursor: pointer;
+}
+
+.side-bar-buttons-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 10px 0;
 }
 
 .side-bar-buttons:hover {
     background-color: #cbbeae;
+    cursor: pointer;
 }
 
 .side-bar-buttons:active {
@@ -70,6 +77,7 @@ body{
     font-weight: bold;
     width: 100%;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
 #file-list li.selected-file{

@@ -1,13 +1,10 @@
 .editing-window {
-    width: calc(50% - 250px);
-    height: 100vh;
-    position: fixed;
-    top: 0;
-    left: 250px;
-    padding: 0px;
-    box-sizing: border-box;
+    width: 40%;
     overflow-y: hidden;
     border-right: 10px solid #949494;
+    height: 100%;
+    display: flex;
+    min-height: 0;
 }
 
 .input-editing-window {
@@ -18,9 +15,10 @@
     box-sizing: border-box;
     margin: 0;
     border: none;
-    padding: 30px;
+    padding: 50px;
     font-family: 'Open Sans';
     font-size: 14px;
     line-height: 1.5;
     overflow-y: auto;
+    flex: 1;
 }
