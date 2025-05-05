@@ -5,6 +5,7 @@ function SideBar() {
     const [fileName, setFileName] = useState();
     const [selectedFile, setSelectedFile] = useState(null);
     const [isCreatingFile, setIsCreatingFile] = useState(false);
+    const [isRenamingFile, setIsRenamingFile] = useState(false);
     const fileInputRef = useRef(null);
     const newFileInputRef = useRef(null);
 
@@ -42,13 +43,24 @@ function SideBar() {
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
-            e.preventDefault();
-            submitNewFile();
+            if (isCreatingFile) {
+                e.preventDefault();
+                submitNewFile();
+            }
+            else if (isRenamingFile) {
+                e.preventDefault();
+                const fileId = files[selectedFile].guid;
+                submitNewFileName(fileName, fileId);
+                setFileName('');
+                setIsRenamingFile(false);
+            }
         }
         else if (e.key === 'Escape') {
             setIsCreatingFile(false);
+            setIsRenamingFile(false);
         }
     }
+
 
     const submitNewFile = () => {
         if (fileName.trim()) {
@@ -112,6 +124,44 @@ function SideBar() {
         setSelectedFile(null);
     };
 
+    const handleFileRename = () => {
+        setIsRenamingFile(true);
+        setFileName(files[selectedFile].title);
+    }
+
+    const submitNewFileName = (fileName, fileId) => {
+        const patchDocument = [
+            {
+                "op": "replace",
+                "path": "/title",
+                "value": fileName
+            }
+        ];
+
+        fetch(`https://localhost:7271/api/markdown/${fileId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json-patch+json'
+            },
+            body: JSON.stringify(patchDocument)
+        })
+            .then(response => {
+                if (response.ok) {
+                    setFiles(prevFiles => prevFiles.map(file =>
+                        (file.guid == fileId) ?
+                            { ...file, title: fileName } :
+                            file
+                    ));
+                    console.log("Successfully renamed the file");
+                }
+                else {
+                    console.error("Failed to rename the file");
+                    alert("Failed to rename the file");
+                }
+            })
+    }
+
+
     function fileUpload(body) {
         fetch('https://localhost:7271/api/markdown', {
             method: 'POST',
@@ -158,7 +208,20 @@ function SideBar() {
                     {files.map((file, index) =>
                         <li key={index}
                             className={index == selectedFile ? 'selected-file' : ''}
-                            onClick={() => handleFileSelected(index)}>{file.title}</li>)
+                            onClick={() => handleFileSelected(index)}
+                            onDoubleClick={handleFileRename}>
+                            {(isRenamingFile && (index == selectedFile)) ? (
+                                <input
+                                    type="text"
+                                    className="rename-file-input"
+                                    value={fileName}
+                                    onChange={handleFileNameChange}
+                                    onKeyDown={handleKeyDown}
+                                />
+                            ) :
+                                file.title
+                            }
+                        </li>)
                     }
                     {
                         isCreatingFile && (

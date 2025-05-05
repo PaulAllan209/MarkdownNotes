@@ -38,14 +38,21 @@ body{
     background-color: #a59a8d;
 }
 
-.new-file-input {
+.new-file-input,{
     border: none;
     background-color: transparent;
     outline: none;
 }
 
+.rename-file-input {
+    border: none;
+    background-color: transparent;
+    outline: none;
+    color: white;
+}
 
-#file-list ul{
+
+#file-list ul {
     list-style-type: none;
     padding: 0px;
     margin: 0px;
