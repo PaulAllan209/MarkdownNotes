@@ -3,6 +3,7 @@ import SideBar from './SideBar';
 import DisplayWindow from './DisplayWindow';
 import EditingWindow from './EditingWindow';
 import UserWindowBar from './UserWindowBar';
+import GrammarSuggestionWindow from './GrammarSuggestionWindow';
 import React, { useState, useEffect, useCallback } from 'react';
 import { debounce } from 'lodash';
 
@@ -11,6 +12,8 @@ function App() {
     const [fileContentInDb, setFileContentInDb] = useState('');
     const [fileContent, setFileContent] = useState('');
     const [isSaved, setIsSaved] = useState(true);
+    const [showGrammarView, setShowGrammarView] = useState(false);
+    const [grammarCheckedFileContent, setGrammarCheckedFileContent] = useState('');
 
     const debouncedSaveCheck = useCallback(
         debounce((content, dbContent) => {
@@ -19,6 +22,7 @@ function App() {
         []
     );
 
+    // Getting the file content
     useEffect(() => {
         if (selectedFileGuid != null) {
             fetch(`https://localhost:7271/api/markdown/${selectedFileGuid}`)
@@ -38,19 +42,47 @@ function App() {
         }
     }, [selectedFileGuid]);
 
+    // Saving functionality
     useEffect(() => {
         if (fileContent !== null && fileContentInDb !== null) {
             debouncedSaveCheck(fileContent, fileContentInDb);
         }
     }, [fileContent, fileContentInDb, debouncedSaveCheck]);
 
+    //Grammar checking
+    useEffect(() => {
+        if (showGrammarView) {
+            fetch(`https://localhost:7271/api/markdown/${selectedFileGuid}/?checkGrammar=true`)
+                .then(response => {
+                    if (response.ok) {
+                        console.log("Successfully got the file content with grammar checked.")
+                        return response.json();
+                    }
+                    else {
+                        console.error("Error getting file content with grammar checked.");
+                    }
+                })
+                .then(data => {
+                    setGrammarCheckedFileContent(data.fileContent || '');
+                })
+        }
+    }, [showGrammarView]);
+
     return (
         <div className="app-container">
             <SideBar onFileSelect={setSelectedFileGuid} />
             <div className="user-window">
-                <UserWindowBar saveState={isSaved} setSaveState={setIsSaved} fileGuid={selectedFileGuid} fileCurrentContent={fileContent} />
+                <UserWindowBar
+                    saveState={isSaved}
+                    setSaveState={setIsSaved}
+                    fileGuid={selectedFileGuid}
+                    fileCurrentContent={fileContent}
+                    setShowGrammarView={setShowGrammarView}
+                    setGrammarCheckedFileContent={setGrammarCheckedFileContent} />
                 <div className="window-content-container">
-                    <EditingWindow selectedFileContent={fileContent} setContent={setFileContent} />
+                    {!showGrammarView ? <EditingWindow selectedFileContent={fileContent} setContent={setFileContent} /> :
+                        <GrammarSuggestionWindow grammarCheckedFileContent={grammarCheckedFileContent} setGrammarCheckedFileContent={setGrammarCheckedFileContent} />}
+
                     <DisplayWindow selectedFileContent={fileContent} />
                 </div>
             </div>

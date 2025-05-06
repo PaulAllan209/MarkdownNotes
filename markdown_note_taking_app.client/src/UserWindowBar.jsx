@@ -30,11 +30,18 @@ function UserWindowBar(props) {
             });
     }
 
+    const handleGrammarCheck = (fileId) => {
+        props.setShowGrammarView(true);
+
+        fetch(`https://localhost:7271/api/markdown/${fileId}`)
+    }
+
     return (
         <div className="user-bar">
             <p className="save-state">{ props.saveState ? "Saved" : "Unsaved"}</p>
             <div className="user-bar-buttons-container">
                 <button className="user-bar-buttons" onClick={() => handleSave(props.fileGuid, props.fileCurrentContent)}>Save</button>
+                <button className="user-bar-buttons" onClick={handleGrammarCheck}>Check for Grammar</button>
                 <button className="user-bar-buttons">Export as Markdown</button>
                 <button className="user-bar-buttons">Export as HTML</button>
             </div>
