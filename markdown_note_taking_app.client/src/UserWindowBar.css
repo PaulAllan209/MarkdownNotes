@@ -39,3 +39,9 @@
     font-weight: bold;
     cursor: pointer;
 }
+
+.save-state {
+    color: white;
+    font-family: 'Open Sans';
+    margin-right: 10px;
+}
