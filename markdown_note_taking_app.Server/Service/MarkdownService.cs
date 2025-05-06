@@ -76,13 +76,27 @@ namespace markdown_note_taking_app.Server.Service
         }
 
 
-        public async Task<MarkdownFileDto> GetMarkdownFileAsync(Guid fileId, bool trackChanges)
+        public async Task<MarkdownFileDto> GetMarkdownFileAsync(Guid fileId, bool checkGrammar, bool trackChanges)
         {
             if (fileId == Guid.Empty)
                 throw new BadHttpRequestException("File Id cannot be empty");
 
+
             var markdownFileEntity = await GetMarkdownFileAndCheckIfItExistsAsync(fileId, trackChanges);
-            return _mapper.Map<MarkdownFileDto>(markdownFileEntity);
+            var markdownFileDto = _mapper.Map<MarkdownFileDto>(markdownFileEntity);
+
+            if (checkGrammar)
+            {
+                //check grammar
+                string markdownFileContent = markdownFileDto.FileContent;
+
+                string markdownFileContentChecked = await _grammarCheckService.CheckGrammarMarkdownAsync(markdownFileContent);
+                markdownFileDto = markdownFileDto with { FileContent = markdownFileContentChecked };
+
+                return markdownFileDto;
+            }
+
+            return markdownFileDto;
         }
 
         public async Task<MarkdownFile> GetMarkdownFileAndCheckIfItExistsAsync(Guid fileId, bool trackChanges)
@@ -100,29 +114,13 @@ namespace markdown_note_taking_app.Server.Service
             if (fileId == Guid.Empty)
                 throw new BadHttpRequestException("File Id cannot be empty");
 
-            if (checkGrammar)
-            {
-                //Get markdownfile content
-                var markdownFileDtoChecked = await GetMarkdownFileAsync(fileId, false);
-                string markdownFileContent = markdownFileDtoChecked.FileContent;
+            //Get markdownfile content
+            var markdownFileDtoChecked = await GetMarkdownFileAsync(fileId, checkGrammar, false);
 
-                //check grammar
-                string markdownFileContentChecked = await _grammarCheckService.CheckGrammarMarkdownAsync(markdownFileContent);
-                markdownFileDtoChecked = markdownFileDtoChecked with { FileContent = markdownFileContentChecked };
+            //convert to html
+            var markdownHtmlDtoChecked = ConvertMarkdownFileDtoToHtml(markdownFileDtoChecked);
 
-                //convert to html
-                var markdownHtmlDtoChecked = ConvertMarkdownFileDtoToHtml(markdownFileDtoChecked);
-
-                return markdownHtmlDtoChecked;
-            }
-
-            var markdownFile = await GetMarkdownFileAndCheckIfItExistsAsync(fileId, trackChanges);
-
-            var markdownFileDto = _mapper.Map<MarkdownFileDto>(markdownFile);
-
-            MarkdownFileConvertToHtmlDto markdownHtmlDto = ConvertMarkdownFileDtoToHtml(markdownFileDto);
-
-            return markdownHtmlDto;
+            return markdownHtmlDtoChecked;
         }
 
         public MarkdownFileConvertToHtmlDto ConvertMarkdownFileDtoToHtml(MarkdownFileDto markdownFileDto)

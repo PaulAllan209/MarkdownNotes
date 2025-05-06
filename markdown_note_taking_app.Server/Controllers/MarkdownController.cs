@@ -22,9 +22,9 @@ namespace markdown_note_taking_app.Server.Controllers
         }
 
         [HttpGet("{fileId:guid}")]
-        public async Task<IActionResult> GetMarkdownFile(Guid fileId)
+        public async Task<IActionResult> GetMarkdownFile(Guid fileId, [FromQuery] bool checkGrammar = false)
         {
-            var company = await _serviceManager.MarkdownService.GetMarkdownFileAsync(fileId, trackChanges: false);
+            var company = await _serviceManager.MarkdownService.GetMarkdownFileAsync(fileId, checkGrammar, trackChanges: false);
 
             return Ok(company);
         }
