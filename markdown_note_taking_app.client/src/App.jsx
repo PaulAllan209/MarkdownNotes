@@ -8,8 +8,8 @@ import { debounce } from 'lodash';
 
 function App() {
     const [selectedFileGuid, setSelectedFileGuid] = useState(null);
-    const [fileContentInDb, setFileContentInDb] = useState(null);
-    const [fileContent, setFileContent] = useState(null);
+    const [fileContentInDb, setFileContentInDb] = useState('');
+    const [fileContent, setFileContent] = useState('');
     const [isSaved, setIsSaved] = useState(true);
 
     const debouncedSaveCheck = useCallback(
@@ -48,7 +48,7 @@ function App() {
         <div className="app-container">
             <SideBar onFileSelect={setSelectedFileGuid} />
             <div className="user-window">
-                <UserWindowBar saveState={isSaved} setSaveState={setIsSaved} />
+                <UserWindowBar saveState={isSaved} setSaveState={setIsSaved} fileGuid={selectedFileGuid} fileCurrentContent={fileContent} />
                 <div className="window-content-container">
                     <EditingWindow selectedFileContent={fileContent} setContent={setFileContent} />
                     <DisplayWindow selectedFileContent={fileContent} />
