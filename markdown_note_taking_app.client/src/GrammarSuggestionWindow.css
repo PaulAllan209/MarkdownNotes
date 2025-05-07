@@ -1,0 +1,11 @@
+.grammar-window {
+    width: 40%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-right: 10px solid #949494;
+    margin-left: auto;
+    padding: 0 50px 50px 50px;
+    font-family: 'Open Sans';
+    min-height: 0;
+    position: relative;
+}

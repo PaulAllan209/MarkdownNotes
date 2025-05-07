@@ -1,0 +1,98 @@
+body{
+    font-family: Arial;
+}
+
+.side-bar {
+    background-color:antiquewhite;
+    width: 15%;
+    height: 100%;
+    margin:0px;
+    padding: 0px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.side-bar-icons {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    margin: 4px;
+}
+
+.side-bar-buttons {
+    margin: 4px;
+    padding: 6px;
+    width: 50px;
+    border: none;
+    background-color: antiquewhite;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.side-bar-buttons-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 10px 0;
+}
+
+.side-bar-buttons:hover {
+    background-color: #cbbeae;
+    cursor: pointer;
+}
+
+.side-bar-buttons:active {
+    background-color: #a59a8d;
+}
+
+.new-file-input{
+    border: none;
+    background-color: transparent;
+    outline: none;
+}
+
+.rename-file-input {
+    border: none;
+    background-color: transparent;
+    outline: none;
+    color: white;
+}
+
+
+#file-list ul {
+    list-style-type: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+#file-list li {
+    margin-left: 0px;
+    padding: 10px;
+    padding-left: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: bold;
+    width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+#file-list li.selected-file{
+    background-color:#006be5;
+    color:white;
+    width: 100%;
+    margin: 0px;
+    left: 0px;
+    position:relative;
+}
+#file-list li.selected-file:hover {
+    background-color: #006be5;
+}
+
+#file-list li:hover {
+    background-color: #cbbeae;
+}
+

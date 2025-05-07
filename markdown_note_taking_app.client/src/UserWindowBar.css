@@ -1,0 +1,52 @@
+.user-bar {
+    background-color: #2d3436;
+    width: 100%;
+    height: 7%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+
+}
+
+.user-bar-left-container{
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+}
+
+.user-bar-buttons-container{
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+}
+
+.user-bar-buttons {
+    margin: 0 10px;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
+    background-color: #2d3436;
+    font-family: 'Open Sans';
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.user-bar-buttons:hover {
+    margin: 0 10px;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
+    background-color: #42484a;
+    font-family: 'Open Sans';
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.save-state {
+    color: white;
+    font-family: 'Open Sans';
+    margin-right: 10px;
+}
