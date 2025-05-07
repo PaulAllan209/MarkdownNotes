@@ -35,3 +35,40 @@ export const handleFileNameSave = (fileId, title, onSuccess, onError = null) => 
             }
         });
 };
+
+/**
+ * Saves the new file content to the database
+ * @param {string} fileId - The file GUID
+ * @param {string} fileContent - The title to save
+ * @param {Function} onSuccess - Callback function called on successful save
+ * @param {Function} onError - Callback function called on error (optional)
+ * @returns {Promise} - the fetch promise
+ */
+export const handleFileContentSave = (fileId, fileContent, onSuccess, onError=null) => {
+    const patchDocument = [
+        {
+            "op": "replace",
+            "path": "/fileContent",
+            "value": fileContent
+        }
+    ];
+
+    fetch(`https://localhost:7271/api/markdown/${fileId}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json-patch+json'
+        },
+        body: JSON.stringify(patchDocument)
+    })
+        .then(response => {
+            if (response.ok) {
+                console.log("Successfully saved the file to the database.");
+                if(onSuccess) onSuccess();
+            }
+            else {
+                console.error("Failed to save the file");
+                if (onError) onError();
+                alert("Failed to save the file");
+            }
+        });
+}
