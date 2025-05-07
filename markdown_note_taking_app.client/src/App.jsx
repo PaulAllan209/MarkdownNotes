@@ -77,6 +77,7 @@ function App() {
                     setSaveState={setIsSaved}
                     fileGuid={selectedFileGuid}
                     fileCurrentContent={fileContent}
+                    showGrammarView={showGrammarView}
                     setShowGrammarView={setShowGrammarView}
                     setGrammarCheckedFileContent={setGrammarCheckedFileContent} />
                 <div className="window-content-container">

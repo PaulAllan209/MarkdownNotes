@@ -1,0 +1,50 @@
+.accept-changes-window {
+    background-color: #42484a;
+    border-radius: 10px;
+    border: none;
+    position: sticky;
+    top: 10px;
+    right: 10px;
+    width: auto;
+    padding: 10px 15px 10px 15px;
+    display: flex;
+    margin-left: 20px;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.accept-changes-text{
+    font-family: 'Open Sans';
+    font-weight: bold;
+    font-size: 15px;
+    color: white;
+}
+
+.accept-button {
+    border: none;
+    border-radius: 5px;
+    background-color: #27ae60;
+    color: white;
+    font-size: 15px;
+    padding: 5px 15px 5px 15px;
+}
+
+.accept-button:hover {
+    background-color: #50bd7e;
+    cursor: pointer;
+}
+
+.reject-button {
+    border: none;
+    border-radius: 5px;
+    background-color: #e74c3c;
+    color: white;
+    font-size: 15px;
+    padding: 5px 15px 5px 15px;
+}
+
+.reject-button:hover {
+    background-color: #eb6e62;
+    cursor: pointer;
+}

@@ -5,8 +5,13 @@
     padding: 0;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
 
+}
+
+.user-bar-left-container{
+    margin-right: auto;
+    display: flex;
+    align-items: center;
 }
 
 .user-bar-buttons-container{

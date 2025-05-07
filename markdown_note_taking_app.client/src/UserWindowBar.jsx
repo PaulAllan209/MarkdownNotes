@@ -1,4 +1,5 @@
 import './UserWindowBar.css';
+import AcceptChangesWindow from './AcceptChangesWindow';
 
 function UserWindowBar(props) {
 
@@ -38,7 +39,10 @@ function UserWindowBar(props) {
 
     return (
         <div className="user-bar">
-            <p className="save-state">{ props.saveState ? "Saved" : "Unsaved"}</p>
+            <div className="user-bar-left-container">
+                {props.showGrammarView ? <AcceptChangesWindow /> : <></>}
+            </div>
+            <p className="save-state">{props.saveState ? "Saved" : "Unsaved"}</p>
             <div className="user-bar-buttons-container">
                 <button className="user-bar-buttons" onClick={() => handleSave(props.fileGuid, props.fileCurrentContent)}>Save</button>
                 <button className="user-bar-buttons" onClick={handleGrammarCheck}>Check for Grammar</button>
