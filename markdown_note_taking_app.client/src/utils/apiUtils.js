@@ -90,70 +90,78 @@ async function uploadFileToApi(body) {
  * @returns {Promise} - the fetch promise
  */
 export const handleFileNameSave = async (fileId, fileName, onSuccess, onError = null) => {
-    const patchDocument = [
-        {
-            "op": "replace",
-            "path": "/title",
-            "value": fileName
-        }
-    ];
-
-    return await fetch(`https://localhost:7271/api/markdown/${fileId}`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json-patch+json'
-        },
-        body: JSON.stringify(patchDocument)
-    })
-        .then(response => {
-            if (response.ok) {
-                console.log("Successfully renamed file title to the database.");
-                if (onSuccess) onSuccess();
-                return response;
-            } else {
-                console.error("Failed to rename the file title");
-                if (onError) onError();
-                else alert("Failed to rename the file title");
-                throw new Error("Failed to rename the file title");
+    try {
+        const patchDocument = [
+            {
+                "op": "replace",
+                "path": "/title",
+                "value": fileName
             }
-        });
+        ];
+
+        const response = await fetch(`https://localhost:7271/api/markdown/${fileId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json-patch+json'
+            },
+            body: JSON.stringify(patchDocument)
+        })
+        if (response.ok) {
+            console.log("Successfully renamed file title to the database.");
+            if (onSuccess) onSuccess();
+            return response;
+        }
+        else {
+            console.error("Failed to rename the file title");
+            if (onError) onError();
+            else alert("Failed to rename the file title");
+            throw new Error("Failed to rename the file title");
+        }
+    } catch (error) {
+        console.error("Error in file rename operation:", error);
+        if (onError) onError();
+        throw error;
+    }
 };
 
 /**
  * Saves the new file content to the database
  * @param {string} fileId - The file GUID
- * @param {string} fileContent - The title to save
+ * @param {string} fileContent - The file content to save
  * @param {Function} onSuccess - Callback function called on successful save
  * @param {Function} onError - Callback function called on error (optional)
- * @returns {Promise} - the fetch promise
+ * @returns {Promise<void>} - the fetch promise
  */
-export const handleFileContentSave = async (fileId, fileContent, onSuccess, onError=null) => {
-    const patchDocument = [
-        {
-            "op": "replace",
-            "path": "/fileContent",
-            "value": fileContent
-        }
-    ];
+export const handleFileContentSave = async (fileId, fileContent, onSuccess, onError = null) => {
+    try {
+        const patchDocument = [
+            {
+                "op": "replace",
+                "path": "/fileContent",
+                "value": fileContent
+            }
+        ];
 
-    await fetch(`https://localhost:7271/api/markdown/${fileId}`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json-patch+json'
-        },
-        body: JSON.stringify(patchDocument)
-    })
-        .then(response => {
-            if (response.ok) {
-                console.log("Successfully saved the file to the database.");
-                if(onSuccess) onSuccess();
-            }
-            else {
-                console.error("Failed to save the file");
-                if (onError) onError();
-                alert("Failed to save the file");
-            }
-        });
+        const response = await fetch(`https://localhost:7271/api/markdown/${fileId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json-patch+json'
+            },
+            body: JSON.stringify(patchDocument)
+        })
+        if (response.ok) {
+            console.log("Successfully saved the file to the database.");
+            if (onSuccess) onSuccess()
+        }
+        else {
+            console.error("Failed to save the file");
+            if (onError) onError();
+            alert("Failed to save the file");
+        }
+    } catch (error) {
+        console.error("Error saving file content:", error);
+        if (onError) onError();
+    }
 }
 
 /**
@@ -165,21 +173,19 @@ export const handleFileContentSave = async (fileId, fileContent, onSuccess, onEr
  */
 export const handleFileDelete = async (fileId, onSuccess, onError = null) => {
     try {
-        await fetch(`https://localhost:7271/api/markdown/${fileId}`, {
+        const response = await fetch(`https://localhost:7271/api/markdown/${fileId}`, {
             method: 'DELETE'
         })
-        .then(async response => {
-            if (response.ok) {
-                console.log("File deleted successfully")
-                if (onSuccess) onSuccess();
 
-            }
-            else {
-                if (onError) onError();
-                console.error("Failed to delete file:");
-                alert("Failed to delete the file");
-            }
-        })
+        if (response.ok) {
+            console.log("File deleted successfully")
+            if (onSuccess) onSuccess();
+        }
+        else {
+            if (onError) onError();
+            console.error("Failed to delete file:");
+            alert("Failed to delete the file");
+        }
     } catch (error) {
         console.error("Error deleting the file:", error);
         if (onError) onError();
