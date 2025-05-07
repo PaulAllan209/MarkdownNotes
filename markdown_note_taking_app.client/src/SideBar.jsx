@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, createContext } from 'react';
-import { handleFileNameSave } from './utils/apiUtils';
+import { handleFileNameSave, handleFileCreate } from './utils/apiUtils';
 import './SideBar.css'
 
 export const SelectedFileContext = createContext();
@@ -63,7 +63,11 @@ function SideBar(props) {
         if (e.key === 'Enter') {
             if (isCreatingFile) {
                 e.preventDefault();
-                submitNewFile();
+                handleFileCreate(fileName, (fileId, fileName) => {
+                    setFiles(prevFiles => [...prevFiles, { guid: fileId, title: fileName }]);
+                    setIsCreatingFile(false);
+                    setFileName('');
+                });
             }
             else if (isRenamingFile) {
                 e.preventDefault();
@@ -76,20 +80,6 @@ function SideBar(props) {
         else if (e.key === 'Escape') {
             setIsCreatingFile(false);
             setIsRenamingFile(false);
-        }
-    }
-
-    const submitNewFile = () => {
-        if (fileName.trim()) {
-            // Create form-data for api request
-            const formData = new FormData();
-            const emptyFile = new Blob([], { type: 'text/markdown' });
-            formData.append("markDownFile", emptyFile, `${fileName}.md`);
-
-            //Upload the new file to api
-            fileUpload(formData);
-            setIsCreatingFile(false);
-            setFileName('');
         }
     }
 
@@ -109,10 +99,7 @@ function SideBar(props) {
         }
     }
 
-    const handleFileSelected = (index) => {
-        setSelectedFileIndex(index);
-        props.onFileSelect(files[index]?.guid || null);
-    }
+    
 
     const triggerFileInput = () => {
         fileInputRef.current.click();
@@ -141,6 +128,12 @@ function SideBar(props) {
 
         setSelectedFileIndex(null);
     };
+
+    const handleFileSelected = (index) => {
+        setSelectedFileIndex(index);
+        props.onFileSelect(files[index]?.guid || null);
+    }
+
     function fileUpload(body) {
         fetch('https://localhost:7271/api/markdown', {
             method: 'POST',

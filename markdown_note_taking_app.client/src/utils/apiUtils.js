@@ -1,21 +1,76 @@
 /**
- * Saves the new file title to the database
- * @param {string} fileId - The file GUID
- * @param {string} fileTitle - The title to save
+ * Saves the new file to the database
+ * @param {string} fileName - The title to save
  * @param {Function} onSuccess - Callback function called on successful save
  * @param {Function} onError - Callback function called on error (optional)
  * @returns {Promise} - the fetch promise
  */
-export const handleFileNameSave = (fileId, title, onSuccess, onError = null) => {
+export const handleFileCreate = async (fileName, onSuccess, onError = null) => {
+    try {
+        const formData = new FormData();
+        const emptyFile = new Blob([], { type: 'text/markdown' });
+        formData.append("markDownFile", emptyFile, `${fileName}.md`);
+
+        //Upload file to API
+        const json_response = await uploadFileToApi(formData);
+        if (json_response) {
+            onSuccess(json_response.id, json_response.title);
+        }
+        else {
+            if (onError) onError();
+        }
+    } catch (error) {
+        console.error("Error creating file:", error);
+        if (onError) onError();
+    }
+    
+
+}
+
+//Helper function for post request in uploading the file to the database
+async function uploadFileToApi(body) {
+    try {
+        const response = await fetch('https://localhost:7271/api/markdown', {
+            method: 'POST',
+            body: body,
+        })
+
+        if (response.ok) {
+            console.log("File uploaded successfully.");
+            const data = await response.json();
+            return data;
+        }
+        else {
+            console.error("Failed to upload the file.");
+            alert("Failed to upload the file.");
+            return null;
+        }
+    } catch (error) {
+        console.error("Network error during upload:", error);
+        alert("Network error during upload. Please try again.");
+        return null;
+    }
+};
+
+
+/**
+ * Saves the new file name to the database
+ * @param {string} fileId - The file GUID
+ * @param {string} fileName - The file name to save
+ * @param {Function} onSuccess - Callback function called on successful save
+ * @param {Function} onError - Callback function called on error (optional)
+ * @returns {Promise} - the fetch promise
+ */
+export const handleFileNameSave = async (fileId, fileName, onSuccess, onError = null) => {
     const patchDocument = [
         {
             "op": "replace",
             "path": "/title",
-            "value": title
+            "value": fileName
         }
     ];
 
-    return fetch(`https://localhost:7271/api/markdown/${fileId}`, {
+    return await fetch(`https://localhost:7271/api/markdown/${fileId}`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json-patch+json'
@@ -44,7 +99,7 @@ export const handleFileNameSave = (fileId, title, onSuccess, onError = null) => 
  * @param {Function} onError - Callback function called on error (optional)
  * @returns {Promise} - the fetch promise
  */
-export const handleFileContentSave = (fileId, fileContent, onSuccess, onError=null) => {
+export const handleFileContentSave = async (fileId, fileContent, onSuccess, onError=null) => {
     const patchDocument = [
         {
             "op": "replace",
@@ -53,7 +108,7 @@ export const handleFileContentSave = (fileId, fileContent, onSuccess, onError=nu
         }
     ];
 
-    fetch(`https://localhost:7271/api/markdown/${fileId}`, {
+    await fetch(`https://localhost:7271/api/markdown/${fileId}`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json-patch+json'
