@@ -23,9 +23,37 @@ export const handleFileCreate = async (fileName, onSuccess, onError = null) => {
         console.error("Error creating file:", error);
         if (onError) onError();
     }
-    
+};
 
-}
+/**
+ * Saves the new uploaded file to the database
+ * @param {File} file - The file to upload (.md)
+ * @param {Function} onSuccess - Callback function called on successful save
+ * @param {Function} onError - Callback function called on error (optional)
+ * @returns {Promise} - the fetch promise
+ */
+export const handleFileUpload = async (file, onSuccess, onError = null) => {
+    try {
+        if (file.name.toLowerCase().endsWith(".md")) {
+            //Prepare the file for upload
+            const formData = new FormData();
+            formData.append("markDownFile", file)
+
+            //Upload file to API
+            const json_response = await uploadFileToApi(formData);
+            if (json_response) {
+                onSuccess(json_response.id, json_response.title);
+            }
+            else {
+                if (onError) onError();
+            }
+        }
+    } catch (error) {
+        console.error("Error creating file:", error);
+        if (onError) onError();
+    }
+    
+};
 
 //Helper function for post request in uploading the file to the database
 async function uploadFileToApi(body) {

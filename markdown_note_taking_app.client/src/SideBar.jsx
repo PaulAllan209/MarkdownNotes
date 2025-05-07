@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, createContext } from 'react';
-import { handleFileNameSave, handleFileCreate } from './utils/apiUtils';
+import { handleFileNameSave, handleFileCreate, handleFileUpload } from './utils/apiUtils';
 import './SideBar.css'
 
 export const SelectedFileContext = createContext();
@@ -34,7 +34,7 @@ function SideBar(props) {
         }
     }, [isCreatingFile]);
 
-    const handleCreateFile = () => {
+    const handleCreateFileBtn = () => {
         setIsCreatingFile(true);
         setFileName('');
     }
@@ -83,20 +83,11 @@ function SideBar(props) {
         }
     }
 
-    const handleFileUpload = (event) => {
+    const handleFileUploadBtn = (event) => {
         const file = event.target.files[0];
-        if (file.name.toLowerCase().endsWith(".md")) {
-            //Prepare the file for upload
-            const formData = new FormData();
-            formData.append("markDownFile", file)
-
-            // Send via POST request
-            fileUpload(formData);
-        }
-    
-        else {
-            alert("Please select a valid .md file.");
-        }
+        handleFileUpload(file, (fileId, fileName) => {
+            setFiles(prevFiles => [...prevFiles, { guid: fileId, title: fileName }]);
+        });
     }
 
     
@@ -134,36 +125,11 @@ function SideBar(props) {
         props.onFileSelect(files[index]?.guid || null);
     }
 
-    function fileUpload(body) {
-        fetch('https://localhost:7271/api/markdown', {
-            method: 'POST',
-            body: body,
-        })
-            .then(response => {
-                if (response.ok) {
-                    console.log("File uploaded successfully");
-                    return (response.json());
-                }
-                else {
-                    console.error("Failed to upload file");
-                    alert("Failed to upload file");
-                }
-            })
-            .then(data => {
-                setFiles(prevFileNames => [...prevFileNames, {guid: data.id, title:data.title}]);
-            })
-            .catch(error => {
-                console.error("Error uploading file:", error);
-                alert("Error uploading file. Please try again.");
-            });
-    };
-
-
 
     return (
         <div className="side-bar">
             <div className="side-bar-buttons-container">
-                <button className="side-bar-buttons" onClick={handleCreateFile}><img src="/assets/button_icons/add_file.png" className="side-bar-icons"></img></button>
+                <button className="side-bar-buttons" onClick={handleCreateFileBtn}><img src="/assets/button_icons/add_file.png" className="side-bar-icons"></img></button>
 
                 <button className="side-bar-buttons" onClick={triggerFileInput}><img src="/assets/button_icons/upload_file.png" className="side-bar-icons"></img></button>
                 <input
@@ -171,7 +137,7 @@ function SideBar(props) {
                     accept=".md"
                     ref={fileInputRef}
                     style={{ display: 'none' }}
-                    onChange={handleFileUpload}
+                    onChange={handleFileUploadBtn}
                 />
                 <button className="side-bar-buttons" onClick={handleFileDelete}><img src="/assets/button_icons/delete_file.png" className="side-bar-icons"></img></button>
                 <button className="side-bar-buttons"><img src="/assets/button_icons/edit_file.png" className="side-bar-icons"></img></button>
