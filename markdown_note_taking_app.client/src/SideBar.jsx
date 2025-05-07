@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, createContext } from 'react';
-import { handleFileNameSave, handleFileCreate, handleFileUpload } from './utils/apiUtils';
+import { handleFileCreate, handleFileUpload, handleFileNameSave, handleFileDelete  } from './utils/apiUtils';
 import './SideBar.css'
 
 export const SelectedFileContext = createContext();
@@ -90,33 +90,17 @@ function SideBar(props) {
         });
     }
 
-    
-
-    const triggerFileInput = () => {
+    const triggerFileInputBtn = () => {
         fileInputRef.current.click();
     };
 
-    const handleFileDelete = () => {
+    const handleFileDeleteBtn = () => {
         const selectedFileGuid = files[selectedFileIndex].guid;
+        handleFileDelete(selectedFileGuid, () => {
+            //on success callback
+            setFiles(prevFiles => prevFiles.filter(file => file.guid != selectedFileGuid));
 
-        fetch(`https://localhost:7271/api/markdown/${selectedFileGuid}`, {
-            method: 'DELETE'
-        })
-            .then(async response => {
-                if (response.ok) {
-                    console.log("File deleted successfully")
-
-                    //Update list of files without an api call
-                    setFiles(prevFiles => prevFiles.filter(file => file.guid != selectedFileGuid));
-                }
-                else {
-                    console.error("Failed to delete file:");
-                }
-            })
-            .catch(error => {
-                console.error("Error deleting file:", error);
-            });
-
+        });
         setSelectedFileIndex(null);
     };
 
@@ -125,13 +109,12 @@ function SideBar(props) {
         props.onFileSelect(files[index]?.guid || null);
     }
 
-
     return (
         <div className="side-bar">
             <div className="side-bar-buttons-container">
                 <button className="side-bar-buttons" onClick={handleCreateFileBtn}><img src="/assets/button_icons/add_file.png" className="side-bar-icons"></img></button>
 
-                <button className="side-bar-buttons" onClick={triggerFileInput}><img src="/assets/button_icons/upload_file.png" className="side-bar-icons"></img></button>
+                <button className="side-bar-buttons" onClick={triggerFileInputBtn}><img src="/assets/button_icons/upload_file.png" className="side-bar-icons"></img></button>
                 <input
                     type="file"
                     accept=".md"
@@ -139,7 +122,7 @@ function SideBar(props) {
                     style={{ display: 'none' }}
                     onChange={handleFileUploadBtn}
                 />
-                <button className="side-bar-buttons" onClick={handleFileDelete}><img src="/assets/button_icons/delete_file.png" className="side-bar-icons"></img></button>
+                <button className="side-bar-buttons" onClick={handleFileDeleteBtn}><img src="/assets/button_icons/delete_file.png" className="side-bar-icons"></img></button>
                 <button className="side-bar-buttons"><img src="/assets/button_icons/edit_file.png" className="side-bar-icons"></img></button>
             </div>
             
