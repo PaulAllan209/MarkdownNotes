@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, createContext } from 'react';
+import { handleFileNameSave } from './utils/apiUtils';
 import './SideBar.css'
 
 export const SelectedFileContext = createContext();
@@ -42,6 +43,21 @@ function SideBar(props) {
         setFileName(e.target.value);
     }
 
+    const handleFileRename = (index) => {
+        setSelectedFileIndex(index)
+        setIsRenamingFile(true);
+        setFileName(files[index].title);
+    }
+
+    const submitNewFileName = (fileName, fileId) => {
+        handleFileNameSave(fileId, fileName,
+            // onSuccess callback
+            () => {
+                setFiles(prevFiles => prevFiles.map(file =>
+                    file.guid == fileId ? { ...file, title: fileName } : file
+                ));
+        });
+    }
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
@@ -62,7 +78,6 @@ function SideBar(props) {
             setIsRenamingFile(false);
         }
     }
-
 
     const submitNewFile = () => {
         if (fileName.trim()) {
@@ -126,45 +141,6 @@ function SideBar(props) {
 
         setSelectedFileIndex(null);
     };
-
-    const handleFileRename = () => {
-        setIsRenamingFile(true);
-        setFileName(files[selectedFileIndex].title);
-    }
-
-    const submitNewFileName = (fileName, fileId) => {
-        const patchDocument = [
-            {
-                "op": "replace",
-                "path": "/title",
-                "value": fileName
-            }
-        ];
-
-        fetch(`https://localhost:7271/api/markdown/${fileId}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json-patch+json'
-            },
-            body: JSON.stringify(patchDocument)
-        })
-            .then(response => {
-                if (response.ok) {
-                    setFiles(prevFiles => prevFiles.map(file =>
-                        (file.guid == fileId) ?
-                            { ...file, title: fileName } :
-                            file
-                    ));
-                    console.log("Successfully renamed the file");
-                }
-                else {
-                    console.error("Failed to rename the file");
-                    alert("Failed to rename the file");
-                }
-            })
-    }
-
-
     function fileUpload(body) {
         fetch('https://localhost:7271/api/markdown', {
             method: 'POST',
@@ -215,7 +191,7 @@ function SideBar(props) {
                         <li key={index}
                             className={index == selectedFileIndex ? 'selected-file' : ''}
                             onClick={() => handleFileSelected(index)}
-                            onDoubleClick={handleFileRename}>
+                            onDoubleClick={() => handleFileRename(index)}>
                             {(isRenamingFile && (index == selectedFileIndex)) ? (
                                 <input
                                     type="text"

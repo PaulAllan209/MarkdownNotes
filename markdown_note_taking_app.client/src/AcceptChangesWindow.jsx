@@ -1,6 +1,7 @@
 import './AcceptChangesWindow.css';
 import React, { useContext } from 'react';
-import { AcceptChangesWindowContext } from './App.jsx';
+import { AcceptChangesWindowContext } from './contexts/AcceptChangesWindowContext.jsx';
+
 
 function AcceptChangesWindow() {
     const

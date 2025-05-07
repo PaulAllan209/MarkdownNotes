@@ -4,10 +4,9 @@ import DisplayWindow from './DisplayWindow';
 import EditingWindow from './EditingWindow';
 import UserWindowBar from './UserWindowBar';
 import GrammarSuggestionWindow from './GrammarSuggestionWindow';
-import React, { useState, useEffect, createContext, useCallback } from 'react';
+import { AcceptChangesWindowContext } from './contexts/AcceptChangesWindowContext.jsx';
+import React, { useState, useEffect, useCallback } from 'react';
 import { debounce } from 'lodash';
-
-export const AcceptChangesWindowContext = createContext();
 
 function App() {
     const [selectedFileGuid, setSelectedFileGuid] = useState(null);

@@ -31,10 +31,8 @@ function UserWindowBar(props) {
             });
     }
 
-    const handleGrammarCheck = (fileId) => {
+    const handleGrammarCheck = () => {
         props.setShowGrammarView(true);
-
-        fetch(`https://localhost:7271/api/markdown/${fileId}`)
     }
 
     return (
