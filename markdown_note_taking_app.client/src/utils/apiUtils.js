@@ -70,22 +70,40 @@ async function uploadFileToApi(body) {
     }
 };
 
-export const handleFileGet = async ({fileId = null, onSuccess, onError = null}) => {
+export const handleFileGet = async ({fileId = null, grammarCheck = false, onSuccess, onError = null}) => {
     try {
         if (fileId) {
-            const response = await fetch(`https://localhost:7271/api/markdown/${fileId}`);
+            if (grammarCheck) {
+                const response = await fetch(`https://localhost:7271/api/markdown/${fileId}/?checkGrammar=true`);
 
-            if (response.ok) {
-                console.log("Successfully got the file content.")
-                const data = await response.json();
-                if (onSuccess) onSuccess(data.title, data.fileContent);
-                return data;
+                if (response.ok) {
+                    console.log("Successfully got the file content with grammar checked.")
+                    const data = await response.json();
+                    if (onSuccess) onSuccess(data.title, data.fileContent);
+                    return data;
+                }
+                else {
+                    console.error("Error getting file content with grammar checked");
+                    alert("Error getting file content with grammar checked");
+                    if (onError) onError();
+                    return null;
+                }
             }
             else {
-                console.error("Error getting file content");
-                alert("Error getting the file content");
-                if (onError) onError();
-                return null;
+                const response = await fetch(`https://localhost:7271/api/markdown/${fileId}`);
+
+                if (response.ok) {
+                    console.log("Successfully got the file content.")
+                    const data = await response.json();
+                    if (onSuccess) onSuccess(data.title, data.fileContent);
+                    return data;
+                }
+                else {
+                    console.error("Error getting file content");
+                    alert("Error getting the file content");
+                    if (onError) onError();
+                    return null;
+                }
             }
         }
     } catch (error) {

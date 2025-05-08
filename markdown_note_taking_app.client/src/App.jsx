@@ -50,19 +50,13 @@ function App() {
     //Grammar checking
     useEffect(() => {
         if (showGrammarView) {
-            fetch(`https://localhost:7271/api/markdown/${selectedFileGuid}/?checkGrammar=true`)
-                .then(response => {
-                    if (response.ok) {
-                        console.log("Successfully got the file content with grammar checked.")
-                        return response.json();
-                    }
-                    else {
-                        console.error("Error getting file content with grammar checked.");
-                    }
-                })
-                .then(data => {
-                    setGrammarCheckedFileContent(data.fileContent || '');
-                })
+            handleFileGet({
+                fileId: selectedFileGuid,
+                grammarCheck: true,
+                onSuccess: (fileTitle, fileContent) => {
+                    setGrammarCheckedFileContent(fileContent || '')
+                }
+            })
         }
         else {
             setGrammarCheckedFileContent('');
