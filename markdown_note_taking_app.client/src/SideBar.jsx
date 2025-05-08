@@ -14,20 +14,14 @@ function SideBar(props) {
 
     // Getting the list of files
     useEffect(() => {
-        const fetchFiles = async () => {
-            try {
-                const localFiles = (await handleFileGet({}) || []);
-
+        handleFileGet({
+            onSuccess: (localFiles) => {
                 setFiles(localFiles.map(file => ({
                     guid: file.id,
                     title: file.title
                 })));
-
-            } catch(error) {
-                console.error("Error in getting list of files:", error);
             }
-        }
-        fetchFiles();
+        })
     }, []);
 
     useEffect(() => {

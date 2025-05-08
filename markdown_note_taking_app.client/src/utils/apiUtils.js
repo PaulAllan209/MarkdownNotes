@@ -120,7 +120,7 @@ export const handleFileGet = async ({fileId = null, grammarCheck = false, onSucc
             if (response.ok) {
                 console.log("Successfully got the list of files.");
                 const data = await response.json();
-                if (onSuccess) onSuccess();
+                if (onSuccess) onSuccess(data);
                 return data;
             }
             else {
