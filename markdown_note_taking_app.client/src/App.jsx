@@ -82,6 +82,7 @@ function App() {
                         saveState={isSaved}
                         setSaveState={setIsSaved}
                         fileGuid={selectedFile?.guid}
+                        fileTitle={selectedFile?.title}
                         fileCurrentContent={fileContent}
                         showGrammarView={showGrammarView}
                         setShowGrammarView={setShowGrammarView}
