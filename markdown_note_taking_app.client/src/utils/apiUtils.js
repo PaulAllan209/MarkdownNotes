@@ -78,7 +78,7 @@ async function uploadFileToApi(body) {
  * @param {Function} onError - Callback function called on error (optional)
  * @returns {File} - json file to be returned
  */
-export const handleFileGet = async ({fileId = null, grammarCheck = false, onSuccess = null, onError = null}) => {
+export const handleFileGet = async ({fileId = null, grammarCheck = false, asHtml=false, onSuccess = null, onError = null}) => {
     try {
         let apiUrl;
         let successLogMsg;
@@ -86,13 +86,13 @@ export const handleFileGet = async ({fileId = null, grammarCheck = false, onSucc
         let onSuccessCallback;
         if (fileId) {
             if (grammarCheck) {
-                apiUrl = `https://localhost:7271/api/markdown/${fileId}/?checkGrammar=true`;
+                apiUrl = `https://localhost:7271/api/markdown/${fileId}${asHtml ? `/html/` : ``}/?checkGrammar=true`;
                 successLogMsg = "Successfully got the file content with grammar checked.";
                 errorLogMsg = "Error getting file content with grammar checked";
                 onSuccessCallback = (data) => onSuccess(data.title, data.fileContent);
             }
             else {
-                apiUrl = `https://localhost:7271/api/markdown/${fileId}`;
+                apiUrl = `https://localhost:7271/api/markdown/${fileId}${asHtml ? `/html` : ``}`;
                 successLogMsg = "Successfully got the file content.";
                 errorLogMsg = "Error getting file content";
                 onSuccessCallback = (data) => onSuccess(data.title, data.fileContent);

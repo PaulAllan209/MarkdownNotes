@@ -1,6 +1,6 @@
 import './UserWindowBar.css';
 import AcceptChangesWindow from './AcceptChangesWindow';
-import { handleFileContentSave } from './utils/apiUtils';
+import { handleFileContentSave, handleFileGet } from './utils/apiUtils';
 
 function UserWindowBar(props) {
 
@@ -28,6 +28,38 @@ function UserWindowBar(props) {
         URL.revokeObjectURL(url); // Clean up the URL object
     }
 
+    const handleExportAsHtml = async () => {
+        try {
+            const data = await handleFileGet(
+                {
+                    fileId: props.fileGuid,
+                    asHtml: true
+                }
+            );
+
+            if (data && data.fileContentAsHtml) {
+                const htmlContent = data.fileContentAsHtml;
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${props.fileTitle}.html`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                URL.revokeObjectURL(url); // Clean up the URL object
+            } else {
+                console.error("HTML content is undefined or not returned properly.");
+                alert("Failed to export as HTML. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error exporting as HTML:", error);
+            alert("An error occurred while exporting as HTML. Please try again.");
+        }
+    }
+
     return (
         <div className="user-bar">
             <div className="user-bar-left-container">
@@ -38,7 +70,7 @@ function UserWindowBar(props) {
                 <button className="user-bar-buttons" onClick={() => handleFileContentSave(props.fileGuid, props.fileCurrentContent, handleSaveSuccess)}>Save</button>
                 <button className="user-bar-buttons" onClick={handleGrammarCheck}>Check for Grammar</button>
                 <button className="user-bar-buttons" onClick={handleExportAsMarkdown}>Export as Markdown</button>
-                <button className="user-bar-buttons">Export as HTML</button>
+                <button className="user-bar-buttons" onClick={handleExportAsHtml}>Export as HTML</button>
             </div>
         </div>
   );
