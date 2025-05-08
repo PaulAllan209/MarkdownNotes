@@ -9,6 +9,7 @@ function UserWindowBar(props) {
     }
 
     const handleGrammarCheck = () => {
+        handleFileContentSave(props.fileGuid, props.fileCurrentContent, handleSaveSuccess); //Saves the file to the database first before checking for grammar.
         props.setShowGrammarView(true);
     }
 
