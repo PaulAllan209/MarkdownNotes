@@ -80,55 +80,44 @@ async function uploadFileToApi(body) {
  */
 export const handleFileGet = async ({fileId = null, grammarCheck = false, onSuccess = null, onError = null}) => {
     try {
+        let apiUrl;
+        let successLogMsg;
+        let errorLogMsg;
+        let onSuccessCallback;
         if (fileId) {
             if (grammarCheck) {
-                const response = await fetch(`https://localhost:7271/api/markdown/${fileId}/?checkGrammar=true`);
-
-                if (response.ok) {
-                    console.log("Successfully got the file content with grammar checked.")
-                    const data = await response.json();
-                    if (onSuccess) onSuccess(data.title, data.fileContent);
-                    return data;
-                }
-                else {
-                    console.error("Error getting file content with grammar checked");
-                    alert("Error getting file content with grammar checked");
-                    if (onError) onError();
-                    return null;
-                }
+                apiUrl = `https://localhost:7271/api/markdown/${fileId}/?checkGrammar=true`;
+                successLogMsg = "Successfully got the file content with grammar checked.";
+                errorLogMsg = "Error getting file content with grammar checked";
+                onSuccessCallback = (data) => onSuccess(data.title, data.fileContent);
             }
             else {
-                const response = await fetch(`https://localhost:7271/api/markdown/${fileId}`);
-
-                if (response.ok) {
-                    console.log("Successfully got the file content.")
-                    const data = await response.json();
-                    if (onSuccess) onSuccess(data.title, data.fileContent);
-                    return data;
-                }
-                else {
-                    console.error("Error getting file content");
-                    alert("Error getting the file content");
-                    if (onError) onError();
-                    return null;
-                }
+                apiUrl = `https://localhost:7271/api/markdown/${fileId}`;
+                successLogMsg = "Successfully got the file content.";
+                errorLogMsg = "Error getting file content";
+                onSuccessCallback = (data) => onSuccess(data.title, data.fileContent);
             }
         }
         // If you want to get all of the list of files.
         else {
-            const response = await fetch('https://localhost:7271/api/markdown');
-            if (response.ok) {
-                console.log("Successfully got the list of files.");
-                const data = await response.json();
-                if (onSuccess) onSuccess(data);
-                return data;
-            }
-            else {
-                console.error("Error getting the list of files");
-                alert("Error getting the list of files");
-                if (onError) onError();
-                return null;
-            }
+            apiUrl = 'https://localhost:7271/api/markdown';
+            successLogMsg = "Successfully got the list of files.";
+            errorLogMsg = "Error getting the list of files";
+            onSuccessCallback = (data) => onSuccess(data);
+        }
+
+        const response = await fetch(`${apiUrl}`);
+        if (response.ok) {
+            const data = await response.json();
+            console.log(successLogMsg);
+            if (onSuccess) onSuccessCallback(data);
+            return data;
+        }
+        else {
+            console.error(`${errorLogMsg}`);
+            alert(`${errorLogMsg}`);
+            if (onError) onError();
+            return null;
         }
     } catch (error) {
         console.error("Network error while getting the file content", error);
