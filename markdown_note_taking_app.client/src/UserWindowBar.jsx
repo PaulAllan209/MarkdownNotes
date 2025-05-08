@@ -1,6 +1,6 @@
 import './UserWindowBar.css';
 import AcceptChangesWindow from './AcceptChangesWindow';
-import { handleFileContentSave } from './utils/apiUtils';
+import { handleFileContentSave, handleFileGet } from './utils/apiUtils';
 
 function UserWindowBar(props) {
 
@@ -9,7 +9,55 @@ function UserWindowBar(props) {
     }
 
     const handleGrammarCheck = () => {
+        handleFileContentSave(props.fileGuid, props.fileCurrentContent, handleSaveSuccess); //Saves the file to the database first before checking for grammar.
         props.setShowGrammarView(true);
+    }
+
+    const handleExportAsMarkdown = () => {
+        const markdownContent = props.fileCurrentContent;
+        const blob = new Blob([markdownContent], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${props.fileTitle}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url); // Clean up the URL object
+    }
+
+    const handleExportAsHtml = async () => {
+        try {
+            const data = await handleFileGet(
+                {
+                    fileId: props.fileGuid,
+                    asHtml: true
+                }
+            );
+
+            if (data && data.fileContentAsHtml) {
+                const htmlContent = data.fileContentAsHtml;
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${props.fileTitle}.html`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                URL.revokeObjectURL(url); // Clean up the URL object
+            } else {
+                console.error("HTML content is undefined or not returned properly.");
+                alert("Failed to export as HTML. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error exporting as HTML:", error);
+            alert("An error occurred while exporting as HTML. Please try again.");
+        }
     }
 
     return (
@@ -21,8 +69,8 @@ function UserWindowBar(props) {
             <div className="user-bar-buttons-container">
                 <button className="user-bar-buttons" onClick={() => handleFileContentSave(props.fileGuid, props.fileCurrentContent, handleSaveSuccess)}>Save</button>
                 <button className="user-bar-buttons" onClick={handleGrammarCheck}>Check for Grammar</button>
-                <button className="user-bar-buttons">Export as Markdown</button>
-                <button className="user-bar-buttons">Export as HTML</button>
+                <button className="user-bar-buttons" onClick={handleExportAsMarkdown}>Export as Markdown</button>
+                <button className="user-bar-buttons" onClick={handleExportAsHtml}>Export as HTML</button>
             </div>
         </div>
   );

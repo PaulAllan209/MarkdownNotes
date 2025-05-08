@@ -4,12 +4,13 @@ import DisplayWindow from './DisplayWindow';
 import EditingWindow from './EditingWindow';
 import UserWindowBar from './UserWindowBar';
 import GrammarSuggestionWindow from './GrammarSuggestionWindow';
+import { handleFileGet } from './utils/apiUtils.js';
 import { AcceptChangesWindowContext } from './contexts/AcceptChangesWindowContext.jsx';
 import React, { useState, useEffect, useCallback } from 'react';
 import { debounce } from 'lodash';
 
 function App() {
-    const [selectedFileGuid, setSelectedFileGuid] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
     const [fileContentInDb, setFileContentInDb] = useState('');
     const [fileContent, setFileContent] = useState('');
     const [isSaved, setIsSaved] = useState(true);
@@ -25,23 +26,18 @@ function App() {
 
     // Getting the file content if selected file and file content chnanges
     useEffect(() => {
-        if (selectedFileGuid != null) {
-            fetch(`https://localhost:7271/api/markdown/${selectedFileGuid}`)
-                .then(response => {
-                    if (response.ok) {
-                        console.log("Successfully got the file content.")
-                        return response.json();
+        if (selectedFile != null) {
+
+            handleFileGet(
+                {
+                    fileId: selectedFile.guid,
+                    onSuccess: (fileTitle, fileContent) => {
+                        setFileContent(fileContent || '');
+                        setFileContentInDb(fileContent || '');
                     }
-                    else {
-                        console.error("Error getting file content");
-                    }
-                })
-                .then(data => {
-                    setFileContent(data.fileContent || '');
-                    setFileContentInDb(data.fileContent || '');
-                })
+                });
         }
-    }, [selectedFileGuid]);
+    }, [selectedFile]);
 
     // Saving functionality
     // PATCH Request api for saving is in UserWindowBar.jsx
@@ -54,19 +50,13 @@ function App() {
     //Grammar checking
     useEffect(() => {
         if (showGrammarView) {
-            fetch(`https://localhost:7271/api/markdown/${selectedFileGuid}/?checkGrammar=true`)
-                .then(response => {
-                    if (response.ok) {
-                        console.log("Successfully got the file content with grammar checked.")
-                        return response.json();
-                    }
-                    else {
-                        console.error("Error getting file content with grammar checked.");
-                    }
-                })
-                .then(data => {
-                    setGrammarCheckedFileContent(data.fileContent || '');
-                })
+            handleFileGet({
+                fileId: selectedFile.guid,
+                grammarCheck: true,
+                onSuccess: (fileTitle, fileContent) => {
+                    setGrammarCheckedFileContent(fileContent || '')
+                }
+            })
         }
         else {
             setGrammarCheckedFileContent('');
@@ -75,7 +65,7 @@ function App() {
 
     return (
         <div className="app-container">
-            <SideBar onFileSelect={setSelectedFileGuid} />
+            <SideBar onFileSelect={setSelectedFile} />
             <div className="user-window">
                 <AcceptChangesWindowContext.Provider value={
                     {
@@ -84,14 +74,15 @@ function App() {
                         setFileContent,
                         setFileContentInDb,
                         setShowGrammarView,
-                        selectedFileGuid,
+                        selectedFile: selectedFile,
                         setIsSaved
                     }
                 }>
                     <UserWindowBar
                         saveState={isSaved}
                         setSaveState={setIsSaved}
-                        fileGuid={selectedFileGuid}
+                        fileGuid={selectedFile?.guid}
+                        fileTitle={selectedFile?.title}
                         fileCurrentContent={fileContent}
                         showGrammarView={showGrammarView}
                         setShowGrammarView={setShowGrammarView}

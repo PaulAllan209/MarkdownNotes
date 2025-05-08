@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, createContext } from 'react';
-import { handleFileNameSave, handleFileCreate } from './utils/apiUtils';
+import { handleFileCreate, handleFileGet, handleFileNameSave, handleFileDelete  } from './utils/apiUtils';
 import './SideBar.css'
 
 export const SelectedFileContext = createContext();
@@ -14,18 +14,14 @@ function SideBar(props) {
 
     // Getting the list of files
     useEffect(() => {
-        fetch('https://localhost:7271/api/markdown')
-            .then(response => response.json())
-            .then(data => {
-                const files = data.map(file => ({
+        handleFileGet({
+            onSuccess: (localFiles) => {
+                setFiles(localFiles.map(file => ({
                     guid: file.id,
                     title: file.title
-                }));
-                setFiles(files);
-            })
-            .catch(error => {
-                console.error('Error fetching filename data:', error);
-            })
+                })));
+            }
+        })
     }, []);
 
     useEffect(() => {
@@ -34,7 +30,7 @@ function SideBar(props) {
         }
     }, [isCreatingFile]);
 
-    const handleCreateFile = () => {
+    const handleCreateFileBtn = () => {
         setIsCreatingFile(true);
         setFileName('');
     }
@@ -63,11 +59,15 @@ function SideBar(props) {
         if (e.key === 'Enter') {
             if (isCreatingFile) {
                 e.preventDefault();
-                handleFileCreate(fileName, (fileId, fileName) => {
-                    setFiles(prevFiles => [...prevFiles, { guid: fileId, title: fileName }]);
-                    setIsCreatingFile(false);
-                    setFileName('');
-                });
+                handleFileCreate(
+                    {
+                        fileName: fileName, 
+                        onSuccess: (fileId, fileName) => {
+                            setFiles(prevFiles => [...prevFiles, { guid: fileId, title: fileName }]);
+                            setIsCreatingFile(false);
+                            setFileName('');}
+                    }
+                );
             }
             else if (isRenamingFile) {
                 e.preventDefault();
@@ -83,98 +83,51 @@ function SideBar(props) {
         }
     }
 
-    const handleFileUpload = (event) => {
+    const handleFileUploadBtn = (event) => {
         const file = event.target.files[0];
-        if (file.name.toLowerCase().endsWith(".md")) {
-            //Prepare the file for upload
-            const formData = new FormData();
-            formData.append("markDownFile", file)
-
-            // Send via POST request
-            fileUpload(formData);
-        }
-    
-        else {
-            alert("Please select a valid .md file.");
-        }
+        handleFileCreate(
+            {
+                file: file, 
+                onSuccess: (fileId, fileName) => {
+                            setFiles(prevFiles => [...prevFiles, { guid: fileId, title: fileName }]);
+                }
+            }
+        );
     }
 
-    
-
-    const triggerFileInput = () => {
+    const triggerFileInputBtn = () => {
         fileInputRef.current.click();
     };
 
-    const handleFileDelete = () => {
+    const handleFileDeleteBtn = () => {
         const selectedFileGuid = files[selectedFileIndex].guid;
+        handleFileDelete(selectedFileGuid, () => {
+            //on success callback
+            setFiles(prevFiles => prevFiles.filter(file => file.guid != selectedFileGuid));
 
-        fetch(`https://localhost:7271/api/markdown/${selectedFileGuid}`, {
-            method: 'DELETE'
-        })
-            .then(async response => {
-                if (response.ok) {
-                    console.log("File deleted successfully")
-
-                    //Update list of files without an api call
-                    setFiles(prevFiles => prevFiles.filter(file => file.guid != selectedFileGuid));
-                }
-                else {
-                    console.error("Failed to delete file:");
-                }
-            })
-            .catch(error => {
-                console.error("Error deleting file:", error);
-            });
-
+        });
         setSelectedFileIndex(null);
     };
 
     const handleFileSelected = (index) => {
         setSelectedFileIndex(index);
-        props.onFileSelect(files[index]?.guid || null);
+        props.onFileSelect(files[index] || null);
     }
-
-    function fileUpload(body) {
-        fetch('https://localhost:7271/api/markdown', {
-            method: 'POST',
-            body: body,
-        })
-            .then(response => {
-                if (response.ok) {
-                    console.log("File uploaded successfully");
-                    return (response.json());
-                }
-                else {
-                    console.error("Failed to upload file");
-                    alert("Failed to upload file");
-                }
-            })
-            .then(data => {
-                setFiles(prevFileNames => [...prevFileNames, {guid: data.id, title:data.title}]);
-            })
-            .catch(error => {
-                console.error("Error uploading file:", error);
-                alert("Error uploading file. Please try again.");
-            });
-    };
-
-
 
     return (
         <div className="side-bar">
             <div className="side-bar-buttons-container">
-                <button className="side-bar-buttons" onClick={handleCreateFile}><img src="/assets/button_icons/add_file.png" className="side-bar-icons"></img></button>
+                <button className="side-bar-buttons" onClick={handleCreateFileBtn}><img src="/assets/button_icons/add_file.png" className="side-bar-icons"></img></button>
 
-                <button className="side-bar-buttons" onClick={triggerFileInput}><img src="/assets/button_icons/upload_file.png" className="side-bar-icons"></img></button>
+                <button className="side-bar-buttons" onClick={triggerFileInputBtn}><img src="/assets/button_icons/upload_file.png" className="side-bar-icons"></img></button>
                 <input
                     type="file"
                     accept=".md"
                     ref={fileInputRef}
                     style={{ display: 'none' }}
-                    onChange={handleFileUpload}
+                    onChange={handleFileUploadBtn}
                 />
-                <button className="side-bar-buttons" onClick={handleFileDelete}><img src="/assets/button_icons/delete_file.png" className="side-bar-icons"></img></button>
-                <button className="side-bar-buttons"><img src="/assets/button_icons/edit_file.png" className="side-bar-icons"></img></button>
+                <button className="side-bar-buttons" onClick={handleFileDeleteBtn}><img src="/assets/button_icons/delete_file.png" className="side-bar-icons"></img></button>
             </div>
             
 
