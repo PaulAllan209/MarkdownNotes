@@ -1,43 +1,33 @@
 /**
  * Saves the new file to the database
- * @param {string} fileName - The title to save
- * @param {Function} onSuccess - Callback function called on successful save
- * @param {Function} onError - Callback function called on error (optional)
- * @returns {Promise} - the fetch promise
- */
-export const handleFileCreate = async (fileName, onSuccess, onError = null) => {
-    try {
-        const formData = new FormData();
-        const emptyFile = new Blob([], { type: 'text/markdown' });
-        formData.append("markDownFile", emptyFile, `${fileName}.md`);
-
-        //Upload file to API
-        const json_response = await uploadFileToApi(formData);
-        if (json_response) {
-            onSuccess(json_response.id, json_response.title);
-        }
-        else {
-            if (onError) onError();
-        }
-    } catch (error) {
-        console.error("Error creating file:", error);
-        if (onError) onError();
-    }
-};
-
-/**
- * Saves the new uploaded file to the database
+ * @param {string} fileName - The title to save if creating a new file
  * @param {File} file - The file to upload (.md)
  * @param {Function} onSuccess - Callback function called on successful save
  * @param {Function} onError - Callback function called on error (optional)
  * @returns {Promise} - the fetch promise
  */
-export const handleFileUpload = async (file, onSuccess, onError = null) => {
+export const handleFileCreate = async ({fileName = null, file = null, onSuccess, onError = null}) => {
     try {
-        if (file.name.toLowerCase().endsWith(".md")) {
-            //Prepare the file for upload
+        if (file) {
+            if (file.name.toLowerCase().endsWith(".md")) {
+                //Prepare the file for upload
+                const formData = new FormData();
+                formData.append("markDownFile", file)
+
+                //Upload file to API
+                const json_response = await uploadFileToApi(formData);
+                if (json_response) {
+                    onSuccess(json_response.id, json_response.title);
+                }
+                else {
+                    if (onError) onError();
+                }
+            }
+        }
+        else if (fileName) {
             const formData = new FormData();
-            formData.append("markDownFile", file)
+            const emptyFile = new Blob([], { type: 'text/markdown' });
+            formData.append("markDownFile", emptyFile, `${fileName}.md`);
 
             //Upload file to API
             const json_response = await uploadFileToApi(formData);
@@ -47,12 +37,12 @@ export const handleFileUpload = async (file, onSuccess, onError = null) => {
             else {
                 if (onError) onError();
             }
-        }
+        };
+        
     } catch (error) {
         console.error("Error creating file:", error);
         if (onError) onError();
     }
-    
 };
 
 //Helper function for post request in uploading the file to the database

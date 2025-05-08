@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, createContext } from 'react';
-import { handleFileCreate, handleFileUpload, handleFileNameSave, handleFileDelete  } from './utils/apiUtils';
+import { handleFileCreate, handleFileNameSave, handleFileDelete  } from './utils/apiUtils';
 import './SideBar.css'
 
 export const SelectedFileContext = createContext();
@@ -63,11 +63,15 @@ function SideBar(props) {
         if (e.key === 'Enter') {
             if (isCreatingFile) {
                 e.preventDefault();
-                handleFileCreate(fileName, (fileId, fileName) => {
-                    setFiles(prevFiles => [...prevFiles, { guid: fileId, title: fileName }]);
-                    setIsCreatingFile(false);
-                    setFileName('');
-                });
+                handleFileCreate(
+                    {
+                        fileName: fileName, 
+                        onSuccess: (fileId, fileName) => {
+                            setFiles(prevFiles => [...prevFiles, { guid: fileId, title: fileName }]);
+                            setIsCreatingFile(false);
+                            setFileName('');}
+                    }
+                );
             }
             else if (isRenamingFile) {
                 e.preventDefault();
@@ -85,9 +89,14 @@ function SideBar(props) {
 
     const handleFileUploadBtn = (event) => {
         const file = event.target.files[0];
-        handleFileUpload(file, (fileId, fileName) => {
-            setFiles(prevFiles => [...prevFiles, { guid: fileId, title: fileName }]);
-        });
+        handleFileCreate(
+            {
+                file: file, 
+                onSuccess: (fileId, fileName) => {
+                            setFiles(prevFiles => [...prevFiles, { guid: fileId, title: fileName }]);
+                }
+            }
+        );
     }
 
     const triggerFileInputBtn = () => {
