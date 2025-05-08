@@ -70,7 +70,15 @@ async function uploadFileToApi(body) {
     }
 };
 
-export const handleFileGet = async ({fileId = null, grammarCheck = false, onSuccess, onError = null}) => {
+/**
+ * Gets file from the database
+ * @param {string} fileId - The fileId to get file.
+ * @param {bool} grammarCheck - Set to true if you want to return the file content with grammar checked.
+ * @param {Function} onSuccess - Callback function called on successful file get.
+ * @param {Function} onError - Callback function called on error (optional)
+ * @returns {File} - json file to be returned
+ */
+export const handleFileGet = async ({fileId = null, grammarCheck = false, onSuccess = null, onError = null}) => {
     try {
         if (fileId) {
             if (grammarCheck) {
@@ -104,6 +112,22 @@ export const handleFileGet = async ({fileId = null, grammarCheck = false, onSucc
                     if (onError) onError();
                     return null;
                 }
+            }
+        }
+        // If you want to get all of the list of files.
+        else {
+            const response = await fetch('https://localhost:7271/api/markdown');
+            if (response.ok) {
+                console.log("Successfully got the list of files.");
+                const data = await response.json();
+                if (onSuccess) onSuccess();
+                return data;
+            }
+            else {
+                console.error("Error getting the list of files");
+                alert("Error getting the list of files");
+                if (onError) onError();
+                return null;
             }
         }
     } catch (error) {

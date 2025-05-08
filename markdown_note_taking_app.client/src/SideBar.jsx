@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, createContext } from 'react';
-import { handleFileCreate, handleFileNameSave, handleFileDelete  } from './utils/apiUtils';
+import { handleFileCreate, handleFileGet, handleFileNameSave, handleFileDelete  } from './utils/apiUtils';
 import './SideBar.css'
 
 export const SelectedFileContext = createContext();
@@ -14,18 +14,20 @@ function SideBar(props) {
 
     // Getting the list of files
     useEffect(() => {
-        fetch('https://localhost:7271/api/markdown')
-            .then(response => response.json())
-            .then(data => {
-                const files = data.map(file => ({
+        const fetchFiles = async () => {
+            try {
+                const localFiles = (await handleFileGet({}) || []);
+
+                setFiles(localFiles.map(file => ({
                     guid: file.id,
                     title: file.title
-                }));
-                setFiles(files);
-            })
-            .catch(error => {
-                console.error('Error fetching filename data:', error);
-            })
+                })));
+
+            } catch(error) {
+                console.error("Error in getting list of files:", error);
+            }
+        }
+        fetchFiles();
     }, []);
 
     useEffect(() => {
