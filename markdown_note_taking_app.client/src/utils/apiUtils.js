@@ -70,6 +70,30 @@ async function uploadFileToApi(body) {
     }
 };
 
+export const handleFileGet = async ({fileId = null, onSuccess, onError = null}) => {
+    try {
+        if (fileId) {
+            const response = await fetch(`https://localhost:7271/api/markdown/${fileId}`);
+
+            if (response.ok) {
+                console.log("Successfully got the file content.")
+                const data = await response.json();
+                if (onSuccess) onSuccess(data.title, data.fileContent);
+                return data;
+            }
+            else {
+                console.error("Error getting file content");
+                alert("Error getting the file content");
+                if (onError) onError();
+                return null;
+            }
+        }
+    } catch (error) {
+        console.error("Network error while getting the file content", error);
+        alert("Network error while getting the file content. Please try again or reload the page.");
+        return null
+    }
+};
 
 /**
  * Saves the new file name to the database

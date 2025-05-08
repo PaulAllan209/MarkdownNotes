@@ -4,6 +4,7 @@ import DisplayWindow from './DisplayWindow';
 import EditingWindow from './EditingWindow';
 import UserWindowBar from './UserWindowBar';
 import GrammarSuggestionWindow from './GrammarSuggestionWindow';
+import { handleFileGet } from './utils/apiUtils.js';
 import { AcceptChangesWindowContext } from './contexts/AcceptChangesWindowContext.jsx';
 import React, { useState, useEffect, useCallback } from 'react';
 import { debounce } from 'lodash';
@@ -26,20 +27,15 @@ function App() {
     // Getting the file content if selected file and file content chnanges
     useEffect(() => {
         if (selectedFileGuid != null) {
-            fetch(`https://localhost:7271/api/markdown/${selectedFileGuid}`)
-                .then(response => {
-                    if (response.ok) {
-                        console.log("Successfully got the file content.")
-                        return response.json();
+
+            handleFileGet(
+                {
+                    fileId: selectedFileGuid,
+                    onSuccess: (fileTitle, fileContent) => {
+                        setFileContent(fileContent || '');
+                        setFileContentInDb(fileContent || '');
                     }
-                    else {
-                        console.error("Error getting file content");
-                    }
-                })
-                .then(data => {
-                    setFileContent(data.fileContent || '');
-                    setFileContentInDb(data.fileContent || '');
-                })
+                });
         }
     }, [selectedFileGuid]);
 
