@@ -12,7 +12,7 @@ function AcceptChangesWindow() {
             setFileContent,
             setFileContentInDb,
             setShowGrammarView,
-            selectedFileGuid,
+            selectedFile,
             setIsSaved
         } = useContext(AcceptChangesWindowContext);
 
@@ -39,7 +39,7 @@ function AcceptChangesWindow() {
             <div className="accept-changes-text">
                 Accept Changes?
             </div>
-            <button className="accept-button" onClick={() => handleAcceptChanges(selectedFileGuid, grammarCheckedFileContent) }>&#10003;</button>
+            <button className="accept-button" onClick={() => handleAcceptChanges(selectedFile.guid, grammarCheckedFileContent) }>&#10003;</button>
             <button className="reject-button" onClick={handleRejectChanges}>&#10007;</button>
       </div>
   );

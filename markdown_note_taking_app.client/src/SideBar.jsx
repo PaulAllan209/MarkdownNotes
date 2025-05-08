@@ -111,7 +111,7 @@ function SideBar(props) {
 
     const handleFileSelected = (index) => {
         setSelectedFileIndex(index);
-        props.onFileSelect(files[index]?.guid || null);
+        props.onFileSelect(files[index] || null);
     }
 
     return (

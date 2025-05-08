@@ -10,7 +10,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { debounce } from 'lodash';
 
 function App() {
-    const [selectedFileGuid, setSelectedFileGuid] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
     const [fileContentInDb, setFileContentInDb] = useState('');
     const [fileContent, setFileContent] = useState('');
     const [isSaved, setIsSaved] = useState(true);
@@ -26,18 +26,18 @@ function App() {
 
     // Getting the file content if selected file and file content chnanges
     useEffect(() => {
-        if (selectedFileGuid != null) {
+        if (selectedFile != null) {
 
             handleFileGet(
                 {
-                    fileId: selectedFileGuid,
+                    fileId: selectedFile.guid,
                     onSuccess: (fileTitle, fileContent) => {
                         setFileContent(fileContent || '');
                         setFileContentInDb(fileContent || '');
                     }
                 });
         }
-    }, [selectedFileGuid]);
+    }, [selectedFile]);
 
     // Saving functionality
     // PATCH Request api for saving is in UserWindowBar.jsx
@@ -51,7 +51,7 @@ function App() {
     useEffect(() => {
         if (showGrammarView) {
             handleFileGet({
-                fileId: selectedFileGuid,
+                fileId: selectedFile.guid,
                 grammarCheck: true,
                 onSuccess: (fileTitle, fileContent) => {
                     setGrammarCheckedFileContent(fileContent || '')
@@ -65,7 +65,7 @@ function App() {
 
     return (
         <div className="app-container">
-            <SideBar onFileSelect={setSelectedFileGuid} />
+            <SideBar onFileSelect={setSelectedFile} />
             <div className="user-window">
                 <AcceptChangesWindowContext.Provider value={
                     {
@@ -74,14 +74,14 @@ function App() {
                         setFileContent,
                         setFileContentInDb,
                         setShowGrammarView,
-                        selectedFileGuid,
+                        selectedFile: selectedFile,
                         setIsSaved
                     }
                 }>
                     <UserWindowBar
                         saveState={isSaved}
                         setSaveState={setIsSaved}
-                        fileGuid={selectedFileGuid}
+                        fileGuid={selectedFile?.guid}
                         fileCurrentContent={fileContent}
                         showGrammarView={showGrammarView}
                         setShowGrammarView={setShowGrammarView}
