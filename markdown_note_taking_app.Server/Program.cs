@@ -1,3 +1,4 @@
+using LoggerService.Interfaces;
 using markdown_note_taking_app.Server.Extensions;
 using markdown_note_taking_app.Server.Interfaces.ServiceInterface;
 using markdown_note_taking_app.Server.Service;
@@ -47,10 +48,13 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+var logger = app.Services.GetRequiredService<ILoggerManager>();
+app.ConfigureExceptionHandler(logger);
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
+    //app.UseDeveloperExceptionPage(); // This one is commented out so that it will not override the custom global exception handler
     app.UseSwagger();
     app.UseSwaggerUI();
 }
