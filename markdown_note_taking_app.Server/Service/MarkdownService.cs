@@ -8,6 +8,7 @@ using markdown_note_taking_app.Server.Interfaces.ServiceInterface;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
+using markdown_note_taking_app.Server.Exceptions;
 
 namespace markdown_note_taking_app.Server.Service
 {
@@ -60,7 +61,7 @@ namespace markdown_note_taking_app.Server.Service
         public async Task DeleteMarkdownFileAsync(Guid fileId, bool trackChanges)
         {
             if (fileId == Guid.Empty)
-                throw new ArgumentNullException("The file id cannot be empty.");
+                throw new InvalidMarkdownFileNameException();
 
             var markdownFileEntity = await GetMarkdownFileAndCheckIfItExistsAsync(fileId, trackChanges);
 
@@ -79,10 +80,11 @@ namespace markdown_note_taking_app.Server.Service
         public async Task<MarkdownFileDto> GetMarkdownFileAsync(Guid fileId, bool checkGrammar, bool trackChanges)
         {
             if (fileId == Guid.Empty)
-                throw new BadHttpRequestException("File Id cannot be empty");
+                throw new InvalidMarkdownFileNameException();
 
 
             var markdownFileEntity = await GetMarkdownFileAndCheckIfItExistsAsync(fileId, trackChanges);
+
             var markdownFileDto = _mapper.Map<MarkdownFileDto>(markdownFileEntity);
 
             if (checkGrammar)
@@ -103,8 +105,8 @@ namespace markdown_note_taking_app.Server.Service
         {
             var markDownFile = await _repository.MarkDown.GetMarkdownFileAsync(fileId, trackChanges);
 
-            if (markDownFile == null)
-                throw new FileNotFoundException($"The file with the file id \"{fileId}\" cannot be found");
+            if (markDownFile is null)
+                throw new MarkdownFileNotFoundException(fileId);
 
             return markDownFile;
         }
@@ -112,7 +114,7 @@ namespace markdown_note_taking_app.Server.Service
         public async Task<MarkdownFileConvertToHtmlDto> GetMarkdownFileAsHtmlAsync(Guid fileId, bool checkGrammar, bool trackChanges)
         {
             if (fileId == Guid.Empty)
-                throw new BadHttpRequestException("File Id cannot be empty");
+                throw new InvalidMarkdownFileNameException();
 
             //Get markdownfile content
             var markdownFileDtoChecked = await GetMarkdownFileAsync(fileId, checkGrammar, false);
@@ -147,8 +149,6 @@ namespace markdown_note_taking_app.Server.Service
         public async Task<(MarkdownFileDto markdownToPatch, MarkdownFile markdownFileEntity)> GetMarkdownForPatchAsync(Guid fileId, bool TrackChanges)
         {
             var Markdown = await _repository.MarkDown.GetMarkdownFileAsync(fileId, TrackChanges);
-            if (Markdown is null)
-                throw new Exception("Markdown file not found.");
 
             var markdownToPatch = _mapper.Map<MarkdownFileDto>(Markdown);
 
@@ -168,7 +168,7 @@ namespace markdown_note_taking_app.Server.Service
 
             if (fileExtension != ".md")
             {
-                throw new BadHttpRequestException("Invalid file type uploaded. Only markdown (.md) files are allowed.");
+                throw new InvalidMarkdownFileTypeException(fileName);
             }
         }
     }
