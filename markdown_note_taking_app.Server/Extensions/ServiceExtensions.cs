@@ -7,6 +7,8 @@ using markdown_note_taking_app.Server.Repositories;
 using markdown_note_taking_app.Server.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using markdown_note_taking_app.Server.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace markdown_note_taking_app.Server.Extensions
 {
@@ -44,5 +46,21 @@ namespace markdown_note_taking_app.Server.Extensions
 
         public static void ConfigureLoggerService(this IServiceCollection services) =>
             services.AddSingleton<ILoggerManager, LoggerManager>();
+
+        public static void ConfigureIdentity(this IServiceCollection services)
+        {
+            var builder = services.AddIdentity<User, IdentityRole>(o =>
+            {
+                o.Password.RequireDigit = true;
+                o.Password.RequireLowercase = false;
+                o.Password.RequireUppercase = false;
+                o.Password.RequireNonAlphanumeric = false;
+                o.Password.RequiredLength = 10;
+                o.User.RequireUniqueEmail = true;
+            })
+            .AddEntityFrameworkStores<DataContext>()
+            .AddDefaultTokenProviders();
+        }
+
     }
 }

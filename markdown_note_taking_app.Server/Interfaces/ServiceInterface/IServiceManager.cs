@@ -4,6 +4,6 @@
     {
         IMarkdownService MarkdownService { get; }
         IGrammarCheckService GrammarCheckService { get; }
-
+        IAuthenticationService AuthenticationService { get; }
     }
 }

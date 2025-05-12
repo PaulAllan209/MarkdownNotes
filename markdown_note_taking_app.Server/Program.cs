@@ -1,4 +1,5 @@
 using LoggerService.Interfaces;
+using markdown_note_taking_app.Server.ActionFilters;
 using markdown_note_taking_app.Server.Extensions;
 using markdown_note_taking_app.Server.Interfaces.ServiceInterface;
 using markdown_note_taking_app.Server.Service;
@@ -46,6 +47,13 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Custom action filters
+builder.Services.AddScoped<ValidationFilterAttribute>();
+
+//Jwt authentication and authorization
+builder.Services.AddAuthentication();
+builder.Services.ConfigureIdentity();
+
 var app = builder.Build();
 
 var logger = app.Services.GetRequiredService<ILoggerManager>();
@@ -72,6 +80,8 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 
 app.UseCors("CorsPolicy");
 
+//Jwt authentication and authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

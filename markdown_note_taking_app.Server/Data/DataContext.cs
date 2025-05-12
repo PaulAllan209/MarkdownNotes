@@ -1,9 +1,12 @@
 ﻿using Entities.Models;
+using markdown_note_taking_app.Server.Models;
+using markdown_note_taking_app.Server.Repositories.Configuration;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace markdown_note_taking_app.Server.Data
 {
-    public class DataContext : DbContext
+    public class DataContext : IdentityDbContext<User>
     {
         public DbSet<MarkdownFile> MarkDownFiles { get; set; }
 
@@ -15,6 +18,9 @@ namespace markdown_note_taking_app.Server.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            //Creating data for the roles in JWT authentication
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());
 
             modelBuilder.Entity<MarkdownFile>()
                 .HasKey(x => x.Id);
