@@ -5,6 +5,7 @@ using markdown_note_taking_app.Server.Interfaces.ServiceInterface;
 using Microsoft.AspNetCore.Mvc;
 using Azure;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authorization;
 
 namespace markdown_note_taking_app.Server.Controllers
 {
@@ -30,6 +31,7 @@ namespace markdown_note_taking_app.Server.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetMarkdownFiles()
         {
             var markdownFiles = await _serviceManager.MarkdownService.GetAllMarkdownFilesAsync(trackChanges: false);

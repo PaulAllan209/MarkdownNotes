@@ -6,5 +6,7 @@ namespace markdown_note_taking_app.Server.Interfaces.ServiceInterface
     public interface IAuthenticationService
     {
         Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration);
+        Task<bool> ValidateUser(UserForAuthenticationDto userForAuth);
+        Task<string> CreateToken();
     }
 }

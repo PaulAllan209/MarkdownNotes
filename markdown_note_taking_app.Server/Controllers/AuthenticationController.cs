@@ -33,5 +33,18 @@ namespace markdown_note_taking_app.Server.Controllers
 
             return StatusCode(201);
         }
+
+        [HttpPost("login")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> Authenticate([FromBody] UserForAuthenticationDto user)
+        {
+            // Validate user method assigns a value to private attribute _user
+            // _user will be used by CreateToken method that is why no parameters are passed on it
+            if (!await _service.AuthenticationService.ValidateUser(user))
+                return Unauthorized();
+
+            // No parameters are passed on CreateToken method because _user attribute already have a value
+            return Ok(new { Token = await _service.AuthenticationService.CreateToken() });
+        }
     }
 }
