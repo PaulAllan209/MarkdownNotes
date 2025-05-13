@@ -24,6 +24,11 @@ namespace markdown_note_taking_app.Server.Data
 
             modelBuilder.Entity<MarkdownFile>()
                 .HasKey(x => x.Id);
+
+            modelBuilder.Entity<MarkdownFile>()
+                .HasOne(m => m.User)
+                .WithMany(u => u.MarkdownFiles)
+                .HasForeignKey(m => m.UserId);
         }
     }
 }

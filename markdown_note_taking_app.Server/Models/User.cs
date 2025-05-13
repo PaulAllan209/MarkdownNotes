@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Entities.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace markdown_note_taking_app.Server.Models
 {
@@ -8,5 +9,7 @@ namespace markdown_note_taking_app.Server.Models
         public string? LastName { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime RefreshTokenExpiryTime { get; set; }
+
+        public ICollection<MarkdownFile>? MarkdownFiles { get; set; }
     }
 }
