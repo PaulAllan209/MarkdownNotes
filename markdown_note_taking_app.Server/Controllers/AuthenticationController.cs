@@ -44,7 +44,9 @@ namespace markdown_note_taking_app.Server.Controllers
                 return Unauthorized();
 
             // No parameters are passed on CreateToken method because _user attribute already have a value
-            return Ok(new { Token = await _service.AuthenticationService.CreateToken() });
+            var tokenDto = await _service.AuthenticationService.CreateToken(populateExp: true);
+
+            return Ok(tokenDto);
         }
     }
 }
