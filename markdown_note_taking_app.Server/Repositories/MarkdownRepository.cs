@@ -22,9 +22,11 @@ namespace markdown_note_taking_app.Server.Repositories
             Delete(markdownFile);
         }
 
-        public async Task<IEnumerable<MarkdownFile>> GetAllMarkdownFilesAsync(bool trackChanges)
+        public async Task<IEnumerable<MarkdownFile>> GetAllMarkdownFilesAsync(string userId, bool trackChanges)
         {
-           return await FindAll(trackChanges).OrderBy(x => x.Title).ToListAsync();
+           return await FindByCondition(x => x.UserId == userId, trackChanges)
+                .OrderBy(x => x.Title)
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<MarkdownFile>> GetByIdsAsync(IEnumerable<Guid> fileIds,bool trackChanges)

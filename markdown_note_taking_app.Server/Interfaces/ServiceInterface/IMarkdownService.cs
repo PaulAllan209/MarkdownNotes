@@ -5,7 +5,7 @@ namespace markdown_note_taking_app.Server.Interfaces.ServiceInterface
 {
     public interface IMarkdownService
     {
-        Task<IEnumerable<MarkdownFileDto>> GetAllMarkdownFilesAsync(bool trackChanges);
+        Task<IEnumerable<MarkdownFileDto>> GetAllMarkdownFilesAsync(string userName, bool trackChanges);
         Task<MarkdownFileDto> GetMarkdownFileAsync(Guid fileId, bool checkGrammar, bool trackChanges);
         Task<MarkdownFileDto> CreateMarkdownFileAsync(MarkdownFileUploadDto markdownFile);
         Task DeleteMarkdownFileAsync(Guid fileId, bool trackChanges);

@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using markdown_note_taking_app.Server.Exceptions;
+using Microsoft.AspNetCore.Identity;
+using markdown_note_taking_app.Server.Models;
 
 namespace markdown_note_taking_app.Server.Service
 {
@@ -18,13 +20,15 @@ namespace markdown_note_taking_app.Server.Service
         private readonly IGrammarCheckService _grammarCheckService;
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
+        private readonly UserManager<User> _userManager;
 
-        public MarkdownService(IRepositoryManager repository, IGrammarCheckService grammarCheckService, ILoggerManager logger, IMapper mapper)
+        public MarkdownService(IRepositoryManager repository, IGrammarCheckService grammarCheckService, UserManager<User> userManager, ILoggerManager logger, IMapper mapper)
         {
             _repository = repository;
+            _grammarCheckService = grammarCheckService;
+            _userManager = userManager;
             _logger = logger;
             _mapper = mapper;
-            _grammarCheckService = grammarCheckService;
         }
 
         public async Task<MarkdownFileDto> CreateMarkdownFileAsync(MarkdownFileUploadDto markdownFile)
@@ -69,9 +73,13 @@ namespace markdown_note_taking_app.Server.Service
             await _repository.SaveAsync();
         }
 
-        public async Task<IEnumerable<MarkdownFileDto>> GetAllMarkdownFilesAsync(bool trackChanges)
+        public async Task<IEnumerable<MarkdownFileDto>> GetAllMarkdownFilesAsync(string userName, bool trackChanges)
         {
-            var markdownFileEntities = await _repository.MarkDown.GetAllMarkdownFilesAsync(trackChanges);
+            // Get userId first
+            var user = await _userManager.FindByNameAsync(userName);
+            var userId = user?.Id;
+
+            var markdownFileEntities = await _repository.MarkDown.GetAllMarkdownFilesAsync(userId, trackChanges);
             var markdownFileDtos = _mapper.Map<IEnumerable<MarkdownFileDto>>(markdownFileEntities);
             return markdownFileDtos;
         }

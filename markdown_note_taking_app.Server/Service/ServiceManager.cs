@@ -22,7 +22,7 @@ namespace markdown_note_taking_app.Server.Service
             UserManager<User> userManager,
             IConfiguration configuration)
         {
-            _markdownService = new Lazy<IMarkdownService>(() => new MarkdownService(repositoryManager, grammarCheckService, logger, mapper));
+            _markdownService = new Lazy<IMarkdownService>(() => new MarkdownService(repositoryManager, grammarCheckService, userManager, logger, mapper));
             _grammarCheckService = new Lazy<IGrammarCheckService>(() => grammarCheckService);
             _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, configuration));
         }

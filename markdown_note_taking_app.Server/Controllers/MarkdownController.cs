@@ -30,11 +30,11 @@ namespace markdown_note_taking_app.Server.Controllers
             return Ok(company);
         }
 
-        [HttpGet]
+        [HttpGet("{userName}")]
         [Authorize]
-        public async Task<IActionResult> GetMarkdownFiles()
+        public async Task<IActionResult> GetMarkdownFiles(string userName)
         {
-            var markdownFiles = await _serviceManager.MarkdownService.GetAllMarkdownFilesAsync(trackChanges: false);
+            var markdownFiles = await _serviceManager.MarkdownService.GetAllMarkdownFilesAsync(userName, trackChanges: false);
 
             return Ok(markdownFiles);
         }
