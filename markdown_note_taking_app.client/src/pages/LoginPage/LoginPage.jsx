@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
+import { login } from '../../utils/authenticationUtils';
+
 function LoginPage() {
-    const [email, setEmail] = useState('');
+    const [userName, setuserName] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -14,21 +16,18 @@ function LoginPage() {
         setError('');
 
         try {
-            // TODO: API communication logic would go here
-            // 1. Send POST request to login endpoint with email and password
-            // 2. Expected response would contain authentication token and user info
-            // 3. Store authentication token in localStorage/sessionStorage
-            // 4. Navigate to main page on success
+            const loginResponse = await login(userName, password);
 
-            // For demonstration purposes:
-            console.log('Login attempt with:', { email, password });
-            setTimeout(() => {
-                setIsLoading(false);
-                navigate('/');
-            }, 1000);
+            if (loginRespone) {
+            } else {
+                setError("Invalid userName or password. Please try again.");
+            }
+
 
         } catch (err) {
             setError(err.message || 'Failed to login. Please try again.');
+            setIsLoading(false);
+        } finally {
             setIsLoading(false);
         }
     }
@@ -42,12 +41,11 @@ function LoginPage() {
 
               <form onSubmit={handleSubmit}>
                   <div className="form-group">
-                      <label htmlFor="email">Email</label>
+                      <label htmlFor="userName">Username</label>
                       <input
-                          type="email"
-                          id="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
+                          id="userName"
+                          value={userName}
+                          onChange={(e) => setuserName(e.target.value)}
                           required
                       />
                   </div>
@@ -67,6 +65,7 @@ function LoginPage() {
                       type="submit"
                       className="login-button"
                       disabled={isLoading}
+                      onClick={ handleSubmit }
                   >
                       {isLoading ? 'Logging in...' : 'Log in'}
                   </button>
