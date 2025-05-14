@@ -124,12 +124,8 @@ namespace markdown_note_taking_app.Server.Service
             if (fileId == Guid.Empty)
                 throw new InvalidMarkdownFileNameException();
 
-            // Get userId first
-            var user = await _userManager.FindByNameAsync(userName);
-            var userId = user?.Id;
-
             //Get markdownfile content
-            var markdownFileDtoChecked = await GetMarkdownFileAsync(fileId, userId, checkGrammar, false);
+            var markdownFileDtoChecked = await GetMarkdownFileAsync(fileId, userName, checkGrammar, false);
 
             //convert to html
             var markdownHtmlDtoChecked = ConvertMarkdownFileDtoToHtml(markdownFileDtoChecked);
