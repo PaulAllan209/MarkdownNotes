@@ -22,10 +22,20 @@ namespace markdown_note_taking_app.Server.Controllers
             _logger = logger;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UploadMarkdownFile([FromForm] MarkdownFileUploadDto markDownFile)
+        {
+            var MarkdownFileDto = await _serviceManager.MarkdownService.CreateMarkdownFileAsync(markDownFile);
+
+            return Ok(MarkdownFileDto);
+        }
+
         [HttpGet("{fileId:guid}")]
         public async Task<IActionResult> GetMarkdownFile(Guid fileId, [FromQuery] bool checkGrammar = false)
         {
-            var company = await _serviceManager.MarkdownService.GetMarkdownFileAsync(fileId, checkGrammar, trackChanges: false);
+            var userName = User.Identity?.Name;
+
+            var company = await _serviceManager.MarkdownService.GetMarkdownFileAsync(fileId, userName, checkGrammar, trackChanges: false);
 
             return Ok(company);
         }
@@ -44,16 +54,10 @@ namespace markdown_note_taking_app.Server.Controllers
         [HttpGet("{fileId:guid}/html")]
         public async Task<IActionResult> GetMarkdownFileAsHtml(Guid fileId, [FromQuery] bool checkGrammar = false)
         {
-            var markdownFileConvertToHtmlDto = await _serviceManager.MarkdownService.GetMarkdownFileAsHtmlAsync(fileId, checkGrammar, trackChanges: false);
+            var userName = User.Identity?.Name;
+
+            var markdownFileConvertToHtmlDto = await _serviceManager.MarkdownService.GetMarkdownFileAsHtmlAsync(fileId, userName, checkGrammar, trackChanges: false);
             return Ok(markdownFileConvertToHtmlDto);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> UploadMarkdownFile([FromForm] MarkdownFileUploadDto markDownFile)
-        {
-            var MarkdownFileDto = await _serviceManager.MarkdownService.CreateMarkdownFileAsync(markDownFile);
-
-            return Ok(MarkdownFileDto);
         }
 
         [HttpPatch("{fileId:guid}")]
@@ -63,7 +67,10 @@ namespace markdown_note_taking_app.Server.Controllers
             {
                 return BadRequest("patchDoc object sent from client is null.");
             }
-            var markdownFile = await _serviceManager.MarkdownService.GetMarkdownForPatchAsync(fileId, TrackChanges: true);
+
+            var userName = User.Identity?.Name;
+
+            var markdownFile = await _serviceManager.MarkdownService.GetMarkdownForPatchAsync(fileId, userName, TrackChanges: true);
 
             patchDoc.ApplyTo(markdownFile.markdownToPatch);
 
@@ -75,7 +82,9 @@ namespace markdown_note_taking_app.Server.Controllers
         [HttpDelete("{fileId:guid}")]
         public async Task<IActionResult> DeleteMarkdownFile(Guid fileId)
         {
-            await _serviceManager.MarkdownService.DeleteMarkdownFileAsync(fileId, trackChanges: false);
+            var userName = User.Identity?.Name;
+
+            await _serviceManager.MarkdownService.DeleteMarkdownFileAsync(fileId, userName, trackChanges: false);
 
             return Ok();
         }

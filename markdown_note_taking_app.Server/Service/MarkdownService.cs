@@ -62,17 +62,6 @@ namespace markdown_note_taking_app.Server.Service
             return MarkdownFileDto;
         }
 
-        public async Task DeleteMarkdownFileAsync(Guid fileId, bool trackChanges)
-        {
-            if (fileId == Guid.Empty)
-                throw new InvalidMarkdownFileNameException();
-
-            var markdownFileEntity = await GetMarkdownFileAndCheckIfItExistsAsync(fileId, trackChanges);
-
-            _repository.MarkDown.DeleteMarkdownFile(markdownFileEntity);
-            await _repository.SaveAsync();
-        }
-
         public async Task<IEnumerable<MarkdownFileDto>> GetAllMarkdownFilesAsync(string userName, bool trackChanges)
         {
             // Get userId first
@@ -85,13 +74,12 @@ namespace markdown_note_taking_app.Server.Service
         }
 
 
-        public async Task<MarkdownFileDto> GetMarkdownFileAsync(Guid fileId, bool checkGrammar, bool trackChanges)
+        public async Task<MarkdownFileDto> GetMarkdownFileAsync(Guid fileId, string userName, bool checkGrammar, bool trackChanges)
         {
             if (fileId == Guid.Empty)
                 throw new InvalidMarkdownFileNameException();
 
-
-            var markdownFileEntity = await GetMarkdownFileAndCheckIfItExistsAsync(fileId, trackChanges);
+            var markdownFileEntity = await GetMarkdownFileAndCheckIfItExistsAsync(fileId, userName, trackChanges);
 
             var markdownFileDto = _mapper.Map<MarkdownFileDto>(markdownFileEntity);
 
@@ -109,9 +97,13 @@ namespace markdown_note_taking_app.Server.Service
             return markdownFileDto;
         }
 
-        public async Task<MarkdownFile> GetMarkdownFileAndCheckIfItExistsAsync(Guid fileId, bool trackChanges)
+        public async Task<MarkdownFile> GetMarkdownFileAndCheckIfItExistsAsync(Guid fileId, string userName, bool trackChanges)
         {
-            var markDownFile = await _repository.MarkDown.GetMarkdownFileAsync(fileId, trackChanges);
+            // Get userId first
+            var user = await _userManager.FindByNameAsync(userName);
+            var userId = user?.Id;
+
+            var markDownFile = await _repository.MarkDown.GetMarkdownFileAsync(fileId, userId, trackChanges);
 
             if (markDownFile is null)
                 throw new MarkdownFileNotFoundException(fileId);
@@ -119,18 +111,33 @@ namespace markdown_note_taking_app.Server.Service
             return markDownFile;
         }
 
-        public async Task<MarkdownFileConvertToHtmlDto> GetMarkdownFileAsHtmlAsync(Guid fileId, bool checkGrammar, bool trackChanges)
+        public async Task<MarkdownFileConvertToHtmlDto> GetMarkdownFileAsHtmlAsync(Guid fileId, string userName, bool checkGrammar, bool trackChanges)
         {
             if (fileId == Guid.Empty)
                 throw new InvalidMarkdownFileNameException();
 
+            // Get userId first
+            var user = await _userManager.FindByNameAsync(userName);
+            var userId = user?.Id;
+
             //Get markdownfile content
-            var markdownFileDtoChecked = await GetMarkdownFileAsync(fileId, checkGrammar, false);
+            var markdownFileDtoChecked = await GetMarkdownFileAsync(fileId, userId, checkGrammar, false);
 
             //convert to html
             var markdownHtmlDtoChecked = ConvertMarkdownFileDtoToHtml(markdownFileDtoChecked);
 
             return markdownHtmlDtoChecked;
+        }
+
+        public async Task DeleteMarkdownFileAsync(Guid fileId, string userName, bool trackChanges)
+        {
+            if (fileId == Guid.Empty)
+                throw new InvalidMarkdownFileNameException();
+
+            var markdownFileEntity = await GetMarkdownFileAndCheckIfItExistsAsync(fileId, userName, trackChanges);
+
+            _repository.MarkDown.DeleteMarkdownFile(markdownFileEntity);
+            await _repository.SaveAsync();
         }
 
         public MarkdownFileConvertToHtmlDto ConvertMarkdownFileDtoToHtml(MarkdownFileDto markdownFileDto)
@@ -154,9 +161,13 @@ namespace markdown_note_taking_app.Server.Service
             return markdown_html_dto;
         }
 
-        public async Task<(MarkdownFileDto markdownToPatch, MarkdownFile markdownFileEntity)> GetMarkdownForPatchAsync(Guid fileId, bool TrackChanges)
+        public async Task<(MarkdownFileDto markdownToPatch, MarkdownFile markdownFileEntity)> GetMarkdownForPatchAsync(Guid fileId, string userName, bool TrackChanges)
         {
-            var Markdown = await _repository.MarkDown.GetMarkdownFileAsync(fileId, TrackChanges);
+            // Get userId first
+            var user = await _userManager.FindByNameAsync(userName);
+            var userId = user?.Id;
+
+            var Markdown = await _repository.MarkDown.GetMarkdownFileAsync(fileId, userId, TrackChanges);
 
             var markdownToPatch = _mapper.Map<MarkdownFileDto>(Markdown);
 
