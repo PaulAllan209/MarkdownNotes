@@ -18,9 +18,10 @@ function LoginPage() {
         try {
             const loginResponse = await login(userName, password);
 
-            if (loginRespone) {
+            if (loginResponse) {
+                navigate('/');
             } else {
-                setError("Invalid userName or password. Please try again.");
+                setError("Invalid username or password. Please try again.");
             }
 
 
@@ -73,7 +74,7 @@ function LoginPage() {
 
               <div className="signup-link">
                   <span
-                      onClick={() => console.log('Navigate to signup page')}
+                      onClick={() => navigate('/signup')}
                       className="signup-text"
                   >
                       Sign up

@@ -50,6 +50,8 @@ input {
     border: none;
     border-radius: 6px;
     font-size: 18px;
+    font-weight: bold;
+    font-family: 'Open Sans';
     cursor: pointer;
     margin-top: 15px;
 }
@@ -77,6 +79,8 @@ input {
 .signup-text {
     color: #2d3436;
     font-size: 16px;
+    font-weight: bold;
+    font-family: 'Open Sans';
     cursor: pointer;
 }
 
