@@ -23,14 +23,18 @@ namespace markdown_note_taking_app.Server.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> UploadMarkdownFile([FromForm] MarkdownFileUploadDto markDownFile)
         {
-            var MarkdownFileDto = await _serviceManager.MarkdownService.CreateMarkdownFileAsync(markDownFile);
+            var userName = User.Identity?.Name;
+
+            var MarkdownFileDto = await _serviceManager.MarkdownService.CreateMarkdownFileAsync(markDownFile, userName);
 
             return Ok(MarkdownFileDto);
         }
 
         [HttpGet("{fileId:guid}")]
+        [Authorize]
         public async Task<IActionResult> GetMarkdownFile(Guid fileId, [FromQuery] bool checkGrammar = false)
         {
             var userName = User.Identity?.Name;
@@ -52,6 +56,7 @@ namespace markdown_note_taking_app.Server.Controllers
         }
 
         [HttpGet("{fileId:guid}/html")]
+        [Authorize]
         public async Task<IActionResult> GetMarkdownFileAsHtml(Guid fileId, [FromQuery] bool checkGrammar = false)
         {
             var userName = User.Identity?.Name;
@@ -61,6 +66,7 @@ namespace markdown_note_taking_app.Server.Controllers
         }
 
         [HttpPatch("{fileId:guid}")]
+        [Authorize]
         public async Task<IActionResult> PatchMarkdownFile(Guid fileId, [FromBody] JsonPatchDocument<MarkdownFileDto> patchDoc)
         {
             if (patchDoc is null)
@@ -80,6 +86,7 @@ namespace markdown_note_taking_app.Server.Controllers
         }
 
         [HttpDelete("{fileId:guid}")]
+        [Authorize]
         public async Task<IActionResult> DeleteMarkdownFile(Guid fileId)
         {
             var userName = User.Identity?.Name;
@@ -88,7 +95,5 @@ namespace markdown_note_taking_app.Server.Controllers
 
             return Ok();
         }
-
-
     }
 }

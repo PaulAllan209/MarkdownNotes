@@ -11,6 +11,7 @@ namespace markdown_note_taking_app.Server
         {
             CreateMap<MarkdownFile, MarkdownFileDto>().ReverseMap();
             CreateMap<MarkdownFileDto, MarkdownFileConvertToHtmlDto>().ReverseMap();
+            CreateMap<MarkdownFile, MarkdownFileCreationDto>().ReverseMap();
             CreateMap<UserForRegistrationDto, User>();
         }
     }

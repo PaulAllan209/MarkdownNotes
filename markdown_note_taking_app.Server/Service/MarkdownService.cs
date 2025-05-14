@@ -31,10 +31,14 @@ namespace markdown_note_taking_app.Server.Service
             _mapper = mapper;
         }
 
-        public async Task<MarkdownFileDto> CreateMarkdownFileAsync(MarkdownFileUploadDto markdownFile)
+        public async Task<MarkdownFileDto> CreateMarkdownFileAsync(MarkdownFileUploadDto markdownFile, string userName)
         {
             //Validate the file type
             ValidateMarkdownFile(markdownFile);
+
+            // Get userId first
+            var user = await _userManager.FindByNameAsync(userName);
+            var userId = user?.Id;
 
             string fileName = Path.GetFileName(markdownFile.MarkdownFile.FileName);
 
@@ -46,20 +50,24 @@ namespace markdown_note_taking_app.Server.Service
             }
 
             //Create new MarkdownFileDto for creation in database and return value
-            var MarkdownFileDto = new MarkdownFileDto
+            var markdownFileCreationDto = new MarkdownFileCreationDto
             {
                 Id = Guid.NewGuid(),
                 Title = fileName,
                 FileContent = fileContent,
-                UploadDate = DateTime.Now
+                UploadDate = DateTime.Now,
+                UserId = userId
             };
 
             // Last Step
-            var markdownFileEntity = _mapper.Map<MarkdownFile>(MarkdownFileDto);
+            var markdownFileEntity = _mapper.Map<MarkdownFile>(markdownFileCreationDto);
             _repository.MarkDown.CreateMarkdownFile(markdownFileEntity);
             await _repository.SaveAsync();
 
-            return MarkdownFileDto;
+            // Dto for returning to the client
+            var markdownFileDto = _mapper.Map<MarkdownFileDto>(markdownFileEntity);
+
+            return markdownFileDto;
         }
 
         public async Task<IEnumerable<MarkdownFileDto>> GetAllMarkdownFilesAsync(string userName, bool trackChanges)
