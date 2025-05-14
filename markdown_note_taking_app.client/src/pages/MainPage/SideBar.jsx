@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, createContext } from 'react';
-import { handleFileCreate, handleFileGet, handleFileNameSave, handleFileDelete  } from './utils/apiUtils';
+import { handleFileCreate, handleFileGet, handleFileNameSave, handleFileDelete } from '../../utils/apiUtils.js';
 import './SideBar.css'
 
 export const SelectedFileContext = createContext();

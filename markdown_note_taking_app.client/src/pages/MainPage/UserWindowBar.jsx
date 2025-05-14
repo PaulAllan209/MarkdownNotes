@@ -1,6 +1,6 @@
 import './UserWindowBar.css';
 import AcceptChangesWindow from './AcceptChangesWindow';
-import { handleFileContentSave, handleFileGet } from './utils/apiUtils';
+import { handleFileContentSave, handleFileGet } from '../../utils/apiUtils.js';
 
 function UserWindowBar(props) {
 

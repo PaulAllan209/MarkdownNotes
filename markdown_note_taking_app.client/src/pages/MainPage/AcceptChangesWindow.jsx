@@ -1,7 +1,7 @@
 import './AcceptChangesWindow.css';
 import React, { useContext } from 'react';
-import { AcceptChangesWindowContext } from './contexts/AcceptChangesWindowContext.jsx';
-import { handleFileContentSave } from './utils/apiUtils.js';
+import { AcceptChangesWindowContext } from '../../contexts/AcceptChangesWindowContext.jsx';
+import { handleFileContentSave } from '../../utils/apiUtils.js';
 
 
 function AcceptChangesWindow() {
