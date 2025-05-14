@@ -8,7 +8,6 @@ const REFRESH_TOKEN_KEY = '';
  * @returns {boolean} returns true if successful login
  */
 export const login = async (userName, password) => {
-    //TODO: Login api call
     try {
         const loginDocument = {
             username: userName,
@@ -83,7 +82,33 @@ export const refreshToken = async () => {
     if (!refreshToken && !accessToken) {
         throw new Error('No refresh token available');
     }
-    //TODO: api call for refreshing the token
+
+    try {
+        const refreshDocument = {
+            accessToken: getAccessToken(),
+            refreshToken: getRefreshToken()
+        }
+
+        const response = fetch('https://localhost:7271/api/token/refresh', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(refreshDocument)
+        })
+
+        const data = await response.json();
+        console.log("API Response for refresh token:", data);
+
+        if (response.ok) {
+            storeTokens(data.accessToken, data.refreshToken);
+        } else {
+            console.error("Error in refreshing the token");
+        }
+
+    } catch (error) {
+        console.error("Error in refreshing the token:", error);
+    }
 };
 
 /**
