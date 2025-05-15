@@ -23,6 +23,7 @@ export const handleFileCreate = async ({fileName = null, file = null, onSuccess,
                 }
                 else {
                     if (onError) onError();
+                    console.error("Error creating file API response is:", json_response);
                 }
             }
         }
@@ -38,6 +39,7 @@ export const handleFileCreate = async ({fileName = null, file = null, onSuccess,
             }
             else {
                 if (onError) onError();
+                console.error("Error creating file API response is:", json_response);
             }
         };
         
@@ -64,7 +66,7 @@ async function uploadFileToApi(body) {
             return data;
         }
         else {
-            console.error("Failed to upload the file.");
+            console.error("Failed to upload the file. API response:", response);
             alert("Failed to upload the file.");
             return null;
         }
@@ -93,13 +95,13 @@ export const handleFileGet = async ({fileId = null, grammarCheck = false, asHtml
             if (grammarCheck) {
                 apiUrl = `https://localhost:7271/api/markdown/${fileId}${asHtml ? `/html/` : ``}/?checkGrammar=true`;
                 successLogMsg = "Successfully got the file content with grammar checked.";
-                errorLogMsg = "Error getting file content with grammar checked";
+                errorLogMsg = "Error getting file content with grammar checked. API response:";
                 onSuccessCallback = (data) => onSuccess(data.title, data.fileContent);
             }
             else {
                 apiUrl = `https://localhost:7271/api/markdown/${fileId}${asHtml ? `/html` : ``}`;
                 successLogMsg = "Successfully got the file content.";
-                errorLogMsg = "Error getting file content";
+                errorLogMsg = "Error getting file content. API response:";
                 onSuccessCallback = (data) => onSuccess(data.title, data.fileContent);
             }
         }
@@ -107,7 +109,7 @@ export const handleFileGet = async ({fileId = null, grammarCheck = false, asHtml
         else {
             apiUrl = 'https://localhost:7271/api/markdown';
             successLogMsg = "Successfully got the list of files.";
-            errorLogMsg = "Error getting the list of files";
+            errorLogMsg = "Error getting the list of files. API response:";
             onSuccessCallback = (data) => onSuccess(data);
         }
 
@@ -123,7 +125,7 @@ export const handleFileGet = async ({fileId = null, grammarCheck = false, asHtml
             return data;
         }
         else {
-            console.error(`${errorLogMsg}`);
+            console.error(`${errorLogMsg}`, response);
             alert(`${errorLogMsg}`);
             if (onError) onError();
             return null;
@@ -167,10 +169,8 @@ export const handleFileNameSave = async (fileId, fileName, onSuccess, onError = 
             return response;
         }
         else {
-            console.error("Failed to rename the file title");
+            console.error("Failed to rename the file title. API response:", response);
             if (onError) onError();
-            else alert("Failed to rename the file title");
-            throw new Error("Failed to rename the file title");
         }
     } catch (error) {
         console.error("Error in file rename operation:", error);
@@ -210,7 +210,7 @@ export const handleFileContentSave = async (fileId, fileContent, onSuccess, onEr
             if (onSuccess) onSuccess()
         }
         else {
-            console.error("Failed to save the file");
+            console.error("Failed to save the file. API response:", response);
             if (onError) onError();
             alert("Failed to save the file");
         }
@@ -242,7 +242,7 @@ export const handleFileDelete = async (fileId, onSuccess, onError = null) => {
         }
         else {
             if (onError) onError();
-            console.error("Failed to delete file:");
+            console.error("Failed to delete file. API response:", response);
             alert("Failed to delete the file");
         }
     } catch (error) {
