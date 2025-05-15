@@ -2,6 +2,7 @@ import './AcceptChangesWindow.css';
 import React, { useContext } from 'react';
 import { AcceptChangesWindowContext } from '../../contexts/AcceptChangesWindowContext.jsx';
 import { handleFileContentSave } from '../../utils/apiUtils.js';
+import { useNavigate } from 'react-router-dom';
 
 
 function AcceptChangesWindow() {
@@ -16,19 +17,28 @@ function AcceptChangesWindow() {
             setIsSaved
         } = useContext(AcceptChangesWindowContext);
 
-    const handleAcceptChanges = (fileId, grammarCheckedFileContent) => {
+    const navigate = useNavigate();
 
-        handleFileContentSave(
-            fileId,
-            grammarCheckedFileContent,
-            //onSuccess callback
-            () => {
-                setIsSaved(true);
-                setShowGrammarView(false);
-                setFileContent(grammarCheckedFileContent);
-                setFileContentInDb(grammarCheckedFileContent);
-                setGrammarCheckedFileContent('');
-            })
+
+    const handleAcceptChanges = (fileId, grammarCheckedFileContent) => {
+        try {
+            handleFileContentSave(
+                fileId,
+                grammarCheckedFileContent,
+                //onSuccess callback
+                () => {
+                    setIsSaved(true);
+                    setShowGrammarView(false);
+                    setFileContent(grammarCheckedFileContent);
+                    setFileContentInDb(grammarCheckedFileContent);
+                    setGrammarCheckedFileContent('');
+                })
+        } catch (error) {
+            if (error.message === 'TokenExpired') {
+                // Go back to login page
+                navigate('/login');
+            }
+        }
     };
 
     const handleRejectChanges = () => {

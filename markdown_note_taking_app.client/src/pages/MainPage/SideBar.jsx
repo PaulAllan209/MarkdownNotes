@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, createContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { handleFileCreate, handleFileGet, handleFileNameSave, handleFileDelete } from '../../utils/apiUtils.js';
 import './SideBar.css'
 
@@ -12,16 +13,26 @@ function SideBar(props) {
     const fileInputRef = useRef(null);
     const newFileInputRef = useRef(null);
 
+    const navigate = useNavigate();
+
     // Getting the list of files
     useEffect(() => {
-        handleFileGet({
-            onSuccess: (localFiles) => {
-                setFiles(localFiles.map(file => ({
-                    guid: file.id,
-                    title: file.title
-                })));
+        try {
+
+            handleFileGet({
+                onSuccess: (localFiles) => {
+                    setFiles(localFiles.map(file => ({
+                        guid: file.id,
+                        title: file.title
+                    })));
+                }
+            })
+        } catch (error) {
+            if (error.message === 'TokenExpired') {
+                // Go back to login page
+                navigate('/login');
             }
-        })
+        }
     }, []);
 
     useEffect(() => {
@@ -46,13 +57,21 @@ function SideBar(props) {
     }
 
     const submitNewFileName = (fileName, fileId) => {
-        handleFileNameSave(fileId, fileName,
-            // onSuccess callback
-            () => {
-                setFiles(prevFiles => prevFiles.map(file =>
-                    file.guid == fileId ? { ...file, title: fileName } : file
-                ));
-        });
+        try {
+
+            handleFileNameSave(fileId, fileName,
+                // onSuccess callback
+                () => {
+                    setFiles(prevFiles => prevFiles.map(file =>
+                        file.guid == fileId ? { ...file, title: fileName } : file
+                    ));
+                });
+        } catch (error) {
+            if (error.message === 'TokenExpired') {
+                // Go back to login page
+                navigate('/login');
+            }
+        }
     }
 
     const handleKeyDown = (e) => {
@@ -85,14 +104,22 @@ function SideBar(props) {
 
     const handleFileUploadBtn = (event) => {
         const file = event.target.files[0];
-        handleFileCreate(
-            {
-                file: file, 
-                onSuccess: (fileId, fileName) => {
-                            setFiles(prevFiles => [...prevFiles, { guid: fileId, title: fileName }]);
+        try {
+
+            handleFileCreate(
+                {
+                    file: file,
+                    onSuccess: (fileId, fileName) => {
+                        setFiles(prevFiles => [...prevFiles, { guid: fileId, title: fileName }]);
+                    }
                 }
+            );
+        } catch (error) {
+            if (error.message === 'TokenExpired') {
+                // Go back to login page
+                navigate('/login');
             }
-        );
+        }
     }
 
     const triggerFileInputBtn = () => {
@@ -101,11 +128,19 @@ function SideBar(props) {
 
     const handleFileDeleteBtn = () => {
         const selectedFileGuid = files[selectedFileIndex].guid;
-        handleFileDelete(selectedFileGuid, () => {
-            //on success callback
-            setFiles(prevFiles => prevFiles.filter(file => file.guid != selectedFileGuid));
+        try {
 
-        });
+            handleFileDelete(selectedFileGuid, () => {
+                //on success callback
+                setFiles(prevFiles => prevFiles.filter(file => file.guid != selectedFileGuid));
+
+            });
+        } catch (error) {
+            if (error.message === 'TokenExpired') {
+                // Go back to login page
+                navigate('/login');
+            }
+        }
         setSelectedFileIndex(null);
     };
 

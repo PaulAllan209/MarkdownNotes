@@ -1,15 +1,26 @@
 import './UserWindowBar.css';
 import AcceptChangesWindow from './AcceptChangesWindow';
 import { handleFileContentSave, handleFileGet } from '../../utils/apiUtils.js';
+import { useNavigate } from 'react-router-dom';
+
 
 function UserWindowBar(props) {
+
+    const navigate = useNavigate();
 
     const handleSaveSuccess = () => {
         props.setSaveState(true);
     }
 
     const handleGrammarCheck = () => {
-        handleFileContentSave(props.fileGuid, props.fileCurrentContent, handleSaveSuccess); //Saves the file to the database first before checking for grammar.
+        try {
+            handleFileContentSave(props.fileGuid, props.fileCurrentContent, handleSaveSuccess); //Saves the file to the database first before checking for grammar.
+        } catch (error) {
+            if (error.message === 'TokenExpired') {
+                // Go back to login page
+                navigate('/login');
+            }
+        }
         props.setShowGrammarView(true);
     }
 
@@ -55,6 +66,11 @@ function UserWindowBar(props) {
                 alert("Failed to export as HTML. Please try again.");
             }
         } catch (error) {
+            if (error.message === 'TokenExpired') {
+                // Go back to login page
+                navigate('/login');
+            }
+
             console.error("Error exporting as HTML:", error);
             alert("An error occurred while exporting as HTML. Please try again.");
         }

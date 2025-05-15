@@ -6,7 +6,9 @@ import GrammarSuggestionWindow from './GrammarSuggestionWindow';
 import { handleFileGet } from '../../utils/apiUtils.js';
 import { AcceptChangesWindowContext } from '../../contexts/AcceptChangesWindowContext.jsx';
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { debounce } from 'lodash';
+import { getAccessToken, getRefreshToken } from '../../utils/authenticationUtils';
 
 function MainPage() {
     const [selectedFile, setSelectedFile] = useState(null);
@@ -15,6 +17,10 @@ function MainPage() {
     const [isSaved, setIsSaved] = useState(true);
     const [showGrammarView, setShowGrammarView] = useState(false);
     const [grammarCheckedFileContent, setGrammarCheckedFileContent] = useState('');
+
+    // For checking if there are still access tokens
+    // If the token strings are empty the user will be redirected to the login page
+    const navigate = useNavigate();
 
     const debouncedSaveCheck = useCallback(
         debounce((content, dbContent) => {
@@ -26,15 +32,22 @@ function MainPage() {
     // Getting the file content if selected file and file content chnanges
     useEffect(() => {
         if (selectedFile != null) {
-
-            handleFileGet(
-                {
-                    fileId: selectedFile.guid,
-                    onSuccess: (fileTitle, fileContent) => {
-                        setFileContent(fileContent || '');
-                        setFileContentInDb(fileContent || '');
-                    }
-                });
+            try {
+                handleFileGet(
+                    {
+                        fileId: selectedFile.guid,
+                        onSuccess: (fileTitle, fileContent) => {
+                            setFileContent(fileContent || '');
+                            setFileContentInDb(fileContent || '');
+                        }
+                    });
+            } catch (error) {
+                if (error.message === 'TokenExpired') {
+                    // Go back to login page
+                    navigate('/login');
+                }
+            }
+            
         }
     }, [selectedFile]);
 
@@ -42,20 +55,28 @@ function MainPage() {
     // PATCH Request api for saving is in UserWindowBar.jsx
     useEffect(() => {
         if (fileContent !== null && fileContentInDb !== null) {
-            debouncedSaveCheck(fileContent, fileContentInDb);
+            // debouncedSaveCheck meaning that it will wait 500ms before running the comparison
+            debouncedSaveCheck(fileContent, fileContentInDb); 
         }
     }, [fileContent, fileContentInDb, debouncedSaveCheck]);
 
     //Grammar checking
     useEffect(() => {
         if (showGrammarView) {
-            handleFileGet({
-                fileId: selectedFile.guid,
-                grammarCheck: true,
-                onSuccess: (fileTitle, fileContent) => {
-                    setGrammarCheckedFileContent(fileContent || '')
+            try {
+                handleFileGet({
+                    fileId: selectedFile.guid,
+                    grammarCheck: true,
+                    onSuccess: (fileTitle, fileContent) => {
+                        setGrammarCheckedFileContent(fileContent || '')
+                    }
+                })
+            } catch (error) {
+                if (error.message === 'TokenExpired') {
+                    // Go back to login page
+                    navigate('/login');
                 }
-            })
+            }
         }
         else {
             setGrammarCheckedFileContent('');

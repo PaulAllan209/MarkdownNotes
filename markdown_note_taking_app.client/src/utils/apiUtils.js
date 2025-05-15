@@ -282,10 +282,12 @@ export const authorizedFetch = async (url, options = {}) => {
             };
 
             const response = await fetch(url, options);
+            return response;
         } else {
             logout();
             console.error("Session Expired");
             alert("Session Expired");
+            throw new Error('TokenExpired')
         }
     }
 
