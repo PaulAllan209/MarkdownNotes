@@ -1,4 +1,4 @@
-import { getAccessToken } from './authenticationUtils.js';
+import { getAccessToken, isTokenExpired, refreshToken, logout } from './authenticationUtils.js';
 
 /**
  * Saves the new file to the database
@@ -52,7 +52,7 @@ export const handleFileCreate = async ({fileName = null, file = null, onSuccess,
 //Helper function for post request in uploading the file to the database
 async function uploadFileToApi(body) {
     try {
-        const response = await fetch('https://localhost:7271/api/markdown', {
+        const response = await authorizedFetch('https://localhost:7271/api/markdown', {
             method: 'POST',
             body: body,
             headers: {
@@ -113,7 +113,7 @@ export const handleFileGet = async ({fileId = null, grammarCheck = false, asHtml
             onSuccessCallback = (data) => onSuccess(data);
         }
 
-        const response = await fetch(`${apiUrl}`, {
+        const response = await authorizedFetch(`${apiUrl}`, {
             headers: {
                 'Authorization': `Bearer ${getAccessToken()}`
             }
@@ -155,7 +155,7 @@ export const handleFileNameSave = async (fileId, fileName, onSuccess, onError = 
             }
         ];
 
-        const response = await fetch(`https://localhost:7271/api/markdown/${fileId}`, {
+        const response = await authorizedFetch(`https://localhost:7271/api/markdown/${fileId}`, {
             method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${getAccessToken()}`,
@@ -197,7 +197,7 @@ export const handleFileContentSave = async (fileId, fileContent, onSuccess, onEr
             }
         ];
 
-        const response = await fetch(`https://localhost:7271/api/markdown/${fileId}`, {
+        const response = await authorizedFetch(`https://localhost:7271/api/markdown/${fileId}`, {
             method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${getAccessToken()}`,
@@ -229,7 +229,7 @@ export const handleFileContentSave = async (fileId, fileContent, onSuccess, onEr
  */
 export const handleFileDelete = async (fileId, onSuccess, onError = null) => {
     try {
-        const response = await fetch(`https://localhost:7271/api/markdown/${fileId}`, {
+        const response = await authorizedFetch(`https://localhost:7271/api/markdown/${fileId}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${getAccessToken()}`
@@ -250,3 +250,44 @@ export const handleFileDelete = async (fileId, onSuccess, onError = null) => {
         if (onError) onError();
     }
 };
+
+export const authorizedFetch = async (url, options = {}) => {
+    // Refresh if token is expired
+    if (isTokenExpired()) {
+        const refreshState = await refreshToken();
+        if (!refreshState) {
+            logout();
+            console.error("Session Expired");
+            alert("Session Expired");
+        }
+    }
+
+    // Attach latest access token
+    const accessToken = getAccessToken();
+    options.headers = {
+        ...options.headers,
+        'Authorization': `Bearer ${accessToken}`,
+    };
+
+    const response = await fetch(url, options);
+
+    // If API still sends 401 or Unauthorized then retry once
+    if (response.status === 401) {
+        const refreshState = await refreshToken();
+        if (refreshState) {
+            const newAccessToken = getAccessToken();
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${newAccessToken}`
+            };
+
+            const response = await fetch(url, options);
+        } else {
+            logout();
+            console.error("Session Expired");
+            alert("Session Expired");
+        }
+    }
+
+    return response;
+}
