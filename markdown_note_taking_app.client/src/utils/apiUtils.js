@@ -1,3 +1,5 @@
+import { getAccessToken } from './authenticationUtils.js';
+
 /**
  * Saves the new file to the database
  * @param {string} fileName - The title to save if creating a new file
@@ -51,6 +53,9 @@ async function uploadFileToApi(body) {
         const response = await fetch('https://localhost:7271/api/markdown', {
             method: 'POST',
             body: body,
+            headers: {
+                'Authorization': `Bearer ${getAccessToken()}`
+            }
         })
 
         if (response.ok) {
@@ -106,7 +111,11 @@ export const handleFileGet = async ({fileId = null, grammarCheck = false, asHtml
             onSuccessCallback = (data) => onSuccess(data);
         }
 
-        const response = await fetch(`${apiUrl}`);
+        const response = await fetch(`${apiUrl}`, {
+            headers: {
+                'Authorization': `Bearer ${getAccessToken()}`
+            }
+        });
         if (response.ok) {
             const data = await response.json();
             console.log(successLogMsg);
@@ -147,6 +156,7 @@ export const handleFileNameSave = async (fileId, fileName, onSuccess, onError = 
         const response = await fetch(`https://localhost:7271/api/markdown/${fileId}`, {
             method: 'PATCH',
             headers: {
+                'Authorization': `Bearer ${getAccessToken()}`,
                 'Content-Type': 'application/json-patch+json'
             },
             body: JSON.stringify(patchDocument)
@@ -190,6 +200,7 @@ export const handleFileContentSave = async (fileId, fileContent, onSuccess, onEr
         const response = await fetch(`https://localhost:7271/api/markdown/${fileId}`, {
             method: 'PATCH',
             headers: {
+                'Authorization': `Bearer ${getAccessToken()}`,
                 'Content-Type': 'application/json-patch+json'
             },
             body: JSON.stringify(patchDocument)
@@ -219,7 +230,10 @@ export const handleFileContentSave = async (fileId, fileContent, onSuccess, onEr
 export const handleFileDelete = async (fileId, onSuccess, onError = null) => {
     try {
         const response = await fetch(`https://localhost:7271/api/markdown/${fileId}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${getAccessToken()}`
+            }
         })
 
         if (response.ok) {

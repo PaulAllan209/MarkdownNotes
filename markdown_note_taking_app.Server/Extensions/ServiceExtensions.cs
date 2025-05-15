@@ -85,7 +85,12 @@ namespace markdown_note_taking_app.Server.Extensions
 
                         ValidIssuer = jwtSettings["validIssuer"],
                         ValidAudience = jwtSettings["validAudience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+                        //•	By default,
+                        //ASP.NET allows a 5 - minute clock skew.
+                        //This means tokens can be accepted up to 5 minutes after expiration.
+                        // Add this to remove the 5 minute clock skew
+                        ClockSkew = TimeSpan.Zero
                     };
                 });
         }

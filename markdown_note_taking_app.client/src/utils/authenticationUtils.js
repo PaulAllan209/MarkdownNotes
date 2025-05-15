@@ -1,5 +1,6 @@
-const ACCESS_TOKEN_KEY = '';
-const REFRESH_TOKEN_KEY = '';
+// These are localStorage keys that points to the actual tokens
+const ACCESS_TOKEN_KEY = 'access_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
 
 /**
  * Registers new user to the database
@@ -108,15 +109,8 @@ export const getRefreshToken = () => {
 }
 
 /**
- * Check if user is authenticated
- */
-export const isAuthenticated = () => {
-    // TODO: API endpoint to check if authenticated
-    return !!getAccessToken();
-};
-
-/**
  * Refresh the access token using the refresh token
+ * @returns {boolean} returns true if successfully refreshed the token
  */
 export const refreshToken = async () => {
     const accessToken = getAccessToken();
@@ -128,11 +122,12 @@ export const refreshToken = async () => {
 
     try {
         const refreshDocument = {
-            accessToken: getAccessToken(),
-            refreshToken: getRefreshToken()
+            'accessToken': accessToken,
+            'refreshToken': refreshToken
         }
+        console.log(`JSON file before sending refresh to API: ${JSON.stringify(refreshDocument)}`);
 
-        const response = fetch('https://localhost:7271/api/token/refresh', {
+        const response = await fetch('https://localhost:7271/api/token/refresh', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -145,12 +140,44 @@ export const refreshToken = async () => {
 
         if (response.ok) {
             storeTokens(data.accessToken, data.refreshToken);
+            console.log("Successfully refreshed token");
+            return true;
         } else {
             console.error("Error in refreshing the token");
+            return false;
         }
 
     } catch (error) {
         console.error("Error in refreshing the token:", error);
+        return false;
+    }
+};
+
+/**
+ * Checks if the access token is expired by decoding it
+ * @returns {boolean} True if token is expired or will expire in the next 60 seconds
+ */
+export const isTokenExpired = () => {
+    const token = getAccessToken();
+    if (!token) return true;
+
+    try {
+        // Get expiration time from existing JWT token without api call
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(window.atob(base64));
+
+        if (!payload.exp) return true;
+
+        // Get expiration time and current time in seconds
+        // Add 30 seconds buffer to refresh slightly before expiration
+        // So it checks if the token time is less than 30 seconds it will return true to say that it is expired
+        // The expiration of access token is 60 seconds in the backend
+        const currentTime = Math.floor(Date.now() / 1000);
+        return payload.exp < (currentTime + 30);
+    } catch (error) {
+        console.error("Error decoding token:", error);
+        return true;
     }
 };
 
