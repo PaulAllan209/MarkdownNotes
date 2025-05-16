@@ -1,5 +1,7 @@
 import { getAccessToken, isTokenExpired, refreshToken, logout } from './authenticationUtils.js';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 /**
  * Saves the new file to the database
  * @param {string} fileName - The title to save if creating a new file
@@ -52,7 +54,7 @@ export const handleFileCreate = async ({fileName = null, file = null, onSuccess,
 //Helper function for post request in uploading the file to the database
 async function uploadFileToApi(body) {
     try {
-        const response = await authorizedFetch('https://localhost:7271/api/markdown', {
+        const response = await authorizedFetch(`${API_URL}/api/markdown`, {
             method: 'POST',
             body: body,
             headers: {
@@ -93,13 +95,13 @@ export const handleFileGet = async ({fileId = null, grammarCheck = false, asHtml
         let onSuccessCallback;
         if (fileId) {
             if (grammarCheck) {
-                apiUrl = `https://localhost:7271/api/markdown/${fileId}${asHtml ? `/html/` : ``}/?checkGrammar=true`;
+                apiUrl = `${API_URL}/api/markdown/${fileId}${asHtml ? `/html/` : ``}/?checkGrammar=true`;
                 successLogMsg = "Successfully got the file content with grammar checked.";
                 errorLogMsg = "Error getting file content with grammar checked. API response:";
                 onSuccessCallback = (data) => onSuccess(data.title, data.fileContent);
             }
             else {
-                apiUrl = `https://localhost:7271/api/markdown/${fileId}${asHtml ? `/html` : ``}`;
+                apiUrl = `${API_URL}/api/markdown/${fileId}${asHtml ? `/html` : ``}`;
                 successLogMsg = "Successfully got the file content.";
                 errorLogMsg = "Error getting file content. API response:";
                 onSuccessCallback = (data) => onSuccess(data.title, data.fileContent);
@@ -107,7 +109,7 @@ export const handleFileGet = async ({fileId = null, grammarCheck = false, asHtml
         }
         // If you want to get all of the list of files.
         else {
-            apiUrl = 'https://localhost:7271/api/markdown';
+            apiUrl = `${API_URL}/api/markdown`;
             successLogMsg = "Successfully got the list of files.";
             errorLogMsg = "Error getting the list of files. API response:";
             onSuccessCallback = (data) => onSuccess(data);
@@ -155,7 +157,7 @@ export const handleFileNameSave = async (fileId, fileName, onSuccess, onError = 
             }
         ];
 
-        const response = await authorizedFetch(`https://localhost:7271/api/markdown/${fileId}`, {
+        const response = await authorizedFetch(`${API_URL}/api/markdown/${fileId}`, {
             method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${getAccessToken()}`,
@@ -197,7 +199,7 @@ export const handleFileContentSave = async (fileId, fileContent, onSuccess, onEr
             }
         ];
 
-        const response = await authorizedFetch(`https://localhost:7271/api/markdown/${fileId}`, {
+        const response = await authorizedFetch(`${API_URL}/api/markdown/${fileId}`, {
             method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${getAccessToken()}`,
@@ -229,7 +231,7 @@ export const handleFileContentSave = async (fileId, fileContent, onSuccess, onEr
  */
 export const handleFileDelete = async (fileId, onSuccess, onError = null) => {
     try {
-        const response = await authorizedFetch(`https://localhost:7271/api/markdown/${fileId}`, {
+        const response = await authorizedFetch(`${API_URL}/api/markdown/${fileId}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${getAccessToken()}`

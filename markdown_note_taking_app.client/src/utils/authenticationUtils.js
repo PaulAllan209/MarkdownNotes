@@ -1,6 +1,8 @@
 // These are localStorage keys that points to the actual tokens
 const ACCESS_TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 /**
  * Registers new user to the database
@@ -21,7 +23,7 @@ export const signUp = async (firstName, lastName, userName, password, email) => 
             email: email
         };
 
-        const response = await fetch('https://localhost:7271/api/authentication', {
+        const response = await fetch(`${API_URL}/api/authentication`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -58,7 +60,7 @@ export const login = async (userName, password) => {
             password: password
         };
 
-        const response = await fetch('https://localhost:7271/api/authentication/login', {
+        const response = await fetch(`${API_URL}/api/authentication/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -82,6 +84,7 @@ export const login = async (userName, password) => {
 
     } catch (error) {
         console.error("Error logging in:", error);
+        console.log(`${API_URL}`);
         return false;
     }
 };
@@ -127,7 +130,7 @@ export const refreshToken = async () => {
         }
         console.log(`JSON file before sending refresh to API: ${JSON.stringify(refreshDocument)}`);
 
-        const response = await fetch('https://localhost:7271/api/token/refresh', {
+        const response = await fetch(`${API_URL}/api/token/refresh`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
