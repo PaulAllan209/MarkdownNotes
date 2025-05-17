@@ -31,7 +31,7 @@ export const signUp = async (firstName, lastName, userName, password, email) => 
             body: JSON.stringify(signUpDocument)
         });
 
-        const data = await response.json();
+        const data = await response.text();
         console.log("API Response for user registration:", data);
 
         if (response.ok) {

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SignUpPage.css'
+import { signUp } from '../../utils/authenticationUtils';
+
 
 function SignUpPage() {
     // Sign up fields
@@ -15,18 +17,21 @@ function SignUpPage() {
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setError('');
         try {
-            const loginResponse = await login(userName, password);
+            const registerResponse = await signUp(firstName, lastName, userName, password, email);
 
-            if (loginResponse) {
-                navigate('/');
+            if (registerResponse) {
+                navigate('/login');
             } else {
-                setError("Invalid username or password. Please try again.");
+                setError("Invalid credentials please try again");
             }
 
 
         } catch (err) {
-            setError(err.message || 'Failed to login. Please try again.');
+            setError(err.message || 'Failed to Register. Please try again.');
             setIsLoading(false);
         } finally {
             setIsLoading(false);
@@ -98,7 +103,6 @@ function SignUpPage() {
                         type="submit"
                         className="signup-button"
                         disabled={isLoading}
-                        onClick={handleSubmit}
                     >
                         {isLoading ? 'Registering...' : 'Register'}
                     </button>

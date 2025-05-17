@@ -40,7 +40,8 @@ namespace markdown_note_taking_app.Server.Service
             var result = await _userManager.CreateAsync(user, userForRegistration.Password);
 
             if (result.Succeeded)
-                await _userManager.AddToRolesAsync(user, userForRegistration.Roles);
+                // Always assign USER role, and it ignores any client-provided roles
+                await _userManager.AddToRolesAsync(user, ["USER"]);
 
             return result;
         }
