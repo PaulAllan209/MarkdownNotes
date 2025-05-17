@@ -11,11 +11,13 @@ namespace markdown_note_taking_app.Server.Repositories.Configuration
             builder.HasData(
                 new IdentityRole
                 {
+                    Id = "5541dbf7-827f-4a31-a995-4e971fd4dc28", // Fixed ID for consistency accross mutliple environments
                     Name = "User",
                     NormalizedName = "USER"
                 },
                 new IdentityRole
                 {
+                    Id = "21bd7243-66cc-46ad-9bfd-d388706e3725", // Fixed ID for consistency accross mutliple environments
                     Name = "Administrator",
                     NormalizedName = "ADMINISTRATOR"
                 }

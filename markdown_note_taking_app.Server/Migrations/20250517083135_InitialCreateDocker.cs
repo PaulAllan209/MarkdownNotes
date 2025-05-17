@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace markdown_note_taking_app.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class CreatingIdentityTables : Migration
+    public partial class InitialCreateDocker : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,8 +32,10 @@ namespace markdown_note_taking_app.Server.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -158,6 +162,50 @@ namespace markdown_note_taking_app.Server.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "MarkDownFiles",
+                columns: table => new
+                {
+                    FileId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FileContent = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UploadDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MarkDownFiles", x => x.FileId);
+                    table.ForeignKey(
+                        name: "FK_MarkDownFiles_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { "21bd7243-66cc-46ad-9bfd-d388706e3725", null, "Administrator", "ADMINISTRATOR" },
+                    { "5541dbf7-827f-4a31-a995-4e971fd4dc28", null, "User", "USER" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "FirstName", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "RefreshToken", "RefreshTokenExpiryTime", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                values: new object[] { "d8545548-6462-48c7-8149-152f8fc6406a", 0, "9d060f5d-253e-4ee9-ab49-abd72045a0ce", "defaultuser@example.com", true, "Juan", "Dela Cruz", false, null, "DEFAULTUSER@EXAMPLE.COM", "JUAN", "AQAAAAIAAYagAAAAEITAbr7eVyhSSjB2LRgbFmzlEDsRcSEzqSCHxmJ7s3W/R02RtCjcrOnO4bSd+6gFbw==", null, false, null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "5fa9ddf8-c331-414f-a444-8055af9ecb33", false, "juan" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[] { "5541dbf7-827f-4a31-a995-4e971fd4dc28", "d8545548-6462-48c7-8149-152f8fc6406a" });
+
+            migrationBuilder.InsertData(
+                table: "MarkDownFiles",
+                columns: new[] { "FileId", "FileContent", "Title", "UploadDate", "UserId" },
+                values: new object[] { new Guid("a210a5cf-ad1f-4f27-b97c-56e0484d38b8"), "# Welcome to Your Markdown Note Taking App\n\nThis is a sample markdown file to get you started.\n\n## Features\n\n- Create and edit markdown files\n- Save your notes in the cloud\n- Collaborate with others\n\n## Markdown Syntax\n\nYou can use various markdown syntax elements:\n\n**Bold text** or *italic text*\n\n- Bulleted lists\n- Like this one\n\n1. Numbered lists\n2. Are also supported\n\n```\nCode blocks too!\n```\n\nEnjoy writing!", "Welcome_File", new DateTime(2025, 5, 17, 16, 31, 35, 102, DateTimeKind.Local).AddTicks(9063), "d8545548-6462-48c7-8149-152f8fc6406a" });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -196,6 +244,11 @@ namespace markdown_note_taking_app.Server.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MarkDownFiles_UserId",
+                table: "MarkDownFiles",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -215,6 +268,9 @@ namespace markdown_note_taking_app.Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "MarkDownFiles");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

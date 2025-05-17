@@ -48,6 +48,16 @@ namespace markdown_note_taking_app.Server.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("MarkDownFiles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("a210a5cf-ad1f-4f27-b97c-56e0484d38b8"),
+                            FileContent = "# Welcome to Your Markdown Note Taking App\n\nThis is a sample markdown file to get you started.\n\n## Features\n\n- Create and edit markdown files\n- Save your notes in the cloud\n- Collaborate with others\n\n## Markdown Syntax\n\nYou can use various markdown syntax elements:\n\n**Bold text** or *italic text*\n\n- Bulleted lists\n- Like this one\n\n1. Numbered lists\n2. Are also supported\n\n```\nCode blocks too!\n```\n\nEnjoy writing!",
+                            Title = "Welcome_File",
+                            UploadDate = new DateTime(2025, 5, 17, 16, 31, 35, 102, DateTimeKind.Local).AddTicks(9063),
+                            UserId = "d8545548-6462-48c7-8149-152f8fc6406a"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -176,6 +186,13 @@ namespace markdown_note_taking_app.Server.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "d8545548-6462-48c7-8149-152f8fc6406a",
+                            RoleId = "5541dbf7-827f-4a31-a995-4e971fd4dc28"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -272,6 +289,27 @@ namespace markdown_note_taking_app.Server.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "d8545548-6462-48c7-8149-152f8fc6406a",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "9d060f5d-253e-4ee9-ab49-abd72045a0ce",
+                            Email = "defaultuser@example.com",
+                            EmailConfirmed = true,
+                            FirstName = "Juan",
+                            LastName = "Dela Cruz",
+                            LockoutEnabled = false,
+                            NormalizedEmail = "DEFAULTUSER@EXAMPLE.COM",
+                            NormalizedUserName = "JUAN",
+                            PasswordHash = "AQAAAAIAAYagAAAAEITAbr7eVyhSSjB2LRgbFmzlEDsRcSEzqSCHxmJ7s3W/R02RtCjcrOnO4bSd+6gFbw==",
+                            PhoneNumberConfirmed = false,
+                            RefreshTokenExpiryTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            SecurityStamp = "5fa9ddf8-c331-414f-a444-8055af9ecb33",
+                            TwoFactorEnabled = false,
+                            UserName = "juan"
+                        });
                 });
 
             modelBuilder.Entity("Entities.Models.MarkdownFile", b =>

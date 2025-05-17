@@ -19,8 +19,14 @@ namespace markdown_note_taking_app.Server.Data
         {
             base.OnModelCreating(modelBuilder);
 
+
             //Creating data for the roles in JWT authentication
             modelBuilder.ApplyConfiguration(new RoleConfiguration());
+
+            // Apply seed data for user and markdown file
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new MarkdownFileConfiguration());
+            modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
 
             modelBuilder.Entity<MarkdownFile>()
                 .HasKey(x => x.Id);
