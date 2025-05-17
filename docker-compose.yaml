@@ -1,0 +1,53 @@
+services:
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "YourStrongPassword123!"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrongPassword123! -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      retries: 10
+      start_period: 10s
+      timeout: 3s
+    networks:
+     - app-network
+      
+  backend:
+    build:
+      context: .
+      dockerfile: markdown_note_taking_app.Server/Dockerfile
+    ports:
+      - "7271:80"
+    depends_on:
+      sql-server:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__sqlConnection=Server=sql-server;Database=MarkdownFileDB;User Id=sa;Password=YourStrongPassword123!;TrustServerCertificate=True;ConnectRetryCount=5;ConnectRetryInterval=10;
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - SECRET=YourSuperSecretKeyForDevelopment12345
+    networks:
+      - app-network
+      
+  frontend:
+    build: ./markdown_note_taking_app.client
+    env_file:
+      - ./markdown_note_taking_app.client/.env.docker
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  sql-data:

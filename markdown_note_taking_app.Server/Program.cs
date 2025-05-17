@@ -1,4 +1,5 @@
 using LoggerService.Interfaces;
+using markdown_note_taking_app.Server;
 using markdown_note_taking_app.Server.ActionFilters;
 using markdown_note_taking_app.Server.Extensions;
 using markdown_note_taking_app.Server.Interfaces.ServiceInterface;
@@ -87,4 +88,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// This is for docker initialization of database inside docker
+app.InitializeDatabase();
 app.Run();
