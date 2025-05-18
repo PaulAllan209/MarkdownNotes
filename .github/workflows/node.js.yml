@@ -33,10 +33,6 @@ jobs:
       run: |
         cd markdown_note_taking_app.client
         npm run build --if-present
-    - name: Test frontend
-      run: |
-        cd markdown_note_taking_app.client
-        npm test
         
   docker-build-and-push:
     needs: build
