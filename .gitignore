@@ -367,3 +367,5 @@ markdown_note_taking_app.client/dist/
 logs/
 
 sample_markdown_files/
+
+azure_creds.txt
