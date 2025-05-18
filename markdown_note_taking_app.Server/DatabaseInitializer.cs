@@ -7,6 +7,7 @@ namespace markdown_note_taking_app.Server
     // The reason for this class is for migrations to apply when the api starts in docker.
     public static class DatabaseInitializer
     {
+        // This line is for testing to see if CI/CD works for backend
         public static IHost InitializeDatabase(this IHost host)
         {
             using (var scope = host.Services.CreateScope())
