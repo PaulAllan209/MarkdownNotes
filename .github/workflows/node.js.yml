@@ -30,7 +30,7 @@ jobs:
         cd markdown_note_taking_app.client
         npm ci
     - name: Build frontend
-      run: 
+      run: |
         cd markdown_note_taking_app.client
         npm run build --if-present
     - name: Test frontend
