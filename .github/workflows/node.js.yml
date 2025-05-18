@@ -1,0 +1,69 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Frontend CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "development" ]
+    paths:
+      - 'markdown_note_taking_app.client/**'
+  pull_request:
+    branches: [ "main", "development" ]
+    paths:
+      - 'markdown_note_taking_app.client/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - name: Install frontend dependencies
+      run: |
+        cd markdown_note_taking_app.client
+        npm ci
+    - name: Build frontend
+      run: 
+        cd markdown_note_taking_app.client
+        npm run build --if-present
+    - name: Test frontend
+      run: |
+        cd markdown_note_taking_app.client
+        npm test
+        
+  docker-build-and-push:
+    needs: build
+    if: success() && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+      
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+        
+    - name: Build and push frontend
+      uses: docker/build-push-action@v4
+      with:
+        context: ./markdown_note_taking_app.client
+        push: true
+        tags: ${{ secrets.DOCKER_USERNAME }}/markdown-app-frontend:latest
