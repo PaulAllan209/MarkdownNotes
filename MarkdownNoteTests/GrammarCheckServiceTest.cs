@@ -1,6 +1,7 @@
 ﻿using LoggerService.Interfaces;
 using markdown_note_taking_app.Server.Interfaces.ServiceInterface;
 using markdown_note_taking_app.Server.Service;
+using MarkdownNoteTests;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -21,6 +22,7 @@ namespace markdown_note_taking_app.Server.Tests
             _output = output;
 
             //Tests dependencies
+            _logger = new LoggerManagerUnitTest(output);
             _httpClientFactory = new DefaultHttpClientFactory();
             _httpClientFactoryService = new HttpClientFactoryService(_httpClientFactory, _logger);
         }
@@ -50,17 +52,8 @@ namespace markdown_note_taking_app.Server.Tests
             var expected_result1 = "This is an example sentence";
             var expected_result2 = "She don't knows how to writing a letter correctly.";
 
-
-            if (result1 != expected_result1)
-            {
-                throw new Exception();
-            }
-
-            else if(result2 != expected_result2)
-            {
-                _output.WriteLine(result2);
-                throw new Exception();
-            }
+            Assert.Equal(expected_result1, result1);
+            Assert.Equal(expected_result2, result2);
         }
 
         //Helper class for the tests
@@ -71,8 +64,5 @@ namespace markdown_note_taking_app.Server.Tests
                 return new HttpClient();
             }
         }
-
-
-
     }
 }
