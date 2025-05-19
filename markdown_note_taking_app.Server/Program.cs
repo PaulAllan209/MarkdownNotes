@@ -20,7 +20,7 @@ builder.Services.ConfigureCors();
 builder.Services.ConfigureIISIntegration();
 
 //Grammar checking service
-builder.Services.AddScoped<IGrammarCheckService, GrammarCheckService>();
+builder.Services.ConfigureGrammarCheckService();
 
 //HttpClient factory
 builder.Services.ConfigureHttpClientService();

@@ -43,6 +43,9 @@ namespace markdown_note_taking_app.Server.Extensions
             services.AddHttpClient();
         }
 
+        public static void ConfigureGrammarCheckService(this IServiceCollection services) =>
+            services.AddScoped<IGrammarCheckService, GrammarCheckService>();
+
         public static void ConfigureSqlContext(this IServiceCollection services, IConfiguration configuration) =>
             services.AddDbContext<DataContext>(opts => opts.UseSqlServer(configuration.GetConnectionString("sqlConnection")));
 
