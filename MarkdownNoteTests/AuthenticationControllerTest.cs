@@ -26,6 +26,7 @@ public class AuthenticationControllerTest
     [Fact]
     public async Task RegisterUser_ReturnsCreatedStatus_WhenRegistrationSucceeds()
     {
+        // Arrange
         var userDto = new UserForRegistrationDto
         {
             FirstName = "Test",
@@ -41,8 +42,10 @@ public class AuthenticationControllerTest
 
         var controller = new AuthenticationController(_mockServiceManager.Object);
 
+        // Act
         var result = await controller.RegisterUser(userDto);
 
+        // Assert
         var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
         Assert.Equal(201, statusCodeResult.StatusCode);
     }
@@ -50,6 +53,7 @@ public class AuthenticationControllerTest
     [Fact]
     public async Task RegisterUser_ReturnsBadRequest_WhenRegistrationFails()
     {
+        // Arrange
         var userDto = new UserForRegistrationDto
         {
             FirstName = "Test",
@@ -65,8 +69,10 @@ public class AuthenticationControllerTest
 
         var controller = new AuthenticationController(_mockServiceManager.Object);
 
+        // Act
         var result = await controller.RegisterUser(userDto);
 
+        // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
         Assert.NotNull(badRequestResult.Value);
     }
@@ -74,6 +80,7 @@ public class AuthenticationControllerTest
     [Fact]
     public async Task Authenticate_ReturnsUnauthorized_WhenValidationFails()
     {
+        // Arrange
         var userDto = new UserForAuthenticationDto
         {
             UserName = "testuser",
@@ -85,14 +92,17 @@ public class AuthenticationControllerTest
 
         var controller = new AuthenticationController(_mockServiceManager.Object);
 
+        // Act
         var result = await controller.Authenticate(userDto);
 
+        // Assert
         Assert.IsType<UnauthorizedResult>(result);
     }
 
     [Fact]
     public async Task Authenticate_ReturnsToken_WhenValidationSucceeds()
     {
+        // Arrange
         var userDto = new UserForAuthenticationDto
         {
             UserName = "testuser",
@@ -108,8 +118,10 @@ public class AuthenticationControllerTest
 
         var controller = new AuthenticationController(_mockServiceManager.Object);
 
+        // Act
         var result = await controller.Authenticate(userDto);
 
+        // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
         var returnValue = Assert.IsType<TokenDto>(okResult.Value);
         Assert.Equal(tokenDto.AccessToken, returnValue.AccessToken);

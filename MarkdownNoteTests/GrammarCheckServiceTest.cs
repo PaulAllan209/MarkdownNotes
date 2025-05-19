@@ -1,7 +1,11 @@
 ﻿using LoggerService.Interfaces;
 using markdown_note_taking_app.Server.Interfaces.ServiceInterface;
+using markdown_note_taking_app.Server.Models.LanguageTool;
+using LTMatch = markdown_note_taking_app.Server.Models.LanguageTool.Match; // This fixes ambiguity between the models and Moq.match
 using markdown_note_taking_app.Server.Service;
 using MarkdownNoteTests;
+using Moq;
+using Newtonsoft.Json;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -10,59 +14,182 @@ namespace markdown_note_taking_app.Server.Tests
     public class GrammarCheckServiceTest
     {
         private readonly ITestOutputHelper _output;
-
-        //Tests dependencies
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IHttpClientServiceImplementation _httpClientFactoryService;
-        private readonly ILoggerManager _logger;
-
+        private readonly Mock<IHttpClientServiceImplementation> _mockHttpClientService;
+        private readonly GrammarCheckService _grammarCheckService;
 
         public GrammarCheckServiceTest(ITestOutputHelper output)
         {
             _output = output;
-
-            //Tests dependencies
-            _logger = new LoggerManagerUnitTest(output);
-            _httpClientFactory = new DefaultHttpClientFactory();
-            _httpClientFactoryService = new HttpClientFactoryService(_httpClientFactory, _logger);
+            _mockHttpClientService = new Mock<IHttpClientServiceImplementation>();
+            _grammarCheckService = new GrammarCheckService(_mockHttpClientService.Object);
         }
 
         [Fact]
-        public async Task CheckGrammarMarkdownTest()
+        public async Task CheckGrammarFromApiAsync_CorrectsSingleError()
         {
-            var grammar_check_service = new GrammarCheckService(_httpClientFactoryService);
+            // Arrange
+            var inputText = "This is an exampel sentence";
+            var apiResponse = CreateLanguageToolResponse(
+                new LTMatch
+                {
+                    Offset = 11,
+                    Length = 7,
+                    Replacements = new List<Replacement> {new Replacement { Value = "example" } }
+                }
+            );
 
-            var input = "***He dont has no idear what time it is.***\r\n\r\n**She go to the libary every days to studdy.**\r\n\r\n*They're going too the mall becuz it's funner then staying home.*\r\n\r\n## I can’t waits to eats the delishus cake you made.\r\n\r\n - The dog barked loudley at the man wich was walking passed.\r\n\r\n";
-            var result = await grammar_check_service.CheckGrammarMarkdownAsync(input);
-            string expected_result = "***He don't has no idea what time it is.***\n\n**She goes to the library every day to study.**\n\n*They're going to the mall because it's funner then staying home.*\n\n## I can’t wait to eat the delights cake you made.\n\n- The dog barked loudly at the man with was walking past.";
+            _mockHttpClientService
+                .Setup(x => x.MakeHttpRequestFromLanguageToolApiAsync(inputText))
+                .ReturnsAsync(apiResponse);
 
-            Assert.Equal(expected_result, result);
+            // Act
+            var result = await _grammarCheckService.CheckGrammarFromApiAsync(inputText);
+
+            // Assert
+            Assert.Equal("This is an example sentence", result);
         }
 
         [Fact]
-        public async Task CheckGrammarFromApiTest()
+        public async Task CheckGrammarFromApiAsync_CorrectsMultipleErrors()
         {
-            var grammar_check_service = new GrammarCheckService(_httpClientFactoryService);
+            // Arrange
+            var inputText = "She dont knows how to writting a letter correctly.";
+            var apiResponse = CreateLanguageToolResponse(
+                new LTMatch
+                {
+                    Offset = 4,
+                    Length = 4,
+                    Replacements = new List<Replacement> { new Replacement { Value = "don't" } }
+                },
+                new LTMatch
+                {
+                    Offset = 22,
+                    Length = 8,
+                    Replacements = new List<Replacement> { new Replacement { Value = "writing"} }
+                }
+            );
 
-            var input = "This is an exampel sentence";
-            var input2 = "She dont knows how to writting a letter correctly.";
-            var result1 = await grammar_check_service.CheckGrammarFromApiAsync(input);
-            var result2 = await grammar_check_service.CheckGrammarFromApiAsync(input2);
+            _mockHttpClientService
+                .Setup(x => x.MakeHttpRequestFromLanguageToolApiAsync(inputText))
+                .ReturnsAsync(apiResponse);
 
-            var expected_result1 = "This is an example sentence";
-            var expected_result2 = "She don't knows how to writing a letter correctly.";
+            // Act
+            var result = await _grammarCheckService.CheckGrammarFromApiAsync(inputText);
 
-            Assert.Equal(expected_result1, result1);
-            Assert.Equal(expected_result2, result2);
+            // Assert
+            Assert.Equal("She don't knows how to writing a letter correctly.", result);
+        }
+        [Fact]
+        public async Task CheckGrammarFromApiAsync_HandlesNoCorrectionsNeeded()
+        {
+            // Arrange
+            var inputText = "This sentence is grammatically correct.";
+            var apiResponse = CreateLanguageToolResponse(); // No matches
+
+            _mockHttpClientService
+                .Setup(x => x.MakeHttpRequestFromLanguageToolApiAsync(inputText))
+                .ReturnsAsync(apiResponse);
+
+            // Act
+            var result = await _grammarCheckService.CheckGrammarFromApiAsync(inputText);
+
+            // Assert
+            Assert.Equal(inputText, result); // Text should remain unchanged
         }
 
-        //Helper class for the tests
-        private class DefaultHttpClientFactory : IHttpClientFactory
+        [Fact]
+        public async Task CheckGrammarFromApiAsync_HandlesEmptyReplacements()
         {
-            public HttpClient CreateClient(string name = "")
+            // Arrange
+            var inputText = "This sentence has a detected problem but no suggested fixes.";
+            var apiResponse = CreateLanguageToolResponse(
+                new LTMatch
+                {
+                    Offset = 13,
+                    Length = 3,
+                    Replacements = new List<Replacement>() // No replacements
+                }
+            );
+
+            _mockHttpClientService
+                .Setup(x => x.MakeHttpRequestFromLanguageToolApiAsync(inputText))
+                .ReturnsAsync(apiResponse);
+
+            // Act
+            var result = await _grammarCheckService.CheckGrammarFromApiAsync(inputText);
+
+            // Assert
+            Assert.Equal(inputText, result); // Text should remain unchanged
+        }
+
+        [Fact]
+        public async Task CheckGrammarMarkdownAsync_ProcessesMarkdownCorrectly()
+        {
+            // Arrange
+            var markdownInput = "**She go to the library every days.**";
+            var apiResponse = CreateLanguageToolResponse(
+                new LTMatch 
+                {
+                    Offset = 4,
+                    Length = 2,
+                    Replacements = new List<Replacement> { new Replacement { Value = "goes"} }
+                },
+                new LTMatch
+                {
+                    Offset = 14,
+                    Length = 6,
+                    Replacements = new List<Replacement> { new Replacement { Value = "library"} }
+                },
+                new LTMatch
+                {
+                    Offset = 21,
+                    Length = 4,
+                    Replacements = new List<Replacement> { new Replacement { Value = "day"} }
+                }
+            );
+
+            _mockHttpClientService
+                .Setup(x => x.MakeHttpRequestFromLanguageToolApiAsync(It.IsAny<string>()))
+                .ReturnsAsync(apiResponse);
+
+            // Act
+            var result = await _grammarCheckService.CheckGrammarMarkdownAsync(markdownInput);
+
+            // Assert
+            Assert.Contains("goes", result);
+            Assert.Contains("library", result);
+            Assert.Contains("day", result);
+        }
+
+        [Fact]
+        public async Task CheckGrammarMarkdownAsync_PreservesMarkdownFormatting()
+        {
+            // Arrange
+            var markdownInput = "# Heading\n\n**Bold text** with an _error_.\n\n- List item 1\n- List item 2";
+
+            _mockHttpClientService
+                .Setup(x => x.MakeHttpRequestFromLanguageToolApiAsync(It.IsAny<string>()))
+                .ReturnsAsync(CreateLanguageToolResponse());
+
+            // Act
+            var result = await _grammarCheckService.CheckGrammarMarkdownAsync(markdownInput);
+
+            // Assert
+            Assert.Contains("# Heading", result);
+            Assert.Contains("**Bold text**", result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("_error_", result);
+            Assert.Contains("- List item", result);
+        }
+
+        // Helper method to create sample API responses
+        private string CreateLanguageToolResponse(params LTMatch[] matches)
+        {
+            var response = new LanguageToolResponse
             {
-                return new HttpClient();
-            }
+                Matches = (matches != null) ? matches.ToList() : new List<LTMatch>()
+            };
+
+            return JsonConvert.SerializeObject(response);
         }
     }
 }
