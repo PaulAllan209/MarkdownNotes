@@ -13,7 +13,7 @@ using System.Text;
 
 namespace markdown_note_taking_app.Server.Service
 {
-    internal sealed class AuthenticationService : IAuthenticationService
+    internal class AuthenticationService : IAuthenticationService
     {
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
@@ -142,7 +142,8 @@ namespace markdown_note_taking_app.Server.Service
             }
         }
 
-        private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        // Method is made protected and virtual to enable mocking in Moq so the method can be overriden
+        protected virtual ClaimsPrincipal GetPrincipalFromExpiredToken(string token) 
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
 
