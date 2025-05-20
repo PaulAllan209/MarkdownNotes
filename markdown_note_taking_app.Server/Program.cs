@@ -11,6 +11,12 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Options;
 using NLog;
 
+// This code block is needed so that AuthenticationService which is an internal sealed class
+// can be accessed in the unittests
+using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleTo("MarkdownNoteTests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] // Required for Moq to work with internal types
+
 var builder = WebApplication.CreateBuilder(args);
 
 //Cors config which allows for any origin, method, and headers
