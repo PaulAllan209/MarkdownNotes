@@ -31,8 +31,6 @@ namespace markdown_note_taking_app.Server.Service
             _configuration = configuration;
         }
 
-        
-
         public async Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration)
         {
             var user = _mapper.Map<User>(userForRegistration);
@@ -81,6 +79,9 @@ namespace markdown_note_taking_app.Server.Service
         // Do note that you can pass in a token that is not expired and still get a new fresh token
         public async Task<TokenDto> RefreshToken(TokenDto tokenDto)
         {
+            if (string.IsNullOrEmpty(tokenDto.AccessToken) || string.IsNullOrEmpty(tokenDto.RefreshToken))
+                throw new RefreshTokenBadRequest();
+
             var principal = GetPrincipalFromExpiredToken(tokenDto.AccessToken);
 
             var user = await _userManager.FindByNameAsync(principal.Identity.Name);
