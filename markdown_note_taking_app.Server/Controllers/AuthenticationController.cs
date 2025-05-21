@@ -9,18 +9,18 @@ namespace markdown_note_taking_app.Server.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        private readonly IServiceManager _service;
+        private readonly IServiceManager _serviceManager;
 
-        public AuthenticationController(IServiceManager service)
+        public AuthenticationController(IServiceManager serviceManager)
         {
-            _service = service;
+            _serviceManager = serviceManager;
         }
 
         [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)
         {
-            var result = await _service.AuthenticationService.RegisterUser(userForRegistration);
+            var result = await _serviceManager.AuthenticationService.RegisterUser(userForRegistration);
 
             if (!result.Succeeded)
             {
@@ -31,6 +31,8 @@ namespace markdown_note_taking_app.Server.Controllers
                 return BadRequest(ModelState);
             }
 
+            // Create the default welcome file
+
             return StatusCode(201);
         }
 
@@ -40,11 +42,11 @@ namespace markdown_note_taking_app.Server.Controllers
         {
             // Validate user method assigns a value to private attribute _user
             // _user will be used by CreateToken method that is why no parameters are passed on it
-            if (!await _service.AuthenticationService.ValidateUser(user))
+            if (!await _serviceManager.AuthenticationService.ValidateUser(user))
                 return Unauthorized();
 
             // No parameters are passed on CreateToken method because _user attribute already have a value
-            var tokenDto = await _service.AuthenticationService.CreateToken(populateExp: true);
+            var tokenDto = await _serviceManager.AuthenticationService.CreateToken(populateExp: true);
 
             return Ok(tokenDto);
         }
