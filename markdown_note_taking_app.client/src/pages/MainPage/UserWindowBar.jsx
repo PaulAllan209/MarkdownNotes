@@ -81,7 +81,7 @@ function UserWindowBar(props) {
     return (
         <div className="user-bar">
             <div className="user-bar-left-container">
-                {props.showGrammarView ? <AcceptChangesWindow /> : <></>}
+                {(props.showGrammarView && !props.isCheckingGrammar) ? <AcceptChangesWindow /> : <></>}
             </div>
             <p className="save-state">{props.saveState ? "Saved" : "Unsaved"}</p>
             <div className="user-bar-buttons-container">
