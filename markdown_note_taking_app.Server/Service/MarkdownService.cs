@@ -40,7 +40,7 @@ namespace markdown_note_taking_app.Server.Service
             var user = await _userManager.FindByNameAsync(userName);
             var userId = user?.Id;
 
-            string fileName = Path.GetFileName(markdownFile.MarkdownFile.FileName);
+            string fileName = Path.GetFileNameWithoutExtension(markdownFile.MarkdownFile.FileName);
 
             //Read the file content into a string
             string fileContent;
