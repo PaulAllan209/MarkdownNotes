@@ -1,7 +1,7 @@
 import './UserWindowBar.css';
 import AcceptChangesWindow from './AcceptChangesWindow';
 import { handleFileContentSave, handleFileGet } from '../../utils/apiUtils.js';
-import { storeTokens } from '../../utils/authenticationUtils.js';
+import { logout } from '../../utils/authenticationUtils.js';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -15,7 +15,7 @@ function UserWindowBar(props) {
 
     const handleGrammarCheck = async () => {
         try {
-            handleFileContentSave(props.fileGuid, props.fileCurrentContent, handleSaveSuccess); //Saves the file to the database first before checking for grammar.
+            await handleFileContentSave(props.fileGuid, props.fileCurrentContent, handleSaveSuccess); //Saves the file to the database first before checking for grammar.
         } catch (error) {
             if (error.message === 'TokenExpired') {
                 // Go back to login page
@@ -26,18 +26,7 @@ function UserWindowBar(props) {
     }
 
     const handleExportAsMarkdown = () => {
-        const markdownContent = props.fileCurrentContent;
-        const blob = new Blob([markdownContent], { type: 'text/markdown' });
-        const url = URL.createObjectURL(blob);
-
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${props.fileTitle}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        URL.revokeObjectURL(url); // Clean up the URL object
+        downloadFile(props.fileCurrentContent, props.fileTitle, 'text/markdown');
     }
 
     const handleExportAsHtml = async () => {
@@ -50,18 +39,7 @@ function UserWindowBar(props) {
             );
 
             if (data && data.fileContentAsHtml) {
-                const htmlContent = data.fileContentAsHtml;
-                const blob = new Blob([htmlContent], { type: 'text/html' });
-                const url = URL.createObjectURL(blob);
-
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `${props.fileTitle}.html`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                URL.revokeObjectURL(url); // Clean up the URL object
+                downloadFile(props.fileContentAsHtml, props.fileTitle, 'text/html');
             } else {
                 console.error("HTML content is undefined or not returned properly.");
                 alert("Failed to export as HTML. Please try again.");
@@ -78,8 +56,25 @@ function UserWindowBar(props) {
     }
 
     const handleLogout = async () => {
-        storeTokens(null, null);
+        logout();
         navigate('/login');
+    }
+
+    // Utility function to reduce repeating code patterns
+    const downloadFile = (content, filename, type) => {
+        const blob = new Blob([content], { type });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        if(type == 'text/markdown')
+            link.download = `${filename}.md`;
+        else if (type == 'text/html')
+            link.download = `${filename}.html`;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     }
 
     return (
