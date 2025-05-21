@@ -46,10 +46,14 @@ body{
     background-color: #a59a8d;
 }
 
-.new-file-input{
+.new-file-input {
     border: none;
     background-color: transparent;
     outline: none;
+    width: 100%;
+    padding: 0px 0;
+    font-size: 12px;
+    font-weight: bold;
 }
 
 .rename-file-input {
@@ -57,6 +61,9 @@ body{
     background-color: transparent;
     outline: none;
     color: white;
+    padding: 0px 0;
+    font-size: 12px;
+    font-weight: bold;
 }
 
 
