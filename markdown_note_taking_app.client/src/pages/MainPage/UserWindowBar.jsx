@@ -87,6 +87,7 @@ function UserWindowBar(props) {
                 <button className="user-bar-buttons" onClick={handleGrammarCheck}>Check for Grammar</button>
                 <button className="user-bar-buttons" onClick={handleExportAsMarkdown}>Export as Markdown</button>
                 <button className="user-bar-buttons" onClick={handleExportAsHtml}>Export as HTML</button>
+                <button className="user-bar-buttons" id="logout-btn">Logout</button>
             </div>
         </div>
   );

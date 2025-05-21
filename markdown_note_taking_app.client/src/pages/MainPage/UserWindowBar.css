@@ -45,6 +45,23 @@
     cursor: pointer;
 }
 
+#logout-btn:hover {
+    margin: 0 10px;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
+    background-color: #c0392b;
+    font-family: 'Open Sans';
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#logout-btn:active {
+    background-color: #9c2e23;
+}
+
 .save-state {
     color: white;
     font-family: 'Open Sans';
