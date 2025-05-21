@@ -1,4 +1,5 @@
 import "./EditingWindow.css"
+
 function EditingWindow(props) {
 
     const handleContentChange = (e) => {

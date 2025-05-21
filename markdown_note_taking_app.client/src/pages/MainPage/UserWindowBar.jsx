@@ -23,6 +23,7 @@ function UserWindowBar(props) {
             }
         }
         props.setShowGrammarView(true);
+        props.setIsCheckingGrammar(true);
     }
 
     const handleExportAsMarkdown = () => {

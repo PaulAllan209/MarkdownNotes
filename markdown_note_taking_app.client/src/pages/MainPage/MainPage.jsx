@@ -8,7 +8,6 @@ import { AcceptChangesWindowContext } from '../../contexts/AcceptChangesWindowCo
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { debounce } from 'lodash';
-import { getAccessToken, getRefreshToken } from '../../utils/authenticationUtils';
 
 function MainPage() {
     const [selectedFile, setSelectedFile] = useState(null);
@@ -17,6 +16,7 @@ function MainPage() {
     const [isSaved, setIsSaved] = useState(true);
     const [showGrammarView, setShowGrammarView] = useState(false);
     const [grammarCheckedFileContent, setGrammarCheckedFileContent] = useState('');
+    const [isCheckingGrammar, setIsCheckingGrammar] = useState(false); // for the spinner loading icon
 
     // For checking if there are still access tokens
     // If the token strings are empty the user will be redirected to the login page
@@ -63,20 +63,25 @@ function MainPage() {
     //Grammar checking
     useEffect(() => {
         if (showGrammarView) {
-            try {
-                handleFileGet({
-                    fileId: selectedFile.guid,
-                    grammarCheck: true,
-                    onSuccess: (fileTitle, fileContent) => {
-                        setGrammarCheckedFileContent(fileContent || '')
+            const checkGrammar = async () => {
+                try {
+                    setIsCheckingGrammar(true);
+                    await handleFileGet({
+                        fileId: selectedFile.guid,
+                        grammarCheck: true,
+                        onSuccess: (fileTitle, fileContent) => {
+                            setGrammarCheckedFileContent(fileContent || '')
+                        }
+                    });
+                    setIsCheckingGrammar(false);
+                } catch (error) {
+                    if (error.message === 'TokenExpired') {
+                        // Go back to login page
+                        navigate('/login');
                     }
-                })
-            } catch (error) {
-                if (error.message === 'TokenExpired') {
-                    // Go back to login page
-                    navigate('/login');
                 }
             }
+            checkGrammar();
         }
         else {
             setGrammarCheckedFileContent('');
@@ -95,7 +100,7 @@ function MainPage() {
                         setFileContentInDb,
                         setShowGrammarView,
                         selectedFile: selectedFile,
-                        setIsSaved
+                        setIsSaved,
                     }
                 }>
                     <UserWindowBar
@@ -106,12 +111,22 @@ function MainPage() {
                         fileCurrentContent={fileContent}
                         showGrammarView={showGrammarView}
                         setShowGrammarView={setShowGrammarView}
-                        setGrammarCheckedFileContent={setGrammarCheckedFileContent} />
+                        setGrammarCheckedFileContent={setGrammarCheckedFileContent}
+                        isCheckingGrammar={isCheckingGrammar}
+                        setIsCheckingGrammar={setIsCheckingGrammar}
+                    />
                 </AcceptChangesWindowContext.Provider>
 
                 <div className="window-content-container">
-                    {!showGrammarView ? <EditingWindow selectedFileContent={fileContent} setContent={setFileContent} /> :
-                        <GrammarSuggestionWindow grammarCheckedFileContent={grammarCheckedFileContent} setGrammarCheckedFileContent={setGrammarCheckedFileContent} />}
+                    {!showGrammarView ? <EditingWindow
+                        selectedFileContent={fileContent}
+                        setContent={setFileContent}
+                    /> :
+                        <GrammarSuggestionWindow
+                            grammarCheckedFileContent={grammarCheckedFileContent}
+                            setGrammarCheckedFileContent={setGrammarCheckedFileContent}
+                            isCheckingGrammar={isCheckingGrammar}
+                        />}
 
                     <DisplayWindow selectedFileContent={fileContent} />
                 </div>
