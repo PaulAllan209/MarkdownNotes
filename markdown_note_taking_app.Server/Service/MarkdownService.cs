@@ -70,6 +70,30 @@ namespace markdown_note_taking_app.Server.Service
             return markdownFileDto;
         }
 
+        public async Task<MarkdownFileDto> CreateDefaultMarkdownFileAsync(string fileName, string fileContent, string userName)
+        {
+            // Get userId first
+            var user = await _userManager.FindByNameAsync(userName);
+            var userId = user?.Id;
+
+            var defaultMarkdownFileDto = new MarkdownFileCreationDto
+            {
+                Id = Guid.NewGuid(),
+                Title = fileName,
+                FileContent = fileContent,
+                UploadDate = DateTime.Now,
+                UserId = userId
+            };
+
+            var markdownFileEntity = _mapper.Map<MarkdownFile>(defaultMarkdownFileDto);
+            _repository.MarkDown.CreateMarkdownFile(markdownFileEntity);
+            await _repository.SaveAsync();
+
+            var markdownFileDto = _mapper.Map<MarkdownFileDto>(markdownFileEntity);
+
+            return markdownFileDto;
+        }
+
         public async Task<IEnumerable<MarkdownFileDto>> GetAllMarkdownFilesAsync(string userName, bool trackChanges)
         {
             // Get userId first

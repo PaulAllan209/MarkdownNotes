@@ -1,6 +1,7 @@
 ﻿using markdown_note_taking_app.Server.ActionFilters;
 using markdown_note_taking_app.Server.Dto;
 using markdown_note_taking_app.Server.Interfaces.ServiceInterface;
+using markdown_note_taking_app.Server.Utilities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace markdown_note_taking_app.Server.Controllers
@@ -32,6 +33,10 @@ namespace markdown_note_taking_app.Server.Controllers
             }
 
             // Create the default welcome file
+            string fileName = DefaultMarkdownFile.GetDefaultFileName();
+            string fileContent = DefaultMarkdownFile.GetWelcomeFileContent();
+
+            await _serviceManager.MarkdownService.CreateDefaultMarkdownFileAsync(fileName, fileContent, userForRegistration.UserName);
 
             return StatusCode(201);
         }
