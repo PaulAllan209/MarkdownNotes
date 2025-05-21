@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import spinnerSvg from '../assets/Spinner@1x-1.0s-211px-211px.svg';
 
 export function SpinnerLoading() {
