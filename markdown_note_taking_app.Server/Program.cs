@@ -62,6 +62,15 @@ builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureJWT(builder.Configuration);
 
+// Disable ASP.NET Core's automatic model state validation which returns 400 Bad Request.
+// This allows our custom ValidationFilterAttribute to handle validation failures consistently
+// by returning 422 Unprocessable Entity status code, which is the appropriate status code
+// for semantic validation errors according to RFC 4918.
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+
 var app = builder.Build();
 
 var logger = app.Services.GetRequiredService<ILoggerManager>();
