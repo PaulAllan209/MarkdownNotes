@@ -117,5 +117,17 @@ namespace markdown_note_taking_app.Server.Extensions
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
             services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
         }
+
+        public static void ConfigureAntiForgeryToken(this IServiceCollection services)
+        {
+            services.AddAntiforgery(options =>
+            {
+                options.HeaderName = "X-XSRF-TOKEN";
+                options.Cookie.Name = "XSRF-TOKEN";
+                options.Cookie.HttpOnly = false; // Allow JavaScript to read the cookie
+                options.Cookie.SameSite = SameSiteMode.Strict;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            });
+        }
     }
 }

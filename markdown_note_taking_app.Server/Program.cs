@@ -4,6 +4,7 @@ using markdown_note_taking_app.Server;
 using markdown_note_taking_app.Server.ActionFilters;
 using markdown_note_taking_app.Server.Extensions;
 using markdown_note_taking_app.Server.Interfaces.ServiceInterface;
+using markdown_note_taking_app.Server.Middlewares;
 using markdown_note_taking_app.Server.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -72,6 +73,9 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
+// For anti token forgery security headers middleware
+builder.Services.ConfigureAntiForgeryToken();
+
 // For rate limiting
 builder.Services.AddMemoryCache();
 builder.Services.ConfigureRateLimitingOptions();
@@ -108,6 +112,9 @@ app.UseCors("CorsPolicy");
 //Jwt authentication and authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Security headers middleware
+app.UseMiddleware<SecurityHeadersMiddleware>();
 
 app.MapControllers();
 
