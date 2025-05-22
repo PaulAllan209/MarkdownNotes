@@ -1,3 +1,4 @@
+using AspNetCoreRateLimit;
 using LoggerService.Interfaces;
 using markdown_note_taking_app.Server;
 using markdown_note_taking_app.Server.ActionFilters;
@@ -71,6 +72,11 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
+// For rate limiting
+builder.Services.AddMemoryCache();
+builder.Services.ConfigureRateLimitingOptions();
+builder.Services.AddHttpContextAccessor();
+
 var app = builder.Build();
 
 var logger = app.Services.GetRequiredService<ILoggerManager>();
@@ -95,6 +101,8 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.All
 });
 
+app.UseIpRateLimiting();
+
 app.UseCors("CorsPolicy");
 
 //Jwt authentication and authorization
@@ -102,6 +110,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 // This is for docker initialization of database inside docker
 app.InitializeDatabase();
