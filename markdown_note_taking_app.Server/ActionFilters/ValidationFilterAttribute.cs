@@ -6,19 +6,29 @@ namespace markdown_note_taking_app.Server.ActionFilters
     // This is a custom action filter that is designed to validate incoming request data in asp.net core controllers
     public class ValidationFilterAttribute : IActionFilter
     {
-        public ValidationFilterAttribute()
-        { }
+        private readonly ILogger<ValidationFilterAttribute> _logger;
+        public ValidationFilterAttribute(ILogger<ValidationFilterAttribute> logger)
+        {
+            _logger = logger;
+        }
 
         public void OnActionExecuting(ActionExecutingContext context) 
         {
             var action = context.RouteData.Values["action"];
             var controller = context.RouteData.Values["controller"];
 
-            // This part looks for an action parameter whose name contains "Dto" e.g. UserForRegistrationDto
-            // If no such parameter is found or any of the parameter is null, it sets the result to a BadRequestObjectResult with an error message.
-            if (context.ActionArguments.Values.Any(v => v == null))
+            // Check if any parameter is null
+            var nullParams = context.ActionArguments
+                .Where(p => p.Value == null)
+                .Select(p => p.Key)
+                .ToList();
+
+            if (nullParams.Any())
             {
-                context.Result = new BadRequestObjectResult($"Object is null. Controller: {controller}, action: {action}");
+                _logger.LogWarning("Null parameters detected for {Controller}.{Action}: {Parameters}",
+                    controller, action, string.Join(", ", nullParams));
+
+                context.Result = new BadRequestObjectResult($"The following parameters are null: {string.Join(", ", nullParams)}");
                 return;
             }
 
