@@ -15,10 +15,8 @@ namespace markdown_note_taking_app.Server.ActionFilters
             var controller = context.RouteData.Values["controller"];
 
             // This part looks for an action parameter whose name contains "Dto" e.g. UserForRegistrationDto
-            // If no such parameter is found or the parameter is null, it sets the result to a BadRequestObjectResult with an error message.
-            var param = context.ActionArguments
-                .SingleOrDefault(x => x.Value.ToString().Contains("Dto")).Value;
-            if (param is null)
+            // If no such parameter is found or any of the parameter is null, it sets the result to a BadRequestObjectResult with an error message.
+            if (context.ActionArguments.Values.Any(v => v == null))
             {
                 context.Result = new BadRequestObjectResult($"Object is null. Controller: {controller}, action: {action}");
                 return;
