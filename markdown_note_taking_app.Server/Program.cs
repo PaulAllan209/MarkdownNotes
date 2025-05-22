@@ -1,8 +1,10 @@
+using AspNetCoreRateLimit;
 using LoggerService.Interfaces;
 using markdown_note_taking_app.Server;
 using markdown_note_taking_app.Server.ActionFilters;
 using markdown_note_taking_app.Server.Extensions;
 using markdown_note_taking_app.Server.Interfaces.ServiceInterface;
+using markdown_note_taking_app.Server.Middlewares;
 using markdown_note_taking_app.Server.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -62,6 +64,23 @@ builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureJWT(builder.Configuration);
 
+// Disable ASP.NET Core's automatic model state validation which returns 400 Bad Request.
+// This allows our custom ValidationFilterAttribute to handle validation failures consistently
+// by returning 422 Unprocessable Entity status code, which is the appropriate status code
+// for semantic validation errors according to RFC 4918.
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+
+// For anti token forgery security headers middleware
+builder.Services.ConfigureAntiForgeryToken();
+
+// For rate limiting
+builder.Services.AddMemoryCache();
+builder.Services.ConfigureRateLimitingOptions();
+builder.Services.AddHttpContextAccessor();
+
 var app = builder.Build();
 
 var logger = app.Services.GetRequiredService<ILoggerManager>();
@@ -86,13 +105,19 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.All
 });
 
+app.UseIpRateLimiting();
+
 app.UseCors("CorsPolicy");
 
 //Jwt authentication and authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Security headers middleware
+app.UseMiddleware<SecurityHeadersMiddleware>();
+
 app.MapControllers();
+
 
 // This is for docker initialization of database inside docker
 app.InitializeDatabase();
