@@ -2,6 +2,8 @@
 using markdown_note_taking_app.Server.Controllers;
 using markdown_note_taking_app.Server.Dto;
 using markdown_note_taking_app.Server.Interfaces.ServiceInterface;
+using markdown_note_taking_app.Server.Models;
+using markdown_note_taking_app.Server.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -14,12 +16,15 @@ public class AuthenticationControllerTest
     private readonly ITestOutputHelper _output;
     private readonly Mock<IServiceManager> _mockServiceManager;
     private readonly Mock<IAuthenticationService> _mockAuthService;
+    private readonly Mock<IMarkdownService> _mockMarkdownService;
 
     public AuthenticationControllerTest(ITestOutputHelper output)
     {
         _output = output;
         _mockAuthService = new Mock<IAuthenticationService>();
+        _mockMarkdownService = new Mock<IMarkdownService>();
         _mockServiceManager = new Mock<IServiceManager>();
+        _mockServiceManager.Setup(sm => sm.MarkdownService).Returns(_mockMarkdownService.Object);
         _mockServiceManager.Setup(sm => sm.AuthenticationService).Returns(_mockAuthService.Object);
     }
 
@@ -39,6 +44,21 @@ public class AuthenticationControllerTest
         var identityResult = IdentityResult.Success;
         _mockAuthService.Setup(s => s.RegisterUser(It.IsAny<UserForRegistrationDto>()))
             .ReturnsAsync(identityResult);
+
+        // Setup mock for default markdown file creation
+        var defaultMarkdownFileDto = new MarkdownFileDto
+        {
+            Id = Guid.NewGuid(),
+            Title = DefaultMarkdownFile.GetDefaultFileName(),
+            FileContent = DefaultMarkdownFile.GetWelcomeFileContent(),
+            UploadDate = DateTime.Now
+        };
+
+        _mockMarkdownService.Setup(s => s.CreateDefaultMarkdownFileAsync(
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>()))
+            .ReturnsAsync(defaultMarkdownFileDto);
 
         var controller = new AuthenticationController(_mockServiceManager.Object);
 
