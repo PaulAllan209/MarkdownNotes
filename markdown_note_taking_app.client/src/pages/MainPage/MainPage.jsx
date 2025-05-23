@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { debounce } from 'lodash';
 
 function MainPage() {
+    const [files, setFiles] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
     const [fileContentInDb, setFileContentInDb] = useState('');
     const [fileContent, setFileContent] = useState('');
@@ -28,6 +29,39 @@ function MainPage() {
         }, 500),
         []
     );
+
+    // Getting the list of files and setting the default file
+    useEffect(() => {
+        try {
+
+            handleFileGet({
+                onSuccess: (localFiles) => {
+                    // Map the files
+                    const mappedFiles = localFiles.map(file => ({
+                        guid: file.id,
+                        title: file.title,
+                        fileContent: file.fileContent
+                    }));
+
+                    // Update files state
+                    setFiles(mappedFiles);
+
+                    // If files exist, set the first one as selected and update content
+                    if (mappedFiles.length > 0) {
+                        setSelectedFile(mappedFiles[0]);
+                        setFileContent(mappedFiles[0].fileContent || '');
+                        setFileContentInDb(mappedFiles[0].fileContent || '');
+
+                    }
+                }
+            });
+        } catch (error) {
+            if (error.message === 'TokenExpired') {
+                // Go back to login page
+                navigate('/login');
+            }
+        }
+    }, []);
 
     // Getting the file content if selected file and file content chnanges
     useEffect(() => {
@@ -90,7 +124,11 @@ function MainPage() {
 
     return (
         <div className="app-container">
-            <SideBar onFileSelect={setSelectedFile} />
+            <SideBar
+                onFileSelect={setSelectedFile}
+                files={files}
+                setFiles={ setFiles }
+            />
             <div className="user-window">
                 <AcceptChangesWindowContext.Provider value={
                     {
