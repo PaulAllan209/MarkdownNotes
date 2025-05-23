@@ -153,7 +153,6 @@ function SideBar(props) {
         <div className="side-bar">
             <div className="side-bar-buttons-container">
                 <button className="side-bar-buttons" onClick={handleCreateFileBtn}><img src="/assets/button_icons/add_file.png" className="side-bar-icons"></img></button>
-
                 <button className="side-bar-buttons" onClick={triggerFileInputBtn}><img src="/assets/button_icons/upload_file.png" className="side-bar-icons"></img></button>
                 <input
                     type="file"

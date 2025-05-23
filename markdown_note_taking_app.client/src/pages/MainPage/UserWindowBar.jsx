@@ -81,6 +81,14 @@ function UserWindowBar(props) {
     return (
         <div className="user-bar">
             <div className="user-bar-left-container">
+                <div className="user-bar-tool-buttons-container">
+                    <button className="user-bar-tool-buttons"><img className="user-bar-tool-icons" src="/assets/button_icons/bold-text.png" /></button>
+                    <button className="user-bar-tool-buttons"><img className="user-bar-tool-icons" src="/assets/button_icons/italic-font.png" /></button>
+                    <button className="user-bar-tool-buttons"><img className="user-bar-tool-icons" src="/assets/button_icons/strikethrough.png" /></button>
+                    <button className="user-bar-tool-buttons"><img className="user-bar-tool-icons" src="/assets/button_icons/unordered_list.png" /></button>
+                    <button className="user-bar-tool-buttons"><img className="user-bar-tool-icons" src="/assets/button_icons/ordered_list.png" /></button>
+                    <button className="user-bar-tool-buttons"><img className="user-bar-tool-icons" src="/assets/button_icons/programming-code-signs.png" /></button>
+                </div>
                 {(props.showGrammarView && !props.isCheckingGrammar) ? <AcceptChangesWindow /> : <></>}
             </div>
             <p className="save-state">{props.saveState ? "Saved" : "Unsaved"}</p>
