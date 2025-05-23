@@ -90,7 +90,7 @@ namespace markdown_note_taking_app.Server.Service
 
             _user = user;
 
-            return await CreateToken(populateExp: false);
+            return await CreateToken(populateExp: true);
         }
 
         private SigningCredentials GetSigningCredentials()
@@ -155,7 +155,7 @@ namespace markdown_note_taking_app.Server.Service
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(
                     Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET"))),
-                ValidateLifetime = true,
+                ValidateLifetime = false, // Changed to false due to the api not granting access when access token is expired but the refresh token is not
                 ValidIssuer = jwtSettings["validIssuer"],
                 ValidAudience = jwtSettings["validAudience"]
             };
