@@ -3,11 +3,13 @@ import AcceptChangesWindow from './AcceptChangesWindow';
 import { handleFileContentSave, handleFileGet } from '../../utils/apiUtils.js';
 import { logout } from '../../utils/authenticationUtils.js';
 import { useNavigate } from 'react-router-dom';
+import { useRef } from 'react';
 
 
 function UserWindowBar(props) {
 
     const navigate = useNavigate();
+    const editorRef = useRef(null);
 
     const handleSaveSuccess = () => {
         props.setSaveState(true);
@@ -25,6 +27,57 @@ function UserWindowBar(props) {
         props.setShowGrammarView(true);
         props.setIsCheckingGrammar(true);
     }
+
+    const handleBoldClick = () => {
+        const textArea = props.editorRef.current;
+        if (!textArea) return;
+
+        const start = textArea.selectionStart;
+        const end = textArea.selectionEnd;
+
+        // Only proceed if there's a selection
+        if (start !== end) {
+            const selectedText = props.fileCurrentContent.substring(start, end);
+            let newContent;
+            let newCursorPos;
+
+            // Check if the selected text is already bold
+            if ((props.fileCurrentContent.substring(start - 2, start) === '**') && (props.fileCurrentContent.substring(end, end + 2) === '**')) {
+                // Remove bold formatting
+                newContent =
+                    props.fileCurrentContent.substring(0, start - 2) +
+                    selectedText +
+                    props.fileCurrentContent.substring(end + 2);
+
+                // Adjust cursor position
+                newCursorPos = {
+                    start: start - 2,
+                    end: end - 2 // Adjust for the removal of 4 characters (two asterisks on each side)
+                };
+            } else {
+                // Add bold formatting
+                newContent =
+                    props.fileCurrentContent.substring(0, start) +
+                    `**${selectedText}**` +
+                    props.fileCurrentContent.substring(end);
+
+                // Adjust cursor position
+                newCursorPos = {
+                    start: start + 2,
+                    end: end + 2
+                };
+            }
+
+            props.setFileCurrentContent(newContent);
+            props.setSaveState(false);
+
+            // Set the cursor position after the operation
+            setTimeout(() => {
+                textArea.focus();
+                textArea.setSelectionRange(newCursorPos.start, newCursorPos.end);
+            }, 0);
+        }
+    };
 
     const handleExportAsMarkdown = () => {
         downloadFile(props.fileCurrentContent, props.fileTitle, 'text/markdown');
@@ -82,7 +135,7 @@ function UserWindowBar(props) {
         <div className="user-bar">
             <div className="user-bar-left-container">
                 <div className="user-bar-tool-buttons-container">
-                    <button className="user-bar-tool-buttons"><img className="user-bar-tool-icons" src="/assets/button_icons/bold-text.png" /></button>
+                    <button className="user-bar-tool-buttons" onClick={handleBoldClick}><img className="user-bar-tool-icons" src="/assets/button_icons/bold-text.png" /></button>
                     <button className="user-bar-tool-buttons"><img className="user-bar-tool-icons" src="/assets/button_icons/italic-font.png" /></button>
                     <button className="user-bar-tool-buttons"><img className="user-bar-tool-icons" src="/assets/button_icons/strikethrough.png" /></button>
                     <button className="user-bar-tool-buttons"><img className="user-bar-tool-icons" src="/assets/button_icons/unordered_list.png" /></button>

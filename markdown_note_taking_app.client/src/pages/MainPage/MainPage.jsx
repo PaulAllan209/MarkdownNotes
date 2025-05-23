@@ -5,7 +5,7 @@ import UserWindowBar from './UserWindowBar';
 import GrammarSuggestionWindow from './GrammarSuggestionWindow';
 import { handleFileGet } from '../../utils/apiUtils.js';
 import { AcceptChangesWindowContext } from '../../contexts/AcceptChangesWindowContext.jsx';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { debounce } from 'lodash';
 
@@ -18,6 +18,7 @@ function MainPage() {
     const [showGrammarView, setShowGrammarView] = useState(false);
     const [grammarCheckedFileContent, setGrammarCheckedFileContent] = useState('');
     const [isCheckingGrammar, setIsCheckingGrammar] = useState(false); // for the spinner loading icon
+    const editorRef = useRef(null); // For the toolbar in the userbar
 
     // For checking if there are still access tokens
     // If the token strings are empty the user will be redirected to the login page
@@ -146,12 +147,14 @@ function MainPage() {
                         setSaveState={setIsSaved}
                         fileGuid={selectedFile?.guid}
                         fileTitle={selectedFile?.title}
+                        setFileCurrentContent={setFileContent}
                         fileCurrentContent={fileContent}
                         showGrammarView={showGrammarView}
                         setShowGrammarView={setShowGrammarView}
                         setGrammarCheckedFileContent={setGrammarCheckedFileContent}
                         isCheckingGrammar={isCheckingGrammar}
                         setIsCheckingGrammar={setIsCheckingGrammar}
+                        editorRef={editorRef}
                     />
                 </AcceptChangesWindowContext.Provider>
 
@@ -159,6 +162,7 @@ function MainPage() {
                     {!showGrammarView ? <EditingWindow
                         selectedFileContent={fileContent}
                         setContent={setFileContent}
+                        editorRef={editorRef}
                     /> :
                         <GrammarSuggestionWindow
                             grammarCheckedFileContent={grammarCheckedFileContent}
