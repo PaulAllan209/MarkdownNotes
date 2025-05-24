@@ -3,6 +3,9 @@ const ACCESS_TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 const API_URL = import.meta.env.VITE_API_URL;
 
+let isRefreshingToken = false;
+let refreshPromise = null;
+
 
 /**
  * Registers new user to the database
@@ -116,6 +119,12 @@ export const getRefreshToken = () => {
  * @returns {boolean} returns true if successfully refreshed the token
  */
 export const refreshToken = async () => {
+    // If a refresh is already in progress, return the existing promise
+    // This prevents the client side to do two api calls for refreshing tokens when on react strict development mode
+    if (isRefreshingToken) {
+        return refreshPromise;
+    }
+
     const accessToken = getAccessToken();
     const refreshToken = getRefreshToken();
 
@@ -124,35 +133,44 @@ export const refreshToken = async () => {
     }
 
     try {
+        isRefreshingToken = true;
+
         const refreshDocument = {
             'accessToken': accessToken,
             'refreshToken': refreshToken
         }
         console.log(`JSON file before sending refresh to API: ${JSON.stringify(refreshDocument)}`);
 
-        const response = await fetch(`${API_URL}/api/token/refresh`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(refreshDocument)
-        })
+        refreshPromise = (async () => {
+            const response = await fetch(`${API_URL}/api/token/refresh`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(refreshDocument)
+            });
 
-        const data = await response.json();
-        console.log("API Response for refresh token:", data);
+            const data = await response.json();
+            console.log("API Response for refresh token:", data);
 
-        if (response.ok) {
-            storeTokens(data.accessToken, data.refreshToken);
-            console.log("Successfully refreshed token");
-            return true;
-        } else {
-            console.error("Error in refreshing the token");
-            return false;
-        }
+            if (response.ok) {
+                storeTokens(data.accessToken, data.refreshToken);
+                console.log("Successfully refreshed token");
+                return true;
+            } else {
+                console.error("Error in refreshing the token");
+                return false;
+            }
+        })();
 
+        return await refreshPromise;
     } catch (error) {
         console.error("Error in refreshing the token:", error);
         return false;
+    } finally {
+        // Reset the flag after the request is complete
+        isRefreshingToken = false;
+        refreshPromise = null;
     }
 };
 

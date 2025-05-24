@@ -85,12 +85,27 @@ namespace markdown_note_taking_app.Server.Service
             var principal = GetPrincipalFromExpiredToken(tokenDto.AccessToken);
 
             var user = await _userManager.FindByNameAsync(principal.Identity.Name);
-            if (user == null || user.RefreshToken != tokenDto.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+            if (user == null)
+            {
+                _logger.LogWarn($"RefreshToken failed: User '{principal.Identity.Name}' not found in database");
                 throw new RefreshTokenBadRequest();
+            }
+
+            if (user.RefreshToken != tokenDto.RefreshToken)
+            {
+                _logger.LogWarn($"RefreshToken failed: Token mismatch for user '{user.UserName}'. Expected '{user.RefreshToken}', got '{tokenDto.RefreshToken}'");
+                throw new RefreshTokenBadRequest();
+            }
+
+            if (user.RefreshTokenExpiryTime <= DateTime.Now)
+            {
+                _logger.LogWarn($"RefreshToken failed: Token expired at {user.RefreshTokenExpiryTime}, current time is {DateTime.Now}");
+                throw new RefreshTokenBadRequest();
+            }
 
             _user = user;
 
-            return await CreateToken(populateExp: false);
+            return await CreateToken(populateExp: true);
         }
 
         private SigningCredentials GetSigningCredentials()
@@ -155,7 +170,7 @@ namespace markdown_note_taking_app.Server.Service
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(
                     Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET"))),
-                ValidateLifetime = true,
+                ValidateLifetime = false, // Changed to false due to the api not granting access when access token is expired but the refresh token is not
                 ValidIssuer = jwtSettings["validIssuer"],
                 ValidAudience = jwtSettings["validAudience"]
             };

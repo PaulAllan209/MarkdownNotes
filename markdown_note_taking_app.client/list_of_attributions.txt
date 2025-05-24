@@ -1,1 +1,8 @@
 <a href="https://www.flaticon.com/free-icons/new-file" title="new file icons">New file icons created by Tempo_doloe - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/bold-text" title="bold text icons">Bold text icons created by Freepik - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/italic-font" title="italic font icons">Italic font icons created by Freepik - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/underline" title="underline icons">Underline icons created by Freepik - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/code" title="code icons">Code icons created by Freepik - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/strikethrough" title="strikethrough icons">Strikethrough icons created by Freepik - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/list" title="list icons">List icons created by Freepik - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/number" title="number icons">Number icons created by Freepik - Flaticon</a>

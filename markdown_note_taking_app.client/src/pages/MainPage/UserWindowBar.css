@@ -20,6 +20,40 @@
     margin: 0 10px;
 }
 
+.user-bar-tool-buttons-container{
+    margin: 10px;
+}
+.user-bar-tool-buttons {
+    margin: 0 2px;
+    border: none;
+    padding: 7px;
+    border-radius: 5px;
+    color: white;
+    background-color: #2d3436;
+}
+
+.user-bar-tool-buttons:hover {
+    border: none;
+    padding: 7px;
+    border-radius: 5px;
+    color: white;
+    background-color: #42484a;
+    cursor: pointer;
+}
+
+.user-bar-tool-buttons:active {
+    background-color: #555a5c;
+    cursor: pointer;
+}
+
+.user-bar-tool-icons {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    margin: 4px;
+    filter: invert(100%) brightness(100%) saturate(0%);
+}
+
 .user-bar-buttons {
     margin: 0 10px;
     border: none;

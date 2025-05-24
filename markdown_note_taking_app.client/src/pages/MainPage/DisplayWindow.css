@@ -20,6 +20,31 @@ body{
     min-height: 0;
 }
 
-.display-content{
+    .display-window pre {
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        padding: 16px;
+        overflow: auto;
+        margin: 1em 0;
+    }
 
-}
+    .display-window code {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.9em;
+    }
+
+    /* For inline code */
+    .display-window p code,
+    .display-window li code,
+    .display-window td code {
+        background-color: rgb(206, 206, 206);
+        padding: 5px 7px;
+        border-radius: 3px;
+    }
+
+    /* For code blocks */
+    .display-window pre code {
+        display: block;
+        padding: 7px;
+        background-color: rgb(206, 206, 206);
+    }

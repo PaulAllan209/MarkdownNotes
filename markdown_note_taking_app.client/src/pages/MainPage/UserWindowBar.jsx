@@ -4,7 +4,6 @@ import { handleFileContentSave, handleFileGet } from '../../utils/apiUtils.js';
 import { logout } from '../../utils/authenticationUtils.js';
 import { useNavigate } from 'react-router-dom';
 
-
 function UserWindowBar(props) {
 
     const navigate = useNavigate();
@@ -25,6 +24,329 @@ function UserWindowBar(props) {
         props.setShowGrammarView(true);
         props.setIsCheckingGrammar(true);
     }
+
+    const handleBoldClick = () => {
+        const textArea = props.editorRef.current;
+        if (!textArea) return;
+
+        const start = textArea.selectionStart;
+        const end = textArea.selectionEnd;
+
+        // Only proceed if there's a selection
+        if (start !== end) {
+            const selectedText = props.fileCurrentContent.substring(start, end);
+            let newContent;
+            let newCursorPos;
+
+            // Check if the selected text is already bold
+            if ((props.fileCurrentContent.substring(start - 2, start) === '**') && (props.fileCurrentContent.substring(end, end + 2) === '**')) {
+                // Remove bold formatting
+                newContent =
+                    props.fileCurrentContent.substring(0, start - 2) +
+                    selectedText +
+                    props.fileCurrentContent.substring(end + 2);
+
+                // Adjust cursor position
+                newCursorPos = {
+                    start: start - 2,
+                    end: end - 2 // Adjust for the removal of 4 characters (two asterisks on each side)
+                };
+            } else {
+                // Add bold formatting
+                newContent =
+                    props.fileCurrentContent.substring(0, start) +
+                    `**${selectedText}**` +
+                    props.fileCurrentContent.substring(end);
+
+                // Adjust cursor position
+                newCursorPos = {
+                    start: start + 2,
+                    end: end + 2
+                };
+            }
+
+            props.setFileCurrentContent(newContent);
+            props.setSaveState(false);
+
+            // Set the cursor position after the operation
+            setTimeout(() => {
+                textArea.focus();
+                textArea.setSelectionRange(newCursorPos.start, newCursorPos.end);
+            }, 0);
+        }
+    };
+
+    const handleItalicClick = () => {
+        const textArea = props.editorRef.current;
+        if (!textArea) return;
+
+        const start = textArea.selectionStart;
+        const end = textArea.selectionEnd;
+
+        // Only proceed if there's a selection
+        if (start !== end) {
+            const selectedText = props.fileCurrentContent.substring(start, end);
+            let newContent;
+            let newCursorPos;
+
+            // Check if the selected text is already bold
+            if ((props.fileCurrentContent.substring(start - 1, start) === '*') && (props.fileCurrentContent.substring(end, end + 1) === '*')) {
+                // Remove bold formatting
+                newContent =
+                    props.fileCurrentContent.substring(0, start - 1) +
+                    selectedText +
+                    props.fileCurrentContent.substring(end + 1);
+
+                // Adjust cursor position
+                newCursorPos = {
+                    start: start - 1,
+                    end: end - 1 // Adjust for the removal of 4 characters (two asterisks on each side)
+                };
+            } else {
+                // Add bold formatting
+                newContent =
+                    props.fileCurrentContent.substring(0, start) +
+                    `*${selectedText}*` +
+                    props.fileCurrentContent.substring(end);
+
+                // Adjust cursor position
+                newCursorPos = {
+                    start: start + 1,
+                    end: end + 1
+                };
+            }
+
+            props.setFileCurrentContent(newContent);
+            props.setSaveState(false);
+
+            // Set the cursor position after the operation
+            setTimeout(() => {
+                textArea.focus();
+                textArea.setSelectionRange(newCursorPos.start, newCursorPos.end);
+            }, 0);
+        }
+    };
+
+    const handleStrikethroughClick = () => {
+        const textArea = props.editorRef.current;
+        if (!textArea) return;
+
+        const start = textArea.selectionStart;
+        const end = textArea.selectionEnd;
+
+        // Only proceed if there's a selection
+        if (start !== end) {
+            const selectedText = props.fileCurrentContent.substring(start, end);
+            let newContent;
+            let newCursorPos;
+
+            // Check if the selected text is already bold
+            if ((props.fileCurrentContent.substring(start - 2, start) === '~~') && (props.fileCurrentContent.substring(end, end + 2) === '~~')) {
+                // Remove bold formatting
+                newContent =
+                    props.fileCurrentContent.substring(0, start - 2) +
+                    selectedText +
+                    props.fileCurrentContent.substring(end + 2);
+
+                // Adjust cursor position
+                newCursorPos = {
+                    start: start - 2,
+                    end: end - 2 // Adjust for the removal of 4 characters (two asterisks on each side)
+                };
+            } else {
+                // Add bold formatting
+                newContent =
+                    props.fileCurrentContent.substring(0, start) +
+                    `~~${selectedText}~~` +
+                    props.fileCurrentContent.substring(end);
+
+                // Adjust cursor position
+                newCursorPos = {
+                    start: start + 2,
+                    end: end + 2
+                };
+            }
+
+            props.setFileCurrentContent(newContent);
+            props.setSaveState(false);
+
+            // Set the cursor position after the operation
+            setTimeout(() => {
+                textArea.focus();
+                textArea.setSelectionRange(newCursorPos.start, newCursorPos.end);
+            }, 0);
+        }
+    };
+
+    const handleUnorderedListClick = () => {
+        const textArea = props.editorRef.current;
+        if (!textArea) return;
+
+        const start = textArea.selectionStart;
+        const end = textArea.selectionEnd;
+
+        // Get the selected text
+        const selectedText = props.fileCurrentContent.substring(start, end);
+
+        // Split the selected text into lines
+        const lines = selectedText.split('\n');
+
+        // Check if all lines are already formatted as unordered list items
+        const allLinesAreListItems = lines.every(line => line.trimStart().startsWith('- '));
+
+        // Process each line
+        const processedLines = lines.map(line => {
+            const trimmedLine = line.trimStart();
+            if (allLinesAreListItems) {
+                // Remove list formatting if all lines are already list items
+                if (trimmedLine.startsWith('- ')) {
+                    return line.replace(/^\s*- /, '');
+                }
+            } else {
+                // Add list formatting if not all lines are list items
+                if (!trimmedLine.startsWith('- ') && trimmedLine.length > 0) {
+                    // Preserve leading whitespace
+                    const leadingWhitespace = line.match(/^\s*/)[0];
+                    return leadingWhitespace + '- ' + trimmedLine;
+                }
+            }
+            return line;
+        });
+
+        // Join the processed lines back together
+        const newText = processedLines.join('\n');
+
+        // Calculate the new content
+        const newContent =
+            props.fileCurrentContent.substring(0, start) +
+            newText +
+            props.fileCurrentContent.substring(end);
+
+        // Update the content
+        props.setFileCurrentContent(newContent);
+        props.setSaveState(false);
+
+        // Set the cursor position after the operation
+        setTimeout(() => {
+            textArea.focus();
+            textArea.setSelectionRange(start, start + newText.length);
+        }, 0);
+    };
+
+    const handleOrderedListClick = () => {
+        const textArea = props.editorRef.current;
+        if (!textArea) return;
+
+        const start = textArea.selectionStart;
+        const end = textArea.selectionEnd;
+
+        // Get the selected text
+        const selectedText = props.fileCurrentContent.substring(start, end);
+
+        // Split the selected text into lines
+        const lines = selectedText.split('\n');
+
+        // Check if all non-empty lines are already formatted as ordered list items
+        const allLinesAreListItems = lines.every(line => {
+            const trimmed = line.trimStart();
+            return trimmed.length === 0 || /^\d+\.\s/.test(trimmed);
+        });
+
+        // Process each line
+        let counter = 1;
+        const processedLines = lines.map(line => {
+            const trimmedLine = line.trimStart();
+            // Skip empty lines but preserve them
+            if (trimmedLine.length === 0) return line;
+
+            if (allLinesAreListItems) {
+                // Remove list formatting if all lines are already list items
+                if (/^\d+\.\s/.test(trimmedLine)) {
+                    return line.replace(/^\s*\d+\.\s/, '');
+                }
+            } else {
+                // Add list formatting if not all lines are list items
+                if (!/^\d+\.\s/.test(trimmedLine)) {
+                    // Preserve leading whitespace
+                    const leadingWhitespace = line.match(/^\s*/)[0];
+                    const result = `${leadingWhitespace}${counter}. ${trimmedLine}`;
+                    counter++;
+                    return result;
+                }
+            }
+            return line;
+        });
+
+        // Join the processed lines back together
+        const newText = processedLines.join('\n');
+
+        // Join the new content
+        const newContent =
+            props.fileCurrentContent.substring(0, start) +
+            newText +
+            props.fileCurrentContent.substring(end);
+
+        // Update the content
+        props.setFileCurrentContent(newContent);
+        props.setSaveState(false);
+
+        // Set the cursor position after the operation
+        setTimeout(() => {
+            textArea.focus();
+            textArea.setSelectionRange(start, start + newText.length);
+        }, 0);
+    };
+
+    const handleCodeBlockClick = () => {
+        const textArea = props.editorRef.current;
+        if (!textArea) return;
+
+        const start = textArea.selectionStart;
+        const end = textArea.selectionEnd;
+
+        // Only proceed if there's a selection
+        if (start !== end) {
+            const selectedText = props.fileCurrentContent.substring(start, end);
+            let newContent;
+            let newCursorPos;
+
+            // Check if the selected text is already code
+            if ((props.fileCurrentContent.substring(start - 1, start) === '`') && (props.fileCurrentContent.substring(end, end + 1) === '`')) {
+                // Remove code formatting
+                newContent =
+                    props.fileCurrentContent.substring(0, start - 1) +
+                    selectedText +
+                    props.fileCurrentContent.substring(end + 1);
+
+                // Adjust cursor position
+                newCursorPos = {
+                    start: start - 1,
+                    end: end - 1 
+                };
+            } else {
+                // Add code formatting
+                newContent =
+                    props.fileCurrentContent.substring(0, start) +
+                    '`' + selectedText + '`' +
+                    props.fileCurrentContent.substring(end);
+
+                // Adjust cursor position
+                newCursorPos = {
+                    start: start + 1,
+                    end: end + 1
+                };
+            }
+
+            props.setFileCurrentContent(newContent);
+            props.setSaveState(false);
+
+            // Set the cursor position after the operation
+            setTimeout(() => {
+                textArea.focus();
+                textArea.setSelectionRange(newCursorPos.start, newCursorPos.end);
+            }, 0);
+        }
+    };
 
     const handleExportAsMarkdown = () => {
         downloadFile(props.fileCurrentContent, props.fileTitle, 'text/markdown');
@@ -81,6 +403,14 @@ function UserWindowBar(props) {
     return (
         <div className="user-bar">
             <div className="user-bar-left-container">
+                <div className="user-bar-tool-buttons-container">
+                    <button className="user-bar-tool-buttons" onClick={handleBoldClick}><img className="user-bar-tool-icons" src="/assets/button_icons/bold-text.png" /></button>
+                    <button className="user-bar-tool-buttons" onClick={handleItalicClick}><img className="user-bar-tool-icons" src="/assets/button_icons/italic-font.png" /></button>
+                    <button className="user-bar-tool-buttons" onClick={handleStrikethroughClick}><img className="user-bar-tool-icons" src="/assets/button_icons/strikethrough.png" /></button>
+                    <button className="user-bar-tool-buttons" onClick={handleUnorderedListClick}><img className="user-bar-tool-icons" src="/assets/button_icons/unordered_list.png" /></button>
+                    <button className="user-bar-tool-buttons" onClick={handleOrderedListClick}><img className="user-bar-tool-icons" src="/assets/button_icons/ordered_list.png" /></button>
+                    <button className="user-bar-tool-buttons" onClick={handleCodeBlockClick}><img className="user-bar-tool-icons" src="/assets/button_icons/programming-code-signs.png" /></button>
+                </div>
                 {(props.showGrammarView && !props.isCheckingGrammar) ? <AcceptChangesWindow /> : <></>}
             </div>
             <p className="save-state">{props.saveState ? "Saved" : "Unsaved"}</p>

@@ -5,9 +5,10 @@ import './SideBar.css'
 
 export const SelectedFileContext = createContext();
 function SideBar(props) {
-    const [files, setFiles] = useState([]);
+    //const [files, setFiles] = useState([]);
+    const { files, setFiles, onFileSelect } = props;
     const [fileName, setFileName] = useState();
-    const [selectedFileIndex, setSelectedFileIndex] = useState(null);
+    const [selectedFileIndex, setSelectedFileIndex] = useState(0);
     const [isCreatingFile, setIsCreatingFile] = useState(false);
     const [isRenamingFile, setIsRenamingFile] = useState(false);
     const fileInputRef = useRef(null);
@@ -25,8 +26,12 @@ function SideBar(props) {
                         guid: file.id,
                         title: file.title
                     })));
+
+                    setSelectedFileIndex(0);
+                    props.onFileSelect(files[0] || null);
                 }
-            })
+            });
+
         } catch (error) {
             if (error.message === 'TokenExpired') {
                 // Go back to login page
@@ -153,7 +158,6 @@ function SideBar(props) {
         <div className="side-bar">
             <div className="side-bar-buttons-container">
                 <button className="side-bar-buttons" onClick={handleCreateFileBtn}><img src="/assets/button_icons/add_file.png" className="side-bar-icons"></img></button>
-
                 <button className="side-bar-buttons" onClick={triggerFileInputBtn}><img src="/assets/button_icons/upload_file.png" className="side-bar-icons"></img></button>
                 <input
                     type="file"
