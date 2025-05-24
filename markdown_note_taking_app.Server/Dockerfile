@@ -30,17 +30,22 @@ FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# Copy shell scripts directly from host to final image
-COPY ["markdown_note_taking_app.Server/docker-entrypoint.sh", "./docker-entrypoint.sh"]
-COPY ["markdown_note_taking_app.Server/wait-for-it.sh", "./wait-for-it.sh"]
+# Install dos2unix
+RUN apt-get update && apt-get install -y dos2unix
 
-# Make the scripts executable
-RUN chmod +x ./docker-entrypoint.sh
-RUN chmod +x ./wait-for-it.sh
+# Copy shell scripts directly from host to final image
+COPY ["./markdown_note_taking_app.Server/docker-entrypoint.sh", "/app/"]
+COPY ["./markdown_note_taking_app.Server/wait-for-it.sh", "/app/"]
+
+# Run the scripts
+RUN dos2unix /app/docker-entrypoint.sh \
+    && dos2unix /app/wait-for-it.sh \
+    && chmod +x /app/docker-entrypoint.sh \
+    && chmod +x /app/wait-for-it.sh
 
 # Environment variables
 ENV ASPNETCORE_URLS=http://+:80
 ENV ASPNETCORE_ENVIRONMENT=Docker
 ENV SECRET=YourSuperSecretKeyForDevelopment12345
 
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
