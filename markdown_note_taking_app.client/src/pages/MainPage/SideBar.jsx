@@ -3,10 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { handleFileCreate, handleFileGet, handleFileNameSave, handleFileDelete } from '../../utils/apiUtils.js';
 import './SideBar.css'
 
+// Note that if you dont do this the images wont show when running the web app on docker
+// Importing the files on a dedicated variable is recommended
+import addFileIcon from '/assets/button_icons/add_file.png';
+import uploadFileIcon from '/assets/button_icons/upload_file.png';
+import deleteFileIcon from '/assets/button_icons/delete_file.png';
+
 export const SelectedFileContext = createContext();
 function SideBar(props) {
     //const [files, setFiles] = useState([]);
-    const { files, setFiles, onFileSelect } = props;
+    const { files, setFiles } = props;
     const [fileName, setFileName] = useState();
     const [selectedFileIndex, setSelectedFileIndex] = useState(0);
     const [isCreatingFile, setIsCreatingFile] = useState(false);
@@ -157,8 +163,8 @@ function SideBar(props) {
     return (
         <div className="side-bar">
             <div className="side-bar-buttons-container">
-                <button className="side-bar-buttons" onClick={handleCreateFileBtn}><img src="/assets/button_icons/add_file.png" className="side-bar-icons"></img></button>
-                <button className="side-bar-buttons" onClick={triggerFileInputBtn}><img src="/assets/button_icons/upload_file.png" className="side-bar-icons"></img></button>
+                <button className="side-bar-buttons" onClick={handleCreateFileBtn}><img src={addFileIcon} className="side-bar-icons"></img></button>
+                <button className="side-bar-buttons" onClick={triggerFileInputBtn}><img src={uploadFileIcon} className="side-bar-icons"></img></button>
                 <input
                     type="file"
                     accept=".md"
@@ -166,7 +172,7 @@ function SideBar(props) {
                     style={{ display: 'none' }}
                     onChange={handleFileUploadBtn}
                 />
-                <button className="side-bar-buttons" onClick={handleFileDeleteBtn}><img src="/assets/button_icons/delete_file.png" className="side-bar-icons"></img></button>
+                <button className="side-bar-buttons" onClick={handleFileDeleteBtn}><img src={deleteFileIcon} className="side-bar-icons"></img></button>
             </div>
             
 

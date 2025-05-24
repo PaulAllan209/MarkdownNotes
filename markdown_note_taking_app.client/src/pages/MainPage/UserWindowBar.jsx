@@ -4,6 +4,15 @@ import { handleFileContentSave, handleFileGet } from '../../utils/apiUtils.js';
 import { logout } from '../../utils/authenticationUtils.js';
 import { useNavigate } from 'react-router-dom';
 
+// Note that if you dont do this the images wont show when running the web app on docker
+// Importing the files on a dedicated variable is recommended
+import boldIcon from "/assets/button_icons/bold-text.png";
+import italicIcon from "/assets/button_icons/italic-font.png";
+import strikethroughIcon from "/assets/button_icons/strikethrough.png";
+import unorderedListIcon from "/assets/button_icons/unordered_list.png";
+import orderedListIcon from "/assets/button_icons/ordered_list.png";
+import codeIcon from "/assets/button_icons/programming-code-signs.png";
+
 function UserWindowBar(props) {
 
     const navigate = useNavigate();
@@ -404,12 +413,12 @@ function UserWindowBar(props) {
         <div className="user-bar">
             <div className="user-bar-left-container">
                 <div className="user-bar-tool-buttons-container">
-                    <button className="user-bar-tool-buttons" onClick={handleBoldClick}><img className="user-bar-tool-icons" src="/assets/button_icons/bold-text.png" /></button>
-                    <button className="user-bar-tool-buttons" onClick={handleItalicClick}><img className="user-bar-tool-icons" src="/assets/button_icons/italic-font.png" /></button>
-                    <button className="user-bar-tool-buttons" onClick={handleStrikethroughClick}><img className="user-bar-tool-icons" src="/assets/button_icons/strikethrough.png" /></button>
-                    <button className="user-bar-tool-buttons" onClick={handleUnorderedListClick}><img className="user-bar-tool-icons" src="/assets/button_icons/unordered_list.png" /></button>
-                    <button className="user-bar-tool-buttons" onClick={handleOrderedListClick}><img className="user-bar-tool-icons" src="/assets/button_icons/ordered_list.png" /></button>
-                    <button className="user-bar-tool-buttons" onClick={handleCodeBlockClick}><img className="user-bar-tool-icons" src="/assets/button_icons/programming-code-signs.png" /></button>
+                    <button className="user-bar-tool-buttons" onClick={handleBoldClick}><img className="user-bar-tool-icons" src={boldIcon} /></button>
+                    <button className="user-bar-tool-buttons" onClick={handleItalicClick}><img className="user-bar-tool-icons" src={italicIcon} /></button>
+                    <button className="user-bar-tool-buttons" onClick={handleStrikethroughClick}><img className="user-bar-tool-icons" src={strikethroughIcon} /></button>
+                    <button className="user-bar-tool-buttons" onClick={handleUnorderedListClick}><img className="user-bar-tool-icons" src={unorderedListIcon} /></button>
+                    <button className="user-bar-tool-buttons" onClick={handleOrderedListClick}><img className="user-bar-tool-icons" src={orderedListIcon} /></button>
+                    <button className="user-bar-tool-buttons" onClick={handleCodeBlockClick}><img className="user-bar-tool-icons" src={codeIcon} /></button>
                 </div>
                 {(props.showGrammarView && !props.isCheckingGrammar) ? <AcceptChangesWindow /> : <></>}
             </div>
