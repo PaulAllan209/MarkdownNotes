@@ -10,6 +10,7 @@ function EditingWindow(props) {
       <div className="editing-window">
           <textarea
               className="input-editing-window"
+              ref={ props.editorRef }
               value={props.selectedFileContent}
               onChange={handleContentChange}>
           </textarea>

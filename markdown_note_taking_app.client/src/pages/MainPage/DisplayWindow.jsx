@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './DisplayWindow.css'
 import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 function DisplayWindow(props) {
     const [displayContent, setDisplayContent] = useState();
@@ -11,7 +12,7 @@ function DisplayWindow(props) {
     , [props.selectedFileContent]);
   return (
       <div className="display-window">
-          <Markdown>{displayContent}</Markdown>
+          <Markdown remarkPlugins={[remarkGfm]}>{displayContent}</Markdown>
       </div>
   );
 }
