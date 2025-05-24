@@ -3,13 +3,10 @@ import AcceptChangesWindow from './AcceptChangesWindow';
 import { handleFileContentSave, handleFileGet } from '../../utils/apiUtils.js';
 import { logout } from '../../utils/authenticationUtils.js';
 import { useNavigate } from 'react-router-dom';
-import { useRef } from 'react';
-
 
 function UserWindowBar(props) {
 
     const navigate = useNavigate();
-    const editorRef = useRef(null);
 
     const handleSaveSuccess = () => {
         props.setSaveState(true);
@@ -236,6 +233,70 @@ function UserWindowBar(props) {
         }, 0);
     };
 
+    const handleOrderedListClick = () => {
+        const textArea = props.editorRef.current;
+        if (!textArea) return;
+
+        const start = textArea.selectionStart;
+        const end = textArea.selectionEnd;
+
+        // Get the selected text
+        const selectedText = props.fileCurrentContent.substring(start, end);
+
+        // Split the selected text into lines
+        const lines = selectedText.split('\n');
+
+        // Check if all non-empty lines are already formatted as ordered list items
+        const allLinesAreListItems = lines.every(line => {
+            const trimmed = line.trimStart();
+            return trimmed.length === 0 || /^\d+\.\s/.test(trimmed);
+        });
+
+        // Process each line
+        let counter = 1;
+        const processedLines = lines.map(line => {
+            const trimmedLine = line.trimStart();
+            // Skip empty lines but preserve them
+            if (trimmedLine.length === 0) return line;
+
+            if (allLinesAreListItems) {
+                // Remove list formatting if all lines are already list items
+                if (/^\d+\.\s/.test(trimmedLine)) {
+                    return line.replace(/^\s*\d+\.\s/, '');
+                }
+            } else {
+                // Add list formatting if not all lines are list items
+                if (!/^\d+\.\s/.test(trimmedLine)) {
+                    // Preserve leading whitespace
+                    const leadingWhitespace = line.match(/^\s*/)[0];
+                    const result = `${leadingWhitespace}${counter}. ${trimmedLine}`;
+                    counter++;
+                    return result;
+                }
+            }
+            return line;
+        });
+
+        // Join the processed lines back together
+        const newText = processedLines.join('\n');
+
+        // Calculate the new content
+        const newContent =
+            props.fileCurrentContent.substring(0, start) +
+            newText +
+            props.fileCurrentContent.substring(end);
+
+        // Update the content
+        props.setFileCurrentContent(newContent);
+        props.setSaveState(false);
+
+        // Set the cursor position after the operation
+        setTimeout(() => {
+            textArea.focus();
+            textArea.setSelectionRange(start, start + newText.length);
+        }, 0);
+    };
+
     const handleExportAsMarkdown = () => {
         downloadFile(props.fileCurrentContent, props.fileTitle, 'text/markdown');
     }
@@ -296,7 +357,7 @@ function UserWindowBar(props) {
                     <button className="user-bar-tool-buttons" onClick={handleItalicClick}><img className="user-bar-tool-icons" src="/assets/button_icons/italic-font.png" /></button>
                     <button className="user-bar-tool-buttons" onClick={handleStrikethroughClick}><img className="user-bar-tool-icons" src="/assets/button_icons/strikethrough.png" /></button>
                     <button className="user-bar-tool-buttons" onClick={handleUnorderedListClick}><img className="user-bar-tool-icons" src="/assets/button_icons/unordered_list.png" /></button>
-                    <button className="user-bar-tool-buttons"><img className="user-bar-tool-icons" src="/assets/button_icons/ordered_list.png" /></button>
+                    <button className="user-bar-tool-buttons" onClick={handleOrderedListClick}><img className="user-bar-tool-icons" src="/assets/button_icons/ordered_list.png" /></button>
                     <button className="user-bar-tool-buttons"><img className="user-bar-tool-icons" src="/assets/button_icons/programming-code-signs.png" /></button>
                 </div>
                 {(props.showGrammarView && !props.isCheckingGrammar) ? <AcceptChangesWindow /> : <></>}
