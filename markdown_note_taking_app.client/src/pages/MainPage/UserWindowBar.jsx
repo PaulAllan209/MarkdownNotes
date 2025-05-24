@@ -280,7 +280,7 @@ function UserWindowBar(props) {
         // Join the processed lines back together
         const newText = processedLines.join('\n');
 
-        // Calculate the new content
+        // Join the new content
         const newContent =
             props.fileCurrentContent.substring(0, start) +
             newText +
@@ -295,6 +295,57 @@ function UserWindowBar(props) {
             textArea.focus();
             textArea.setSelectionRange(start, start + newText.length);
         }, 0);
+    };
+
+    const handleCodeBlockClick = () => {
+        const textArea = props.editorRef.current;
+        if (!textArea) return;
+
+        const start = textArea.selectionStart;
+        const end = textArea.selectionEnd;
+
+        // Only proceed if there's a selection
+        if (start !== end) {
+            const selectedText = props.fileCurrentContent.substring(start, end);
+            let newContent;
+            let newCursorPos;
+
+            // Check if the selected text is already code
+            if ((props.fileCurrentContent.substring(start - 1, start) === '`') && (props.fileCurrentContent.substring(end, end + 1) === '`')) {
+                // Remove code formatting
+                newContent =
+                    props.fileCurrentContent.substring(0, start - 1) +
+                    selectedText +
+                    props.fileCurrentContent.substring(end + 1);
+
+                // Adjust cursor position
+                newCursorPos = {
+                    start: start - 1,
+                    end: end - 1 
+                };
+            } else {
+                // Add code formatting
+                newContent =
+                    props.fileCurrentContent.substring(0, start) +
+                    '`' + selectedText + '`' +
+                    props.fileCurrentContent.substring(end);
+
+                // Adjust cursor position
+                newCursorPos = {
+                    start: start + 1,
+                    end: end + 1
+                };
+            }
+
+            props.setFileCurrentContent(newContent);
+            props.setSaveState(false);
+
+            // Set the cursor position after the operation
+            setTimeout(() => {
+                textArea.focus();
+                textArea.setSelectionRange(newCursorPos.start, newCursorPos.end);
+            }, 0);
+        }
     };
 
     const handleExportAsMarkdown = () => {
@@ -358,7 +409,7 @@ function UserWindowBar(props) {
                     <button className="user-bar-tool-buttons" onClick={handleStrikethroughClick}><img className="user-bar-tool-icons" src="/assets/button_icons/strikethrough.png" /></button>
                     <button className="user-bar-tool-buttons" onClick={handleUnorderedListClick}><img className="user-bar-tool-icons" src="/assets/button_icons/unordered_list.png" /></button>
                     <button className="user-bar-tool-buttons" onClick={handleOrderedListClick}><img className="user-bar-tool-icons" src="/assets/button_icons/ordered_list.png" /></button>
-                    <button className="user-bar-tool-buttons"><img className="user-bar-tool-icons" src="/assets/button_icons/programming-code-signs.png" /></button>
+                    <button className="user-bar-tool-buttons" onClick={handleCodeBlockClick}><img className="user-bar-tool-icons" src="/assets/button_icons/programming-code-signs.png" /></button>
                 </div>
                 {(props.showGrammarView && !props.isCheckingGrammar) ? <AcceptChangesWindow /> : <></>}
             </div>
