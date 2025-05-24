@@ -181,6 +181,61 @@ function UserWindowBar(props) {
         }
     };
 
+    const handleUnorderedListClick = () => {
+        const textArea = props.editorRef.current;
+        if (!textArea) return;
+
+        const start = textArea.selectionStart;
+        const end = textArea.selectionEnd;
+
+        // Get the selected text
+        const selectedText = props.fileCurrentContent.substring(start, end);
+
+        // Split the selected text into lines
+        const lines = selectedText.split('\n');
+
+        // Check if all lines are already formatted as unordered list items
+        const allLinesAreListItems = lines.every(line => line.trimStart().startsWith('- '));
+
+        // Process each line
+        const processedLines = lines.map(line => {
+            const trimmedLine = line.trimStart();
+            if (allLinesAreListItems) {
+                // Remove list formatting if all lines are already list items
+                if (trimmedLine.startsWith('- ')) {
+                    return line.replace(/^\s*- /, '');
+                }
+            } else {
+                // Add list formatting if not all lines are list items
+                if (!trimmedLine.startsWith('- ') && trimmedLine.length > 0) {
+                    // Preserve leading whitespace
+                    const leadingWhitespace = line.match(/^\s*/)[0];
+                    return leadingWhitespace + '- ' + trimmedLine;
+                }
+            }
+            return line;
+        });
+
+        // Join the processed lines back together
+        const newText = processedLines.join('\n');
+
+        // Calculate the new content
+        const newContent =
+            props.fileCurrentContent.substring(0, start) +
+            newText +
+            props.fileCurrentContent.substring(end);
+
+        // Update the content
+        props.setFileCurrentContent(newContent);
+        props.setSaveState(false);
+
+        // Set the cursor position after the operation
+        setTimeout(() => {
+            textArea.focus();
+            textArea.setSelectionRange(start, start + newText.length);
+        }, 0);
+    };
+
     const handleExportAsMarkdown = () => {
         downloadFile(props.fileCurrentContent, props.fileTitle, 'text/markdown');
     }
@@ -240,7 +295,7 @@ function UserWindowBar(props) {
                     <button className="user-bar-tool-buttons" onClick={handleBoldClick}><img className="user-bar-tool-icons" src="/assets/button_icons/bold-text.png" /></button>
                     <button className="user-bar-tool-buttons" onClick={handleItalicClick}><img className="user-bar-tool-icons" src="/assets/button_icons/italic-font.png" /></button>
                     <button className="user-bar-tool-buttons" onClick={handleStrikethroughClick}><img className="user-bar-tool-icons" src="/assets/button_icons/strikethrough.png" /></button>
-                    <button className="user-bar-tool-buttons"><img className="user-bar-tool-icons" src="/assets/button_icons/unordered_list.png" /></button>
+                    <button className="user-bar-tool-buttons" onClick={handleUnorderedListClick}><img className="user-bar-tool-icons" src="/assets/button_icons/unordered_list.png" /></button>
                     <button className="user-bar-tool-buttons"><img className="user-bar-tool-icons" src="/assets/button_icons/ordered_list.png" /></button>
                     <button className="user-bar-tool-buttons"><img className="user-bar-tool-icons" src="/assets/button_icons/programming-code-signs.png" /></button>
                 </div>
