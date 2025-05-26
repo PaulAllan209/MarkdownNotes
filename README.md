@@ -20,13 +20,16 @@ A full-stack web application for creating, managing, and collaborating on markdo
 ## Getting Started
 1. Clone the Repository:
 
-`git clone https://github.com/yourusername/markdown-note-taking-app.git`
-
-`cd markdown-note-taking-app`
+```bash
+git clone https://github.com/yourusername/markdown-note-taking-app.git
+cd markdown-note-taking-app
+```
 
 2. Build and run with Docker:
 
-`docker-compose up --build`
+```
+docker-compose up --build
+```
 
 3.  Access the application:
 
@@ -53,24 +56,30 @@ SQL Server
 **Backend Setup**
 1. Navigate to the server directory:
 
-`cd markdown_note_taking_app.Server`
+```
+cd markdown_note_taking_app.Server
+```
 
 2. Restore packages and run:
 
-`dotnet restore`
-
-`dotnet run`
+```
+dotnet restore
+dotnet run
+```
 
 **Frontend Setup**
 1. Navigate to the client directory:
 
-`cd markdown_note_taking_app.client`
+```
+cd markdown_note_taking_app.client
+```
 
 2. Install dependencies and start the dev server:
 
-`npm install`
-
-`npm run dev`
+```
+npm install
+npm run dev
+```
 
 
 Access the web app in https://localhost:59650/
