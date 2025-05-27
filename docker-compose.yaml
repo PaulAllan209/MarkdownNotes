@@ -10,6 +10,8 @@ services:
       - "1433:1433"
     volumes:
       - sql-data:/var/opt/mssql
+      - /etc/timezone:/etc/timezone:ro # This is to synchronize the time from the Raspberry PI
+      - /etc/localtime:/etc/localtime:ro # Without this two lines the client keeps refreshing the tokens
     healthcheck:
       test: ["CMD", "/bin/bash", "-c", "if ! timeout 10 bash -c '</dev/tcp/localhost/1433'; then exit 1; fi"]
       interval: 15s
