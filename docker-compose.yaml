@@ -38,6 +38,9 @@ services:
       - ConnectionStrings__sqlConnection=Server=sql-server;Database=MarkdownFileDB;User Id=sa;Password=YourStrongPassword123!;TrustServerCertificate=True;ConnectRetryCount=5;ConnectRetryInterval=10;
       - ASPNETCORE_ENVIRONMENT=Docker
       - SECRET=YourSuperSecretKeyForDevelopment12345
+    volumes:
+      - /etc/timezone:/etc/timezone:ro # This is to synchronize the time from the Raspberry PI
+      - /etc/localtime:/etc/localtime:ro # Without this two lines the client keeps refreshing the tokens
     networks:
       - app-network
       
@@ -47,6 +50,9 @@ services:
       - ./markdown_note_taking_app.client/.env.docker
     ports:
       - "3000:80"
+    volumes:
+      - /etc/timezone:/etc/timezone:ro # This is to synchronize the time from the Raspberry PI
+      - /etc/localtime:/etc/localtime:ro # Without this two lines the client keeps refreshing the tokens
     depends_on:
       - backend
     networks:
