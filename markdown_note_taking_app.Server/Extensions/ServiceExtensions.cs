@@ -106,7 +106,7 @@ namespace markdown_note_taking_app.Server.Extensions
                 new RateLimitRule
                 {
                     Endpoint = "*",
-                    Limit = 70,
+                    Limit = 200,
                     Period = "5m" // Meaning max of 70 requests per 5 minutes
                 }
             };
