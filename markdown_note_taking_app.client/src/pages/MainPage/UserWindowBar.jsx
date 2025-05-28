@@ -40,6 +40,7 @@ function UserWindowBar(props) {
 
         const start = textArea.selectionStart;
         const end = textArea.selectionEnd;
+        const scrollPos = textArea.scrollTop; // saves scroll position so it does not reset upon content change
 
         // Only proceed if there's a selection
         if (start !== end) {
@@ -81,6 +82,7 @@ function UserWindowBar(props) {
             setTimeout(() => {
                 textArea.focus();
                 textArea.setSelectionRange(newCursorPos.start, newCursorPos.end);
+                textArea.scrollTop = scrollPos; // restore scroll position
             }, 0);
         }
     };
@@ -91,6 +93,7 @@ function UserWindowBar(props) {
 
         const start = textArea.selectionStart;
         const end = textArea.selectionEnd;
+        const scrollPos = textArea.scrollTop; // saves scroll position so it does not reset upon content change
 
         // Only proceed if there's a selection
         if (start !== end) {
@@ -132,6 +135,7 @@ function UserWindowBar(props) {
             setTimeout(() => {
                 textArea.focus();
                 textArea.setSelectionRange(newCursorPos.start, newCursorPos.end);
+                textArea.scrollTop = scrollPos; // restore scroll position
             }, 0);
         }
     };
@@ -142,6 +146,7 @@ function UserWindowBar(props) {
 
         const start = textArea.selectionStart;
         const end = textArea.selectionEnd;
+        const scrollPos = textArea.scrollTop; // saves scroll position so it does not reset upon content change
 
         // Only proceed if there's a selection
         if (start !== end) {
@@ -183,6 +188,7 @@ function UserWindowBar(props) {
             setTimeout(() => {
                 textArea.focus();
                 textArea.setSelectionRange(newCursorPos.start, newCursorPos.end);
+                textArea.scrollTop = scrollPos; // restore scroll position
             }, 0);
         }
     };
@@ -193,6 +199,7 @@ function UserWindowBar(props) {
 
         const start = textArea.selectionStart;
         const end = textArea.selectionEnd;
+        const scrollPos = textArea.scrollTop; // saves scroll position so it does not reset upon content change
 
         // Get the selected text
         const selectedText = props.fileCurrentContent.substring(start, end);
@@ -239,6 +246,7 @@ function UserWindowBar(props) {
         setTimeout(() => {
             textArea.focus();
             textArea.setSelectionRange(start, start + newText.length);
+            textArea.scrollTop = scrollPos; // restore scroll position
         }, 0);
     };
 
@@ -248,6 +256,7 @@ function UserWindowBar(props) {
 
         const start = textArea.selectionStart;
         const end = textArea.selectionEnd;
+        const scrollPos = textArea.scrollTop; // saves scroll position so it does not reset upon content change
 
         // Get the selected text
         const selectedText = props.fileCurrentContent.substring(start, end);
@@ -303,6 +312,7 @@ function UserWindowBar(props) {
         setTimeout(() => {
             textArea.focus();
             textArea.setSelectionRange(start, start + newText.length);
+            textArea.scrollTop = scrollPos; // restore scroll position
         }, 0);
     };
 
@@ -312,6 +322,7 @@ function UserWindowBar(props) {
 
         const start = textArea.selectionStart;
         const end = textArea.selectionEnd;
+        const scrollPos = textArea.scrollTop; // saves scroll position so it does not reset upon content change
 
         // Only proceed if there's a selection
         if (start !== end) {
@@ -353,6 +364,7 @@ function UserWindowBar(props) {
             setTimeout(() => {
                 textArea.focus();
                 textArea.setSelectionRange(newCursorPos.start, newCursorPos.end);
+                textArea.scrollTop = scrollPos; // restore scroll position
             }, 0);
         }
     };

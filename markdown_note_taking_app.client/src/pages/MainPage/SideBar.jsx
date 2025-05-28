@@ -9,7 +9,6 @@ import addFileIcon from '/assets/button_icons/add_file.png';
 import uploadFileIcon from '/assets/button_icons/upload_file.png';
 import deleteFileIcon from '/assets/button_icons/delete_file.png';
 
-export const SelectedFileContext = createContext();
 function SideBar(props) {
     //const [files, setFiles] = useState([]);
     const { files, setFiles } = props;
@@ -21,30 +20,6 @@ function SideBar(props) {
     const newFileInputRef = useRef(null);
 
     const navigate = useNavigate();
-
-    // Getting the list of files
-    useEffect(() => {
-        try {
-
-            handleFileGet({
-                onSuccess: (localFiles) => {
-                    setFiles(localFiles.map(file => ({
-                        guid: file.id,
-                        title: file.title
-                    })));
-
-                    setSelectedFileIndex(0);
-                    props.onFileSelect(files[0] || null);
-                }
-            });
-
-        } catch (error) {
-            if (error.message === 'TokenExpired') {
-                // Go back to login page
-                navigate('/login');
-            }
-        }
-    }, []);
 
     useEffect(() => {
         if (isCreatingFile && newFileInputRef.current) {
@@ -93,9 +68,16 @@ function SideBar(props) {
                     {
                         fileName: fileName, 
                         onSuccess: (fileId, fileName) => {
-                            setFiles(prevFiles => [...prevFiles, { guid: fileId, title: fileName }]);
+                            const newFile = { guid: fileId, title: fileName };
+
+                            setFiles(prevFiles => [...prevFiles, newFile]);
+                            setSelectedFileIndex(files.length);
+                            props.onFileSelect(newFile);
+
                             setIsCreatingFile(false);
-                            setFileName('');}
+                            setFileName('');
+                        }
+
                     }
                 );
             }
