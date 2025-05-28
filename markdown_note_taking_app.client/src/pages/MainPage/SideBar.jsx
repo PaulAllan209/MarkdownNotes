@@ -70,14 +70,10 @@ function SideBar(props) {
                         onSuccess: (fileId, fileName) => {
                             const newFile = { guid: fileId, title: fileName };
 
-                            setFiles(prevFiles => {
-                                const updatedFiles = [...prevFiles, newFile];
+                            setFiles(prevFiles => [...prevFiles, newFile]);
+                            setSelectedFileIndex(files.length);
+                            props.onFileSelect(newFile);
 
-                                // Set the newly created file as selected
-                                setSelectedFileIndex(updatedFiles.length - 1);
-                                props.onFileSelect(newFile);
-                                return updatedFiles;
-                            });
                             setIsCreatingFile(false);
                             setFileName('');
                         }
