@@ -34,15 +34,18 @@ export const signUp = async (firstName, lastName, userName, password, email) => 
             body: JSON.stringify(signUpDocument)
         });
 
-        const data = await response.text();
+        const data = response.ok ? await response.text() : await response.json();
         console.log("API Response for user registration:", data);
 
         if (response.ok) {
             console.log("Successful user registration!");
-            return true;
+            return { success: true };
         } else {
             console.error("Registration failed");
-            return false;
+            return {
+                success: false,
+                errors: data
+            };
         }
     } catch (error) {
         console.error("Error registering new user:", error);

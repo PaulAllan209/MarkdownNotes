@@ -13,6 +13,7 @@ function SignUpPage() {
     const [email, setEmail] = useState('');
 
     const [error, setError] = useState('');
+    const [fieldErrors, setFieldErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -23,10 +24,11 @@ function SignUpPage() {
         try {
             const registerResponse = await signUp(firstName, lastName, userName, password, email);
 
-            if (registerResponse) {
+            if (registerResponse.success) {
                 navigate('/login');
             } else {
                 setError("Invalid credentials please try again");
+                setFieldErrors(registerResponse.errors);
             }
 
 
@@ -37,6 +39,16 @@ function SignUpPage() {
             setIsLoading(false);
         }
     }
+
+    const getFieldError = (fieldName) => {
+        const mappedFieldName = fieldName === 'firstName' ? 'FirstName' :
+                                fieldName === 'lastName' ? 'LastName' :
+                                fieldName === 'userName' ? 'UserName' :
+                                fieldName === 'password' ? 'Password' :
+                                fieldName === 'email' ? 'Email' : fieldName;
+        return fieldErrors[mappedFieldName] ?
+            <div className="field-error">{fieldErrors[mappedFieldName].join('. ')}</div> : null;
+    };
 
     return (
         <div className="signup-container">
@@ -54,7 +66,9 @@ function SignUpPage() {
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
                             required
+                            className={fieldErrors.FirstName ? 'error-input' : '' }
                         />
+                        {getFieldError('firstName')}
                     </div>
 
                     <div className="form-group">
@@ -64,7 +78,9 @@ function SignUpPage() {
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
                             required
+                            className={fieldErrors.FirstName ? 'error-input' : ''}
                         />
+                        {getFieldError('lastName')}
                     </div>
 
                     <div className="form-group">
@@ -75,7 +91,9 @@ function SignUpPage() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
+                            className={fieldErrors.FirstName ? 'error-input' : '' }
                         />
+                        {getFieldError('email')}
                     </div>
 
                     <div className="form-group">
@@ -85,7 +103,9 @@ function SignUpPage() {
                             value={userName}
                             onChange={(e) => setuserName(e.target.value)}
                             required
+                            className={fieldErrors.FirstName ? 'error-input' : '' }
                         />
+                        {getFieldError('userName')}
                     </div>
 
                     <div className="form-group">
@@ -96,7 +116,9 @@ function SignUpPage() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            className={fieldErrors.FirstName ? 'error-input' : '' }
                         />
+                        {getFieldError('password')}
                     </div>
 
                     <button
