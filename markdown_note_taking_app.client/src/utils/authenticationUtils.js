@@ -14,7 +14,7 @@ let refreshPromise = null;
  * @param {string} userName
  * @param {string} password
  * @param {string} email
- * @returns {boolean} returns true if successful registration
+ * @returns {Object} Returns object with success status and errors if any
  */
 export const signUp = async (firstName, lastName, userName, password, email) => {
     try {
@@ -49,7 +49,10 @@ export const signUp = async (firstName, lastName, userName, password, email) => 
         }
     } catch (error) {
         console.error("Error registering new user:", error);
-        return false;
+        return {
+            success: false,
+            errors: {general: [error.message || "An unexpected error occurred"]}
+        };
     }
 };
 
