@@ -4,15 +4,15 @@ namespace markdown_note_taking_app.Server.Dto
 {
     public class UserForRegistrationDto
     {
-        [Required(ErrorMessage = "FirstName is required")]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "FirstName must be between 2 and 50 characters")]
+        [Required(ErrorMessage = "First Name is required")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "First Name must be between 2 and 50 characters")]
         public string? FirstName { get; init; }
 
         [Required(ErrorMessage = "LastName is required")]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "LastName must be between 2 and 50 characters")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "Last Name must be between 2 and 50 characters")]
         public string? LastName { get; init; }
 
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "UserName must be between 2 and 50 characters")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "Username must be between 2 and 50 characters")]
         [Required(ErrorMessage = "Username is required")]
         [RegularExpression(@"^[a-zA-Z0-9_-]+$", ErrorMessage = "Username can only contain letters, numbers, underscores and hyphens")]
         public string? UserName { get; init; }
