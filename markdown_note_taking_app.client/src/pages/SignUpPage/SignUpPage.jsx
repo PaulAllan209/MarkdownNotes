@@ -27,7 +27,7 @@ function SignUpPage() {
             if (registerResponse.success) {
                 navigate('/login');
             } else {
-                setError("Invalid credentials please try again");
+                setError("Registration failed. Please check the form for errors.");
                 setFieldErrors(registerResponse.errors);
             }
 
@@ -78,7 +78,7 @@ function SignUpPage() {
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
                             required
-                            className={fieldErrors.FirstName ? 'error-input' : ''}
+                            className={fieldErrors.LastName ? 'error-input' : ''}
                         />
                         {getFieldError('lastName')}
                     </div>
@@ -91,7 +91,7 @@ function SignUpPage() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            className={fieldErrors.FirstName ? 'error-input' : '' }
+                            className={fieldErrors.Email ? 'error-input' : '' }
                         />
                         {getFieldError('email')}
                     </div>
@@ -103,7 +103,7 @@ function SignUpPage() {
                             value={userName}
                             onChange={(e) => setuserName(e.target.value)}
                             required
-                            className={fieldErrors.FirstName ? 'error-input' : '' }
+                            className={fieldErrors.UserName ? 'error-input' : '' }
                         />
                         {getFieldError('userName')}
                     </div>
@@ -116,7 +116,7 @@ function SignUpPage() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            className={fieldErrors.FirstName ? 'error-input' : '' }
+                            className={fieldErrors.Password ? 'error-input' : '' }
                         />
                         {getFieldError('password')}
                     </div>
