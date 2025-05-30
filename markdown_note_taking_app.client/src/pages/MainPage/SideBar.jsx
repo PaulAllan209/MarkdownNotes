@@ -42,10 +42,9 @@ function SideBar(props) {
         setFileName(files[index].title);
     }
 
-    const submitNewFileName = (fileName, fileId) => {
+    const submitNewFileName = async (fileName, fileId) => {
         try {
-
-            handleFileNameSave(fileId, fileName,
+            await handleFileNameSave(fileId, fileName,
                 // onSuccess callback
                 () => {
                     setFiles(prevFiles => prevFiles.map(file =>
@@ -60,11 +59,11 @@ function SideBar(props) {
         }
     }
 
-    const handleKeyDown = (e) => {
+    const handleKeyDown = async (e) => {
         if (e.key === 'Enter') {
             if (isCreatingFile) {
                 e.preventDefault();
-                handleFileCreate(
+                await handleFileCreate(
                     {
                         fileName: fileName, 
                         onSuccess: (fileId, fileName) => {
@@ -95,11 +94,11 @@ function SideBar(props) {
         }
     }
 
-    const handleFileUploadBtn = (event) => {
+    const handleFileUploadBtn = async (event) => {
         const file = event.target.files[0];
         try {
 
-            handleFileCreate(
+            await handleFileCreate(
                 {
                     file: file,
                     onSuccess: (fileId, fileName) => {
@@ -119,11 +118,10 @@ function SideBar(props) {
         fileInputRef.current.click();
     };
 
-    const handleFileDeleteBtn = () => {
+    const handleFileDeleteBtn = async () => {
         const selectedFileGuid = files[selectedFileIndex].guid;
         try {
-
-            handleFileDelete(selectedFileGuid, () => {
+            await handleFileDelete(selectedFileGuid, () => {
                 //on success callback
                 setFiles(prevFiles => prevFiles.filter(file => file.guid != selectedFileGuid));
 
