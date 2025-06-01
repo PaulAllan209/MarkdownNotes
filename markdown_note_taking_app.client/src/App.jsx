@@ -18,9 +18,9 @@ function App() {
                 <Route
                     path="/*"
                     element={
-                        <AuthGuard>
+                        //{/*<AuthGuard>*/}
                             <MainPage />
-                        </AuthGuard>
+                        //{/*</AuthGuard>*/}
                     }
                 />
             </Routes>

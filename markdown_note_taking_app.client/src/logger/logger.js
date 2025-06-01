@@ -4,7 +4,8 @@ const logConfig = {
     modules: {
         api: true,
         localStorage: true,
-        components: true
+        components: true,
+        MainPage: true,
     },
 
     // Global log level

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, createContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { handleFileCreate, handleFileGet, handleFileNameSave, handleFileDelete } from '../../utils/apiUtils.js';
+import { uploadLocalFile, updateLocalFileName, saveLocalFile, deleteLocalFile } from '../../utils/localStorageMarkdownFilesUtils.js';
 import './SideBar.css'
 
 // Note that if you dont do this the images wont show when running the web app on docker
@@ -42,20 +43,58 @@ function SideBar(props) {
         setFileName(files[index].title);
     }
 
-    const submitNewFileName = async (fileName, fileId) => {
-        try {
-            await handleFileNameSave(fileId, fileName,
-                // onSuccess callback
-                () => {
-                    setFiles(prevFiles => prevFiles.map(file =>
-                        file.guid == fileId ? { ...file, title: fileName } : file
-                    ));
-                });
-        } catch (error) {
-            if (error.message === 'TokenExpired') {
-                // Go back to login page
-                navigate('/login');
+    const submitNewFile = async () => {
+        if (props.isAuthenticated) {
+            await handleFileCreate(
+                {
+                    fileName: fileName,
+                    onSuccess: (fileId, fileName) => {
+                        const newFile = { guid: fileId, title: fileName };
+
+                        setFiles(prevFiles => [...prevFiles, newFile]);
+                        setSelectedFileIndex(files.length);
+                        props.onFileSelect(newFile);
+
+                        setIsCreatingFile(false);
+                        setFileName('');
+                    }
+                }
+            );
+        } else {
+            const fileToSaveLocal = {
+                title: fileName
             }
+            const fileSaved = saveLocalFile(fileToSaveLocal);
+            setFiles(prevFiles => [...prevFiles, fileSaved]);
+            setSelectedFileIndex(files.length);
+            props.onFileSelect(fileSaved);
+
+            setIsCreatingFile(false);
+            setFileName('');
+        }
+    }
+
+    const submitNewFileName = async (fileName, fileId) => {
+        if (props.isAuthenticated) {
+            try {
+                await handleFileNameSave(fileId, fileName,
+                    // onSuccess callback
+                    () => {
+                        setFiles(prevFiles => prevFiles.map(file =>
+                            file.guid == fileId ? { ...file, title: fileName } : file
+                        ));
+                    });
+            } catch (error) {
+                if (error.message === 'TokenExpired') {
+                    // Go back to login page
+                    //navigate('/login');
+                }
+            }
+        } else {
+            updateLocalFileName(fileId, fileName);
+            setFiles(prevFiles => prevFiles.map(file =>
+                file.guid == fileId ? { ...file, title: fileName } : file
+            ));
         }
     }
 
@@ -63,22 +102,7 @@ function SideBar(props) {
         if (e.key === 'Enter') {
             if (isCreatingFile) {
                 e.preventDefault();
-                await handleFileCreate(
-                    {
-                        fileName: fileName, 
-                        onSuccess: (fileId, fileName) => {
-                            const newFile = { guid: fileId, title: fileName };
-
-                            setFiles(prevFiles => [...prevFiles, newFile]);
-                            setSelectedFileIndex(files.length);
-                            props.onFileSelect(newFile);
-
-                            setIsCreatingFile(false);
-                            setFileName('');
-                        }
-
-                    }
-                );
+                await submitNewFile();
             }
             else if (isRenamingFile) {
                 e.preventDefault();
@@ -96,21 +120,26 @@ function SideBar(props) {
 
     const handleFileUploadBtn = async (event) => {
         const file = event.target.files[0];
-        try {
 
-            await handleFileCreate(
-                {
-                    file: file,
-                    onSuccess: (fileId, fileName) => {
-                        setFiles(prevFiles => [...prevFiles, { guid: fileId, title: fileName }]);
+        if (props.isAuthenticated) {
+            try {
+                await handleFileCreate(
+                    {
+                        file: file,
+                        onSuccess: (fileId, fileName) => {
+                            setFiles(prevFiles => [...prevFiles, { guid: fileId, title: fileName }]);
+                        }
                     }
+                );
+            } catch (error) {
+                if (error.message === 'TokenExpired') {
+                    // Go back to login page
+                    //navigate('/login');
                 }
-            );
-        } catch (error) {
-            if (error.message === 'TokenExpired') {
-                // Go back to login page
-                navigate('/login');
             }
+        } else {
+            const fileSaved = await uploadLocalFile(file);
+            setFiles(prevFiles => [...prevFiles, { guid: fileSaved.guid, title: fileSaved.title }]);
         }
     }
 
@@ -120,18 +149,24 @@ function SideBar(props) {
 
     const handleFileDeleteBtn = async () => {
         const selectedFileGuid = files[selectedFileIndex].guid;
-        try {
-            await handleFileDelete(selectedFileGuid, () => {
-                //on success callback
-                setFiles(prevFiles => prevFiles.filter(file => file.guid != selectedFileGuid));
+        if (props.isAuthenticated) {
+            try {
+                await handleFileDelete(selectedFileGuid, () => {
+                    //on success callback
+                    setFiles(prevFiles => prevFiles.filter(file => file.guid != selectedFileGuid));
 
-            });
-        } catch (error) {
-            if (error.message === 'TokenExpired') {
-                // Go back to login page
-                navigate('/login');
+                });
+            } catch (error) {
+                if (error.message === 'TokenExpired') {
+                    // Go back to login page
+                    //navigate('/login');
+                }
             }
+        } else {
+            deleteLocalFile(selectedFileGuid);
+            setFiles(prevFiles => prevFiles.filter(file => file.guid != selectedFileGuid));
         }
+        
         setSelectedFileIndex(null);
     };
 
