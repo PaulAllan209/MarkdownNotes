@@ -2,12 +2,17 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 import { login } from '../../utils/authenticationUtils';
+import { useAuth } from '../../contexts/AuthContext.jsx';
+
 
 function LoginPage() {
     const [userName, setuserName] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+
+    const { isAuthenticated, setIsAuthenticated } = useAuth();
+
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -19,6 +24,7 @@ function LoginPage() {
             const loginResponse = await login(userName, password);
 
             if (loginResponse) {
+                setIsAuthenticated(true);
                 navigate('/');
             } else {
                 setError("Invalid username or password. Please try again.");

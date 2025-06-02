@@ -4,10 +4,13 @@ import EditingWindow from './EditingWindow';
 import UserWindowBar from './UserWindowBar';
 import GrammarSuggestionWindow from './GrammarSuggestionWindow';
 import { handleFileGet } from '../../utils/apiUtils.js';
+import { getLocalFiles, getLocalFile } from '../../utils/localStorageMarkdownFilesUtils.js';
 import { AcceptChangesWindowContext } from '../../contexts/AcceptChangesWindowContext.jsx';
+import { useAuth } from '../../contexts/AuthContext.jsx';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { debounce } from 'lodash';
+import { createLogger } from '../../logger/logger.js'
 
 function MainPage() {
     const [files, setFiles] = useState([]);
@@ -18,7 +21,12 @@ function MainPage() {
     const [showGrammarView, setShowGrammarView] = useState(false);
     const [grammarCheckedFileContent, setGrammarCheckedFileContent] = useState('');
     const [isCheckingGrammar, setIsCheckingGrammar] = useState(false); // for the spinner loading icon
+
+    const { isAuthenticated, setIsAuthenticated } = useAuth();
+
     const editorRef = useRef(null); // For the toolbar in the userbar
+
+    const logger = createLogger('MainPage');
 
     // For checking if there are still access tokens
     // If the token strings are empty the user will be redirected to the login page
@@ -33,57 +41,86 @@ function MainPage() {
 
     // Getting the list of files and setting the default file
     useEffect(() => {
-        try {
+        if (isAuthenticated) {
+            try {
+                handleFileGet({
+                    onSuccess: (localFiles) => {
+                        // Map the files
+                        const mappedFiles = localFiles.map(file => ({
+                            guid: file.id,
+                            title: file.title,
+                            fileContent: file.fileContent
+                        }));
 
-            handleFileGet({
-                onSuccess: (localFiles) => {
-                    // Map the files
-                    const mappedFiles = localFiles.map(file => ({
-                        guid: file.id,
-                        title: file.title,
-                        fileContent: file.fileContent
-                    }));
+                        // Update files state
+                        setFiles(mappedFiles);
 
-                    // Update files state
-                    setFiles(mappedFiles);
+                        // If files exist, set the first one as selected and update content
+                        if (mappedFiles.length > 0) {
+                            setSelectedFile(mappedFiles[0]);
+                            setFileContent(mappedFiles[0].fileContent || '');
+                            setFileContentInDb(mappedFiles[0].fileContent || '');
 
-                    // If files exist, set the first one as selected and update content
-                    if (mappedFiles.length > 0) {
-                        setSelectedFile(mappedFiles[0]);
-                        setFileContent(mappedFiles[0].fileContent || '');
-                        setFileContentInDb(mappedFiles[0].fileContent || '');
-
+                        }
                     }
+                });
+            } catch (error) {
+                if (error.message === 'TokenExpired') {
+                    // Go back to login page
+                    setIsAuthenticated(false);
+                    navigate('/login');
                 }
-            });
-        } catch (error) {
-            if (error.message === 'TokenExpired') {
-                // Go back to login page
-                navigate('/login');
             }
+        } else {
+            const localFiles = getLocalFiles().map(file => ({
+                guid: file.guid,
+                title: file.title,
+                fileContent: file.fileContent
+            }));
+
+            setFiles(localFiles);
+
+            // If files exist, set the first one as selected and update content
+            if (localFiles.length > 0) {
+                setSelectedFile(localFiles[0]);
+                setFileContent(localFiles[0].fileContent || '');
+                setFileContentInDb(localFiles[0].fileContent || '');
+            }
+            logger.info('The list of files currently', localFiles);
         }
+        
     }, []);
 
     // Getting the file content if selected file and file content chnanges
     useEffect(() => {
-        if (selectedFile != null) {
-            try {
-                handleFileGet(
-                    {
-                        fileId: selectedFile.guid,
-                        onSuccess: (fileTitle, fileContent) => {
-                            setFileContent(fileContent || '');
-                            setFileContentInDb(fileContent || '');
-                        }
-                    });
-            } catch (error) {
-                if (error.message === 'TokenExpired') {
-                    // Go back to login page
-                    navigate('/login');
+        if (isAuthenticated) {
+            if (selectedFile != null) {
+                try {
+                    handleFileGet(
+                        {
+                            fileId: selectedFile.guid,
+                            onSuccess: (fileTitle, fileContent) => {
+                                setFileContent(fileContent || '');
+                                setFileContentInDb(fileContent || '');
+                            }
+                        });
+                } catch (error) {
+                    if (error.message === 'TokenExpired') {
+                        // Go back to login page
+                        setIsAuthenticated(false);
+                        navigate('/login');
+                    }
                 }
+
             }
-            
+        } else {
+            if (selectedFile != null) {
+                const currFile = getLocalFile(selectedFile.guid);
+                setFileContent(currFile.fileContent || '');
+                setFileContentInDb(currFile.fileContent || '');
+            }
         }
+        
     }, [selectedFile]);
 
     // Saving functionality
@@ -97,30 +134,36 @@ function MainPage() {
 
     //Grammar checking
     useEffect(() => {
-        if (showGrammarView) {
-            const checkGrammar = async () => {
-                try {
-                    setIsCheckingGrammar(true);
-                    await handleFileGet({
-                        fileId: selectedFile.guid,
-                        grammarCheck: true,
-                        onSuccess: (fileTitle, fileContent) => {
-                            setGrammarCheckedFileContent(fileContent || '')
+        if (isAuthenticated) {
+            if (showGrammarView) {
+                const checkGrammar = async () => {
+                    try {
+                        setIsCheckingGrammar(true);
+                        await handleFileGet({
+                            fileId: selectedFile.guid,
+                            grammarCheck: true,
+                            onSuccess: (fileTitle, fileContent) => {
+                                setGrammarCheckedFileContent(fileContent || '')
+                            }
+                        });
+                        setIsCheckingGrammar(false);
+                    } catch (error) {
+                        if (error.message === 'TokenExpired') {
+                            // Go back to login page
+                            setIsAuthenticated(false);
+                            navigate('/login');
                         }
-                    });
-                    setIsCheckingGrammar(false);
-                } catch (error) {
-                    if (error.message === 'TokenExpired') {
-                        // Go back to login page
-                        navigate('/login');
                     }
                 }
+                checkGrammar();
             }
-            checkGrammar();
+            else {
+                setGrammarCheckedFileContent('');
+            }
+        } else {
+            // TODO: No grammar checking for non account users add locked symbol for grammar checking and blurred button
         }
-        else {
-            setGrammarCheckedFileContent('');
-        }
+        
     }, [showGrammarView]);
 
     return (
@@ -128,7 +171,9 @@ function MainPage() {
             <SideBar
                 onFileSelect={setSelectedFile}
                 files={files}
-                setFiles={ setFiles }
+                setFiles={setFiles}
+                isAuthenticated={isAuthenticated}
+                setIsAuthenticated={setIsAuthenticated}
             />
             <div className="user-window">
                 <AcceptChangesWindowContext.Provider value={
@@ -155,6 +200,7 @@ function MainPage() {
                         isCheckingGrammar={isCheckingGrammar}
                         setIsCheckingGrammar={setIsCheckingGrammar}
                         editorRef={editorRef}
+                        isAuthenticated={isAuthenticated}
                     />
                 </AcceptChangesWindowContext.Provider>
 
