@@ -87,7 +87,7 @@ function SideBar(props) {
             } catch (error) {
                 if (error.message === 'TokenExpired') {
                     // Go back to login page
-                    //navigate('/login');
+                    navigate('/login');
                 }
             }
         } else {
@@ -134,7 +134,7 @@ function SideBar(props) {
             } catch (error) {
                 if (error.message === 'TokenExpired') {
                     // Go back to login page
-                    //navigate('/login');
+                    navigate('/login');
                 }
             }
         } else {
@@ -159,7 +159,7 @@ function SideBar(props) {
             } catch (error) {
                 if (error.message === 'TokenExpired') {
                     // Go back to login page
-                    //navigate('/login');
+                    navigate('/login');
                 }
             }
         } else {

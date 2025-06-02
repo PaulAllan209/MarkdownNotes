@@ -5,34 +5,51 @@ const LOCAL_FILES_KEY = 'local_markdown_files';
 const logger = createLogger('localStorage');
 
 /**
+ * FILE OBJECT FORMAT
+ * {
+ *   guid: ....,
+ *   title: ....,
+ *   fileContent: ....,
+ *   uploadDate: ....
+ * }
+ */
+
+/**
  * Save a file to local storage
  * @param {Object} fileObject - File object with title, content, etc.
  * @returns {Object} Saved file with generated id
  */
-export const saveLocalFile = (fileObject) => {
-    const filesJson = localStorage.getItem(LOCAL_FILES_KEY);
-    const files = filesJson ? JSON.parse(filesJson) : [];
-    
+export const saveLocalFile = async (fileObject) => {
+    if (fileObject.guid && fileObject.title && fileObject.fileContent) {
+        const filesJson = localStorage.getItem(LOCAL_FILES_KEY);
+        const files = filesJson ? JSON.parse(filesJson) : [];
 
-    // Generate a local ID if none exists
-    const fileToSave = {
-        ...fileObject,
-        guid: fileObject.guid || `local-${Date.now()}`,
-        uploadDate: new Date().toISOString()
-    };
 
-    // Update existing or add new
-    const existingIndex = files.findIndex(f => f.guid === fileToSave.guid);
-    if (existingIndex >= 0) {
-        files[existingIndex] = fileToSave;
+        // Generate a local ID if none exists
+        const fileToSave = {
+            ...fileObject,
+            guid: fileObject.guid || `local-${Date.now()}`,
+            uploadDate: new Date().toISOString()
+        };
+
+        // Update existing or add new
+        const existingIndex = files.findIndex(f => f.guid === fileToSave.guid);
+        if (existingIndex >= 0) {
+            files[existingIndex] = fileToSave;
+        } else {
+            files.push(fileToSave);
+        }
+
+        // Save the updated files array back to localStorage
+        localStorage.setItem(LOCAL_FILES_KEY, JSON.stringify(files));
+        logger.info('File saved', { fileName: fileObject.title });
+        return fileToSave;
     } else {
-        files.push(fileToSave);
+        logger.error("Error in trying to save file. Check the file object for undefined values", fileObject);
+        return null;
     }
 
-    // Save the updated files array back to localStorage
-    localStorage.setItem(LOCAL_FILES_KEY, JSON.stringify(files));
-    logger.info('File saved', { fileName: fileObject.title });
-    return fileToSave;
+    
 }
 
 /**

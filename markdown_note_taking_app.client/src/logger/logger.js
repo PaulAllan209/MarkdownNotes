@@ -6,6 +6,7 @@ const logConfig = {
         localStorage: true,
         components: true,
         MainPage: true,
+        UserWindowBar: true
     },
 
     // Global log level
@@ -63,7 +64,7 @@ export function createLogger(moduleName) {
 
         // Additional method to enable/disable this specific logger at runtime
         setEnabled: (enabled) => {
-            logConfig.modules[moduleName] = enables;
+            logConfig.modules[moduleName] = enabled;
         }
     };
 };

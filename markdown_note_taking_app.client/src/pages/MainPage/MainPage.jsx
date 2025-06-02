@@ -197,6 +197,7 @@ function MainPage() {
                         isCheckingGrammar={isCheckingGrammar}
                         setIsCheckingGrammar={setIsCheckingGrammar}
                         editorRef={editorRef}
+                        isAuthenticated={isAuthenticated}
                     />
                 </AcceptChangesWindowContext.Provider>
 

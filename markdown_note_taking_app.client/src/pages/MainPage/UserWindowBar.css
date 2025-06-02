@@ -79,6 +79,17 @@
     cursor: pointer;
 }
 
+.user-bar-buttons:disabled {
+    color: #969696;
+    background-color: #2d3436;
+    cursor: not-allowed;
+    position: relative;
+}
+
+.user-bar-buttons:disabled:hover {
+    background-color: #2d3436;
+}
+
 #logout-btn:hover {
     margin: 0 10px;
     border: none;
@@ -94,6 +105,10 @@
 
 #logout-btn:active {
     background-color: #9c2e23;
+}
+
+#grammar-check-disabled:disabled {
+    color: #b9b9b9;
 }
 
 .save-state {
