@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import { AcceptChangesWindowContext } from '../../contexts/AcceptChangesWindowContext.jsx';
 import { handleFileContentSave } from '../../utils/apiUtils.js';
 import { useNavigate } from 'react-router-dom';
-
+import { useAuth } from '../../contexts/AuthContext.jsx';
 
 function AcceptChangesWindow() {
     const
@@ -16,6 +16,8 @@ function AcceptChangesWindow() {
             selectedFile,
             setIsSaved
         } = useContext(AcceptChangesWindowContext);
+
+    const { setIsAuthenticated, isAuthenticated } = useAuth();
 
     const navigate = useNavigate();
 
@@ -36,6 +38,7 @@ function AcceptChangesWindow() {
         } catch (error) {
             if (error.message === 'TokenExpired') {
                 // Go back to login page
+                setIsAuthenticated(false);
                 navigate('/login');
             }
         }
