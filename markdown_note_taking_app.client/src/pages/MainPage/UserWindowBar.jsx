@@ -437,8 +437,8 @@ function UserWindowBar(props) {
         logout();
         navigate('/login');
     }
-    const handleSignUp = async () => {
-        navigate('/signup');
+    const handleLogin = async () => {
+        navigate('/login');
     }
 
     // Utility function to reduce repeating code patterns
@@ -488,7 +488,7 @@ function UserWindowBar(props) {
                     Export as HTML
                 </button>
                 {props.isAuthenticated ? (<button className="user-bar-buttons" onClick={handleLogout} id="logout-btn">Logout</button>) :
-                    (<button className="user-bar-buttons" id="signup-btn" onClick={handleSignUp}>SignUp</button>)}
+                    (<button className="user-bar-buttons" id="login-btn" onClick={handleLogin}>Login</button>)}
                 
             </div>
         </div>
