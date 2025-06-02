@@ -6,6 +6,7 @@ import GrammarSuggestionWindow from './GrammarSuggestionWindow';
 import { handleFileGet } from '../../utils/apiUtils.js';
 import { getLocalFiles, getLocalFile } from '../../utils/localStorageMarkdownFilesUtils.js';
 import { AcceptChangesWindowContext } from '../../contexts/AcceptChangesWindowContext.jsx';
+import { useAuth } from '../../contexts/AuthContext.jsx';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { debounce } from 'lodash';
@@ -20,7 +21,9 @@ function MainPage() {
     const [showGrammarView, setShowGrammarView] = useState(false);
     const [grammarCheckedFileContent, setGrammarCheckedFileContent] = useState('');
     const [isCheckingGrammar, setIsCheckingGrammar] = useState(false); // for the spinner loading icon
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    const { isAuthenticated, setIsAuthenticated } = useAuth();
+
     const editorRef = useRef(null); // For the toolbar in the userbar
 
     const logger = createLogger('MainPage');
