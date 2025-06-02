@@ -65,9 +65,10 @@ function SideBar(props) {
             );
         } else {
             const fileToSaveLocal = {
-                title: fileName
+                title: fileName,
+                fileContent: ''
             }
-            const fileSaved = saveLocalFile(fileToSaveLocal);
+            const fileSaved = await saveLocalFile(fileToSaveLocal);
             setFiles(prevFiles => [...prevFiles, fileSaved]);
             setSelectedFileIndex(files.length);
             props.onFileSelect(fileSaved);
@@ -95,7 +96,7 @@ function SideBar(props) {
                 }
             }
         } else {
-            updateLocalFileName(fileId, fileName);
+            await updateLocalFileName(fileId, fileName);
             setFiles(prevFiles => prevFiles.map(file =>
                 file.guid == fileId ? { ...file, title: fileName } : file
             ));

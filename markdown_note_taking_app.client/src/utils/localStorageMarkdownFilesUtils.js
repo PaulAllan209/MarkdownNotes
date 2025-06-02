@@ -20,7 +20,7 @@ const logger = createLogger('localStorage');
  * @returns {Object} Saved file with generated id
  */
 export const saveLocalFile = async (fileObject) => {
-    if (fileObject.guid && fileObject.title && fileObject.fileContent) {
+    if (fileObject.title && (fileObject.fileContent !== undefined)) {
         const filesJson = localStorage.getItem(LOCAL_FILES_KEY);
         const files = filesJson ? JSON.parse(filesJson) : [];
 

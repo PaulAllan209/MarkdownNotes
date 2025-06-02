@@ -114,11 +114,16 @@ function MainPage() {
 
             }
         } else {
-            if (selectedFile != null) {
-                const currFile = getLocalFile(selectedFile.guid);
-                setFileContent(currFile.fileContent || '');
-                setFileContentInDb(currFile.fileContent || '');
+            try {
+                if (selectedFile != null) {
+                    const currFile = getLocalFile(selectedFile.guid);
+                    setFileContent(currFile.fileContent || '');
+                    setFileContentInDb(currFile.fileContent || '');
+                }
+            } catch (error) {
+                logger.error("Error in getting file content", error);
             }
+            
         }
         
     }, [selectedFile]);
