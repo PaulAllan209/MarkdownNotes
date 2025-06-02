@@ -5,6 +5,7 @@ import { saveLocalFile } from '../../utils/localStorageMarkdownFilesUtils.js';
 import { logout } from '../../utils/authenticationUtils.js';
 import { useNavigate } from 'react-router-dom';
 import { createLogger } from '../../logger/logger.js';
+import { useAuth } from '../../contexts/AuthContext.jsx';
 
 // Note that if you dont do this the images wont show when running the web app on docker
 // Importing the files on a dedicated variable is recommended
@@ -16,17 +17,19 @@ import orderedListIcon from "/assets/button_icons/ordered_list.png";
 import codeIcon from "/assets/button_icons/programming-code-signs.png";
 
 function UserWindowBar(props) {
+    const { setIsAuthenticated, isAuthenticated } = useAuth();
 
     const navigate = useNavigate();
 
     const logger = createLogger('UserWindowBar');
 
     const handleSave = async () => {
-        if (props.isAuthenticated) {
+        if (isAuthenticated) {
             try {
                 await handleFileContentSave(props.fileGuid, props.fileCurrentContent, handleSaveSuccess)
             } catch (error) {
                 if (error.message === 'TokenExpired') {
+                    setIsAuthenticated(false);
                     navigate('/login');
                 }
             }
@@ -47,12 +50,13 @@ function UserWindowBar(props) {
     }
 
     const handleGrammarCheck = async () => {
-        if (props.isAuthenticated) {
+        if (isAuthenticated) {
             try {
                 await handleFileContentSave(props.fileGuid, props.fileCurrentContent, handleSaveSuccess); //Saves the file to the database first before checking for grammar.
             } catch (error) {
                 if (error.message === 'TokenExpired') {
                     // Go back to login page
+                    setIsAuthenticated(false);
                     navigate('/login');
                 }
             }
@@ -403,7 +407,7 @@ function UserWindowBar(props) {
     }
 
     const handleExportAsHtml = async () => {
-        if (props.isAuthenticated) {
+        if (isAuthenticated) {
             try {
                 const data = await handleFileGet(
                     {
@@ -421,6 +425,7 @@ function UserWindowBar(props) {
             } catch (error) {
                 if (error.message === 'TokenExpired') {
                     // Go back to login page
+                    setIsAuthenticated(false);
                     navigate('/login');
                 }
 
@@ -435,6 +440,7 @@ function UserWindowBar(props) {
 
     const handleLogout = async () => {
         logout();
+        setIsAuthenticated(false);
         navigate('/login');
     }
     const handleLogin = async () => {

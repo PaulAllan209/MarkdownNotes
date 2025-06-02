@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, createContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { handleFileCreate, handleFileGet, handleFileNameSave, handleFileDelete } from '../../utils/apiUtils.js';
 import { uploadLocalFile, updateLocalFileName, saveLocalFile, deleteLocalFile } from '../../utils/localStorageMarkdownFilesUtils.js';
+import { useAuth } from '../../contexts/AuthContext.jsx';
 import './SideBar.css'
 
 // Note that if you dont do this the images wont show when running the web app on docker
@@ -19,6 +20,8 @@ function SideBar(props) {
     const [isRenamingFile, setIsRenamingFile] = useState(false);
     const fileInputRef = useRef(null);
     const newFileInputRef = useRef(null);
+
+    const { setIsAuthenticated, isAuthenticated } = useAuth();
 
     const navigate = useNavigate();
 
@@ -87,6 +90,7 @@ function SideBar(props) {
             } catch (error) {
                 if (error.message === 'TokenExpired') {
                     // Go back to login page
+                    setIsAuthenticated(false);
                     navigate('/login');
                 }
             }
@@ -134,6 +138,7 @@ function SideBar(props) {
             } catch (error) {
                 if (error.message === 'TokenExpired') {
                     // Go back to login page
+                    setIsAuthenticated(false);
                     navigate('/login');
                 }
             }
@@ -159,6 +164,7 @@ function SideBar(props) {
             } catch (error) {
                 if (error.message === 'TokenExpired') {
                     // Go back to login page
+                    setIsAuthenticated(false);
                     navigate('/login');
                 }
             }
