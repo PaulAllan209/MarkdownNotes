@@ -33,7 +33,7 @@ function UserWindowBar(props) {
         } else {
             const fileLocalSave = {
                 guid: props.fileGuid,
-                title: 
+                title: props.fileTitle,
                 fileContent: props.fileCurrentContent
             }
             await saveLocalFile(fileLocalSave);

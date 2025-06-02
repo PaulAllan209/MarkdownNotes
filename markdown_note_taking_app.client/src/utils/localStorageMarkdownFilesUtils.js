@@ -42,7 +42,7 @@ export const saveLocalFile = async (fileObject) => {
 
         // Save the updated files array back to localStorage
         localStorage.setItem(LOCAL_FILES_KEY, JSON.stringify(files));
-        logger.info('File saved', { fileName: fileObject.title });
+        logger.info('File saved', fileToSave);
         return fileToSave;
     } else {
         logger.error("Error in trying to save file. Check the file object for undefined values", fileObject);
