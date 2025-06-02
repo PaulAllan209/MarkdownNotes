@@ -1,3 +1,7 @@
+import { createLogger } from '../logger/logger.js';
+
+const logger = createLogger('api');
+
 // These are localStorage keys that points to the actual tokens
 const ACCESS_TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
@@ -35,20 +39,20 @@ export const signUp = async (firstName, lastName, userName, password, email) => 
         });
 
         const data = response.ok ? await response.text() : await response.json();
-        console.log("API Response for user registration:", data);
+        logger.log("API Response for user registration:", data);
 
         if (response.ok) {
-            console.log("Successful user registration!");
+            logger.info("Successful user registration!");
             return { success: true };
         } else {
-            console.error("Registration failed");
+            logger.error("Registration failed");
             return {
                 success: false,
                 errors: data
             };
         }
     } catch (error) {
-        console.error("Error registering new user:", error);
+        logger.error("Error registering new user:", error);
         return {
             success: false,
             errors: {general: [error.message || "An unexpected error occurred"]}
@@ -78,22 +82,22 @@ export const login = async (userName, password) => {
         });
 
         const data = await response.json();
-        console.log("API Response:", data);
+        logger.info("API Response:", data);
 
         if (response.ok) {
-            console.log("Successful login!");
+            logger.info("Successful login!");
             storeTokens(data.accessToken, data.refreshToken);
             return true;
 
         }
         else {
-            console.error("Login failed");
+            logger.error("Login failed");
             return false;
         }
 
     } catch (error) {
-        console.error("Error logging in:", error);
-        console.log(`${API_URL}`);
+        logger.error("Error logging in:", error);
+        logger.info(`${API_URL}`);
         return false;
     }
 };
@@ -145,7 +149,7 @@ export const refreshToken = async () => {
             'accessToken': accessToken,
             'refreshToken': refreshToken
         }
-        console.log(`JSON file before sending refresh to API: ${JSON.stringify(refreshDocument)}`);
+        logger.info(`JSON file before sending refresh to API: ${JSON.stringify(refreshDocument)}`);
 
         refreshPromise = (async () => {
             const response = await fetch(`${API_URL}/api/token/refresh`, {
@@ -157,21 +161,21 @@ export const refreshToken = async () => {
             });
 
             const data = await response.json();
-            console.log("API Response for refresh token:", data);
+            logger.info("API Response for refresh token:", data);
 
             if (response.ok) {
                 storeTokens(data.accessToken, data.refreshToken);
-                console.log("Successfully refreshed token");
+                logger.info("Successfully refreshed token");
                 return true;
             } else {
-                console.error("Error in refreshing the token");
+                logger.error("Error in refreshing the token");
                 return false;
             }
         })();
 
         return await refreshPromise;
     } catch (error) {
-        console.error("Error in refreshing the token:", error);
+        logger.error("Error in refreshing the token:", error);
         return false;
     } finally {
         // Reset the flag after the request is complete
@@ -203,7 +207,7 @@ export const isTokenExpired = () => {
         const currentTime = Math.floor(Date.now() / 1000);
         return payload.exp < (currentTime + 30);
     } catch (error) {
-        console.error("Error decoding token:", error);
+        logger.error("Error decoding token:", error);
         return true;
     }
 };

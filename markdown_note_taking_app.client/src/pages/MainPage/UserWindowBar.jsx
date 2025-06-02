@@ -1,8 +1,10 @@
 import './UserWindowBar.css';
 import AcceptChangesWindow from './AcceptChangesWindow';
 import { handleFileContentSave, handleFileGet } from '../../utils/apiUtils.js';
+import { saveLocalFile } from '../../utils/localStorageMarkdownFilesUtils.js';
 import { logout } from '../../utils/authenticationUtils.js';
 import { useNavigate } from 'react-router-dom';
+import { createLogger } from '../../logger/logger.js';
 
 // Note that if you dont do this the images wont show when running the web app on docker
 // Importing the files on a dedicated variable is recommended
@@ -17,21 +19,48 @@ function UserWindowBar(props) {
 
     const navigate = useNavigate();
 
+    const logger = createLogger('UserWindowBar');
+
+    const handleSave = async () => {
+        if (props.isAuthenticated) {
+            try {
+                await handleFileContentSave(props.fileGuid, props.fileCurrentContent, handleSaveSuccess)
+            } catch (error) {
+                if (error.message === 'TokenExpired') {
+                    navigate('/login');
+                }
+            }
+        } else {
+            const fileLocalSave = {
+                guid: props.fileGuid,
+                title: props.fileTitle,
+                fileContent: props.fileCurrentContent
+            }
+            await saveLocalFile(fileLocalSave);
+
+            handleSaveSuccess();
+        }
+        
+    }
     const handleSaveSuccess = () => {
         props.setSaveState(true);
     }
 
     const handleGrammarCheck = async () => {
-        try {
-            await handleFileContentSave(props.fileGuid, props.fileCurrentContent, handleSaveSuccess); //Saves the file to the database first before checking for grammar.
-        } catch (error) {
-            if (error.message === 'TokenExpired') {
-                // Go back to login page
-                navigate('/login');
+        if (props.isAuthenticated) {
+            try {
+                await handleFileContentSave(props.fileGuid, props.fileCurrentContent, handleSaveSuccess); //Saves the file to the database first before checking for grammar.
+            } catch (error) {
+                if (error.message === 'TokenExpired') {
+                    // Go back to login page
+                    navigate('/login');
+                }
             }
+            props.setShowGrammarView(true);
+            props.setIsCheckingGrammar(true);
+        } else {
+            logger.error('Cannot check grammar when not logged in');
         }
-        props.setShowGrammarView(true);
-        props.setIsCheckingGrammar(true);
     }
 
     const handleBoldClick = () => {
@@ -374,33 +403,41 @@ function UserWindowBar(props) {
     }
 
     const handleExportAsHtml = async () => {
-        try {
-            const data = await handleFileGet(
-                {
-                    fileId: props.fileGuid,
-                    asHtml: true
+        if (props.isAuthenticated) {
+            try {
+                const data = await handleFileGet(
+                    {
+                        fileId: props.fileGuid,
+                        asHtml: true
+                    }
+                );
+
+                if (data && data.fileContentAsHtml) {
+                    downloadFile(props.fileContentAsHtml, props.fileTitle, 'text/html');
+                } else {
+                    logger.error("HTML content is undefined or not returned properly.");
+                    alert("Failed to export as HTML. Please try again.");
                 }
-            );
+            } catch (error) {
+                if (error.message === 'TokenExpired') {
+                    // Go back to login page
+                    navigate('/login');
+                }
 
-            if (data && data.fileContentAsHtml) {
-                downloadFile(props.fileContentAsHtml, props.fileTitle, 'text/html');
-            } else {
-                console.error("HTML content is undefined or not returned properly.");
-                alert("Failed to export as HTML. Please try again.");
+                logger.error("Error exporting as HTML:", error);
+                alert("An error occurred while exporting as HTML. Please try again.");
             }
-        } catch (error) {
-            if (error.message === 'TokenExpired') {
-                // Go back to login page
-                navigate('/login');
-            }
-
-            console.error("Error exporting as HTML:", error);
-            alert("An error occurred while exporting as HTML. Please try again.");
+        } else {
+            logger.error('Cannot export as HTML when not logged in');
         }
+        
     }
 
     const handleLogout = async () => {
         logout();
+        navigate('/login');
+    }
+    const handleLogin = async () => {
         navigate('/login');
     }
 
@@ -436,19 +473,23 @@ function UserWindowBar(props) {
             </div>
             <p className="save-state">{props.saveState ? "Saved" : "Unsaved"}</p>
             <div className="user-bar-buttons-container">
-                <button className="user-bar-buttons" onClick={async () => {
-                    try {
-                        await handleFileContentSave(props.fileGuid, props.fileCurrentContent, handleSaveSuccess)
-                    } catch (error) {
-                        if (error.message === 'TokenExpired') {
-                            navigate('/login');
-                        }
-                    }
-                }}>Save</button>
-                <button className="user-bar-buttons" onClick={ handleGrammarCheck }>Check for Grammar</button>
+                <button className="user-bar-buttons" onClick={handleSave}>Save</button>
+                <button className="user-bar-buttons"
+                    disabled={!props.isAuthenticated}
+                    title={props.isAuthenticated ? '' : "Grammar checking is not available when not signed in"}
+                    onClick={handleGrammarCheck}>
+                    Check for Grammar
+                </button>
                 <button className="user-bar-buttons" onClick={ handleExportAsMarkdown }>Export as Markdown</button>
-                <button className="user-bar-buttons" onClick={ handleExportAsHtml }>Export as HTML</button>
-                <button className="user-bar-buttons" onClick={ handleLogout } id="logout-btn">Logout</button>
+                <button className="user-bar-buttons"
+                    onClick={handleExportAsHtml}
+                    disabled={!props.isAuthenticated}
+                    title={props.isAuthenticated ? '' : "Export as HTML is not available when not signed in"}>
+                    Export as HTML
+                </button>
+                {props.isAuthenticated ? (<button className="user-bar-buttons" onClick={handleLogout} id="logout-btn">Logout</button>) :
+                    (<button className="user-bar-buttons" id="login-btn" onClick={handleLogin}>Login</button>)}
+                
             </div>
         </div>
   );

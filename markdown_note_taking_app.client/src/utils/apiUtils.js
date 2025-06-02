@@ -1,6 +1,9 @@
 import { getAccessToken, isTokenExpired, refreshToken, logout } from './authenticationUtils.js';
+import { createLogger } from '../logger/logger.js';
 
 const API_URL = import.meta.env.VITE_API_URL;
+
+const logger = createLogger('api');
 
 /**
  * Saves the new file to the database
@@ -25,7 +28,7 @@ export const handleFileCreate = async ({fileName = null, file = null, onSuccess,
                 }
                 else {
                     if (onError) onError();
-                    console.error("Error creating file API response is:", json_response);
+                    logger.error("Error creating file API response is:", json_response);
                 }
             }
         }
@@ -41,12 +44,12 @@ export const handleFileCreate = async ({fileName = null, file = null, onSuccess,
             }
             else {
                 if (onError) onError();
-                console.error("Error creating file API response is:", json_response);
+                logger.error("Error creating file API response is:", json_response);
             }
         };
         
     } catch (error) {
-        console.error("Error creating file:", error);
+        logger.error("Error creating file:", error);
         if (onError) onError();
     }
 };
@@ -63,17 +66,17 @@ async function uploadFileToApi(body) {
         })
 
         if (response.ok) {
-            console.log("File uploaded successfully.");
+            logger.info("File uploaded successfully.");
             const data = await response.json();
             return data;
         }
         else {
-            console.error("Failed to upload the file. API response:", response);
+            logger.error("Failed to upload the file. API response:", response);
             alert("Failed to upload the file.");
             return null;
         }
     } catch (error) {
-        console.error("Network error during upload:", error);
+        logger.error("Network error during upload:", error);
         alert("Network error during upload. Please try again.");
         return null;
     }
@@ -122,18 +125,18 @@ export const handleFileGet = async ({fileId = null, grammarCheck = false, asHtml
         });
         if (response.ok) {
             const data = await response.json();
-            console.log(successLogMsg);
+            logger.info(successLogMsg);
             if (onSuccess) onSuccessCallback(data);
             return data;
         }
         else {
-            console.error(`${errorLogMsg}`, response);
+            logger.error(`${errorLogMsg}`, response);
             alert(`${errorLogMsg}`);
             if (onError) onError();
             return null;
         }
     } catch (error) {
-        console.error("Network error while getting the file content", error);
+        logger.error("Network error while getting the file content", error);
         alert("Network error while getting the file content. Please try again or reload the page.");
         return null
     }
@@ -166,16 +169,16 @@ export const handleFileNameSave = async (fileId, fileName, onSuccess, onError = 
             body: JSON.stringify(patchDocument)
         })
         if (response.ok) {
-            console.log("Successfully renamed file title to the database.");
+            logger.info("Successfully renamed file title to the database.");
             if (onSuccess) onSuccess();
             return response;
         }
         else {
-            console.error("Failed to rename the file title. API response:", response);
+            logger.error("Failed to rename the file title. API response:", response);
             if (onError) onError();
         }
     } catch (error) {
-        console.error("Error in file rename operation:", error);
+        logger.error("Error in file rename operation:", error);
         if (onError) onError();
         throw error;
     }
@@ -208,16 +211,16 @@ export const handleFileContentSave = async (fileId, fileContent, onSuccess, onEr
             body: JSON.stringify(patchDocument)
         })
         if (response.ok) {
-            console.log("Successfully saved the file to the database.");
+            logger.info("Successfully saved the file to the database.");
             if (onSuccess) onSuccess()
         }
         else {
-            console.error("Failed to save the file. API response:", response);
+            logger.error("Failed to save the file. API response:", response);
             if (onError) onError();
             alert("Failed to save the file");
         }
     } catch (error) {
-        console.error("Error saving file content:", error);
+        logger.error("Error saving file content:", error);
         if (onError) onError();
     }
 }
@@ -239,16 +242,16 @@ export const handleFileDelete = async (fileId, onSuccess, onError = null) => {
         })
 
         if (response.ok) {
-            console.log("File deleted successfully")
+            logger.info("File deleted successfully")
             if (onSuccess) onSuccess();
         }
         else {
             if (onError) onError();
-            console.error("Failed to delete file. API response:", response);
+            logger.error("Failed to delete file. API response:", response);
             alert("Failed to delete the file");
         }
     } catch (error) {
-        console.error("Error deleting the file:", error);
+        logger.error("Error deleting the file:", error);
         if (onError) onError();
     }
 };
@@ -259,7 +262,7 @@ export const authorizedFetch = async (url, options = {}) => {
         const refreshState = await refreshToken();
         if (!refreshState) {
             logout();
-            console.error("Session Expired");
+            logger.error("Session Expired");
             alert("Session Expired");
         }
     }
@@ -287,7 +290,7 @@ export const authorizedFetch = async (url, options = {}) => {
             return response;
         } else {
             logout();
-            console.error("Session Expired");
+            logger.error("Session Expired");
             alert("Session Expired");
             throw new Error('TokenExpired')
         }
