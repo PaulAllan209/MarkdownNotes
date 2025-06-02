@@ -415,7 +415,7 @@ function UserWindowBar(props) {
                 if (data && data.fileContentAsHtml) {
                     downloadFile(props.fileContentAsHtml, props.fileTitle, 'text/html');
                 } else {
-                    console.error("HTML content is undefined or not returned properly.");
+                    logger.error("HTML content is undefined or not returned properly.");
                     alert("Failed to export as HTML. Please try again.");
                 }
             } catch (error) {
@@ -424,7 +424,7 @@ function UserWindowBar(props) {
                     navigate('/login');
                 }
 
-                console.error("Error exporting as HTML:", error);
+                logger.error("Error exporting as HTML:", error);
                 alert("An error occurred while exporting as HTML. Please try again.");
             }
         } else {

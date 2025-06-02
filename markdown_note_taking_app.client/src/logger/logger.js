@@ -1,8 +1,11 @@
+const isProduction = import.meta.env?.PROD || false;
+
 // Logger configuration
 const logConfig = {
     // Enable/disable logging by module
     modules: {
         api: true,
+        authGuard: true,
         localStorage: true,
         components: true,
         MainPage: true,
@@ -10,7 +13,7 @@ const logConfig = {
     },
 
     // Global log level
-    level: process.env.NODE_ENV === 'production' ? 'error' : 'debug',
+    level: isProduction ? 'error' : 'debug',
 
     // Enable/disable all logging in production
     enabledInProduction: false
@@ -26,8 +29,6 @@ const LOG_LEVELS = {
 
 // Logger factory for a specific module
 export function createLogger(moduleName) {
-    const isProduction = process.env.NODE_ENV === 'production';
-
     const shouldLog = () => {
         return (isProduction && logConfig.enabledInProduction) ||
             (!isProduction && logConfig.modules[moduleName]);
