@@ -11,6 +11,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { debounce } from 'lodash';
 import { createLogger } from '../../logger/logger.js'
+import { isTokenExpired, refreshToken } from '../../utils/authenticationUtils';
 
 function MainPage() {
     const [files, setFiles] = useState([]);
@@ -22,6 +23,7 @@ function MainPage() {
     const [grammarCheckedFileContent, setGrammarCheckedFileContent] = useState('');
     const [isCheckingGrammar, setIsCheckingGrammar] = useState(false); // for the spinner loading icon
 
+    
     const { isAuthenticated, setIsAuthenticated } = useAuth();
 
     const editorRef = useRef(null); // For the toolbar in the userbar
@@ -41,53 +43,65 @@ function MainPage() {
 
     // Getting the list of files and setting the default file
     useEffect(() => {
-        if (isAuthenticated) {
-            try {
-                handleFileGet({
-                    onSuccess: (localFiles) => {
-                        // Map the files
-                        const mappedFiles = localFiles.map(file => ({
-                            guid: file.id,
-                            title: file.title,
-                            fileContent: file.fileContent
-                        }));
+        const fetchFiles = async () => {
+            let authState = null;
+            if (isTokenExpired()) {
+                authState = await refreshToken();
+            } else {
+                authState = false;
+            }
+            setIsAuthenticated(authState);
+            if (authState) {
+                try {
+                    await handleFileGet({
+                        onSuccess: (localFiles) => {
+                            // Map the files
+                            const mappedFiles = localFiles.map(file => ({
+                                guid: file.id,
+                                title: file.title,
+                                fileContent: file.fileContent
+                            }));
 
-                        // Update files state
-                        setFiles(mappedFiles);
+                            // Update files state
+                            setFiles(mappedFiles);
 
-                        // If files exist, set the first one as selected and update content
-                        if (mappedFiles.length > 0) {
-                            setSelectedFile(mappedFiles[0]);
-                            setFileContent(mappedFiles[0].fileContent || '');
-                            setFileContentInDb(mappedFiles[0].fileContent || '');
+                            // If files exist, set the first one as selected and update content
+                            if (mappedFiles.length > 0) {
+                                setSelectedFile(mappedFiles[0]);
+                                setFileContent(mappedFiles[0].fileContent || '');
+                                setFileContentInDb(mappedFiles[0].fileContent || '');
 
+                            }
                         }
+                    });
+                } catch (error) {
+                    if (error.message === 'TokenExpired') {
+                        // Go back to login page
+                        setIsAuthenticated(false);
+                        navigate('/login');
                     }
-                });
-            } catch (error) {
-                if (error.message === 'TokenExpired') {
-                    // Go back to login page
-                    setIsAuthenticated(false);
-                    navigate('/login');
                 }
-            }
-        } else {
-            const localFiles = getLocalFiles().map(file => ({
-                guid: file.guid,
-                title: file.title,
-                fileContent: file.fileContent
-            }));
+            } else {
+                logger.info("files are now being made to local files");
+                const localFiles = getLocalFiles().map(file => ({
+                    guid: file.guid,
+                    title: file.title,
+                    fileContent: file.fileContent
+                }));
 
-            setFiles(localFiles);
+                setFiles(localFiles);
 
-            // If files exist, set the first one as selected and update content
-            if (localFiles.length > 0) {
-                setSelectedFile(localFiles[0]);
-                setFileContent(localFiles[0].fileContent || '');
-                setFileContentInDb(localFiles[0].fileContent || '');
+                // If files exist, set the first one as selected and update content
+                if (localFiles.length > 0) {
+                    setSelectedFile(localFiles[0]);
+                    setFileContent(localFiles[0].fileContent || '');
+                    setFileContentInDb(localFiles[0].fileContent || '');
+                }
+                logger.info('The list of files currently', localFiles);
             }
-            logger.info('The list of files currently', localFiles);
-        }
+        };
+
+        fetchFiles();
         
     }, []);
 
