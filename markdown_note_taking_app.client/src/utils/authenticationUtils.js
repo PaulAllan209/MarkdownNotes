@@ -139,7 +139,8 @@ export const refreshToken = async () => {
     const refreshToken = getRefreshToken();
 
     if (!refreshToken && !accessToken) {
-        throw new Error('No refresh token available');
+        logger.info("No refresh token available");
+        return false;
     }
 
     try {
