@@ -44,13 +44,16 @@ function MainPage() {
     // Getting the list of files and setting the default file
     useEffect(() => {
         const fetchFiles = async () => {
-            let authState = null;
-            if (isTokenExpired()) {
-                authState = await refreshToken();
+            let authState = false;
+            if (!isTokenExpired()) {
+                authState = true;
+                setIsAuthenticated(authState);
             } else {
-                authState = false;
+                authState = await refreshToken();
             }
             setIsAuthenticated(authState);
+            logger.info(`Authentication state is ${isAuthenticated}`);
+
             if (authState) {
                 try {
                     await handleFileGet({
