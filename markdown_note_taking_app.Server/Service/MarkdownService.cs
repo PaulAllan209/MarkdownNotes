@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using markdown_note_taking_app.Server.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using markdown_note_taking_app.Server.Models;
+using Ganss.Xss;
 
 namespace markdown_note_taking_app.Server.Service
 {
@@ -48,6 +49,12 @@ namespace markdown_note_taking_app.Server.Service
             {
                 fileContent = await reader.ReadToEndAsync();
             }
+
+            // Sanitize markdown content to prevent XSS
+            fileContent = ContentSanitizer(fileContent);
+
+            // Don't forget the file title
+            fileName = ContentSanitizer(fileName);
 
             //Create new MarkdownFileDto for creation in database and return value
             var markdownFileCreationDto = new MarkdownFileCreationDto
@@ -204,7 +211,14 @@ namespace markdown_note_taking_app.Server.Service
 
         public async Task SaveChangesForPatchAsync(MarkdownFileDto markdownToPatch, MarkdownFile markdownFileEntity)
         {
-            _mapper.Map(markdownToPatch, markdownFileEntity);
+            // Sanitize for XSS
+            var sanitized = markdownToPatch with
+            {
+                Title = ContentSanitizer(markdownToPatch.Title),
+                FileContent = ContentSanitizer(markdownToPatch.FileContent)
+            };
+
+            _mapper.Map(sanitized, markdownFileEntity);
             await _repository.SaveAsync();
         }
 
@@ -217,6 +231,12 @@ namespace markdown_note_taking_app.Server.Service
             {
                 throw new InvalidMarkdownFileTypeException(fileName);
             }
+        }
+
+        private string ContentSanitizer(string fileContent)
+        {
+            var sanitizer = new HtmlSanitizer();
+            return sanitizer.Sanitize(fileContent);
         }
     }
 }
