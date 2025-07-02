@@ -1,6 +1,9 @@
 # Markdown Note Taking App
 A full-stack web application for creating, managing, and collaborating on markdown notes. This application provides a clean interface for writing markdown content with support for real-time previews, grammar checking, and secure cloud storage.
 
+## App Picture
+![app_photo](./app_pictures/home_page.png)
+
 ## Features
 - **User Authentication**: Secure login and registration system
 - **Markdown Editing**: Create, edit, and delete markdown files
